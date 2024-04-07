@@ -28,8 +28,10 @@ def decode_face_button(input):
     A = input % 0x2
     B = (input >> 1) % 0x2
     L = (input >> 2) % 0x2
+    D = (input >> 3) % 0x2 #drift button
+    BD = (input >> 4) % 0x2 #breakdrift button
     
-    return [A, B, L]
+    return [A, B, L, D, BD]
   
 def decode_direction_input(input):
     X = input >> 4
@@ -421,8 +423,7 @@ def set_buttons(inputs, controller : Controller):
     """This writes button data to addresses with implicit padding in structs.
        This must be called only after controller_patch()"""
     addr = controller.addr
-    memory.write_u8(addr + 0x4d, inputs.accel + (inputs.brake << 1) +
-                    (inputs.item << 2) | ((inputs.accel & inputs.brake) << 3) + 0x80)
+    memory.write_u8(addr + 0x4d, inputs.accel + (inputs.brake << 1) + (inputs.item << 2) + (inputs.drift << 3) + (inputs.brakedrift << 4) + 0x80)
     memory.write_u8(addr + 0x4e, inputs.stick_x + 7)
     memory.write_u8(addr + 0x4f, inputs.stick_y + 7)
     memory.write_u8(addr + 0x52, inputs.dpad_raw())
