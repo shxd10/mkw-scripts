@@ -42,11 +42,8 @@ def decode_direction_input(input):
 def decode_trick_input(input):
     return input >> 4
     
-def encode_face_button(A, B, L, prev_mask):
-    x8_mask = 0x0
-    if A and B and prev_mask not in (0x0, 0x2, 0x3, 0x7):
-        x8_mask = 0x8
-    return int(A) + int(B) * 0x2 + int(L) * 0x4 + x8_mask
+def encode_face_button(A, B, L, D, BD):
+    return A + (B << 1) + (L << 2) + (D << 3) + (BD << 4)
     
 def encode_direction_input(X, Y):
     return (X << 4) + Y
@@ -155,7 +152,10 @@ def read_full_decoded_rkg_data(player_type: PlayerType) -> Optional[FrameSequenc
     trick_data = decode_rkg_data(trick_data, ControllerInputType.TRICK)
     
     # Now transform into a framesequence
-    sequence_list = [face_data[x] + di_data[x] + [trick_data[x]] for x in range(len(face_data))]
+    assert type(face_data[0]) == list
+    assert type(di_data[0]) == list
+    assert type(trick_data[0]) == list 
+    sequence_list = [face_data[x] + di_data[x] + trick_data[x] for x in range(len(face_data))]
     sequence = FrameSequence()
     sequence.read_from_list(sequence_list)
     return sequence
@@ -186,7 +186,7 @@ def encode_rkg_data_type(input_list: FrameSequence,
     
     input = input_list[0]
     if (is_face):
-        prev_input = encode_face_button(input.accel, input.brake, input.item, 0x0)
+        prev_input = encode_face_button(input.accel, input.brake, input.item, input.drift, input.breakdrift)
     elif (is_di):
         prev_input = encode_direction_input(input.stick_x + 7, input.stick_y + 7)
     else:
@@ -196,7 +196,7 @@ def encode_rkg_data_type(input_list: FrameSequence,
         curr_input = 0
         if (is_face):
             curr_input = encode_face_button(input.accel, input.brake,
-                                         input.item, prev_input)
+                                         input.item, input.drift, input.breakdrift)
         elif (is_di):
             curr_input = encode_direction_input(input.stick_x + 7, input.stick_y + 7)
         else:
@@ -381,7 +381,6 @@ def controller_patch() -> None:
     # addi r4, r1, 0xc
     # li r5, 0x10
     # bl NETMemCpy
-    
     patch_ptr = controller_calc + 0x1d8
     if (memory.read_u32(patch_ptr) == 0x881f0018):
         memory.write_u32(patch_ptr, 0x89ff0018)
@@ -407,10 +406,10 @@ def controller_patch() -> None:
         memory.write_u32(patch_ptr + 0x50, memcpy_branch)
         memory.invalidate_icache(patch_ptr, 0x54)
 
-def write_ghost_inputs(inputs: FrameSequence, ghost_id = 1) -> None:
+def write_ghost_inputs(inputs: FrameSequence) -> None:
     controller_patch()
     # TODO: This assumes the ghost is index 1, which is only true when racing a ghost
-    controller = Controller(addr=InputMgr.ghost_controller(ghost_id))
+    controller = Controller(addr=InputMgr.ghost_controller(1))
     set_buttons(inputs, controller)
 
 def write_player_inputs(inputs: FrameSequence) -> None:

@@ -23,8 +23,8 @@ class vec2:
 
     @staticmethod
     def read(ptr) -> "vec2":
-        bytes = memory.read_bytes(ptr, 0x8)
-        return vec2(*struct.unpack('>' + 'f'*2, bytes))
+        bts = memory.read_bytes(ptr, 0x8)
+        return vec2(*struct.unpack('>' + 'f'*2, bts))
 
 @dataclass
 class vec3:
@@ -75,8 +75,11 @@ class vec3:
 
     @staticmethod
     def read(ptr) -> "vec3":
-        bytes = memory.read_bytes(ptr, 0xC)
-        return vec3(*struct.unpack('>' + 'f'*3, bytes))
+        bts = memory.read_bytes(ptr, 0xC)
+        return vec3(*struct.unpack('>' + 'f'*3, bts))
+
+    def write(self, addr):
+        memory.write_bytes(addr, self.to_bytes())
 
     @staticmethod
     def from_bytes(bts) -> "vec3":
@@ -84,6 +87,17 @@ class vec3:
 
     def to_bytes(self) -> bytearray:
         return bytearray(struct.pack('>fff', self.x, self.y, self.z))
+
+    def __str__(self):
+        return str(self.x)+','+str(self.y)+','+str(self.z)
+
+    @staticmethod
+    def from_string(string) -> "vec3":
+        temp = string.split(',')
+        assert len(temp) == 3
+        return vec3(float(temp[0]), float(temp[1]), float(temp[2]))
+    
+
 
 
 
@@ -104,8 +118,8 @@ class mat34:
 
     @staticmethod
     def read(ptr) -> "mat34":
-        bytes = memory.read_bytes(ptr, 0x30)
-        return mat34(*struct.unpack('>' + 'f'*12, bytes))
+        bts = memory.read_bytes(ptr, 0x30)
+        return mat34(*struct.unpack('>' + 'f'*12, bts))
 
 @dataclass
 class quatf:
@@ -116,8 +130,28 @@ class quatf:
 
     @staticmethod
     def read(ptr) -> "quatf":
-        bytes = memory.read_bytes(ptr, 0x10)
-        return quatf(*struct.unpack('>' + 'f'*4, bytes))
+        bts = memory.read_bytes(ptr, 0x10)
+        return quatf(*struct.unpack('>' + 'f'*4, bts))
+
+    def __str__(self):
+        return str(self.x)+','+str(self.y)+','+str(self.z)+','+str(self.w)
+
+    def write(self, addr):
+        memory.write_bytes(addr, self.to_bytes())
+
+    @staticmethod
+    def from_string(string) -> "quatf":
+        temp = string.split(',')
+        assert len(temp) == 4
+        return quatf(float(temp[0]), float(temp[1]), float(temp[2]), float(temp[3]))
+
+    @staticmethod
+    def from_bytes(bts) -> "quatf":
+        return quatf(*struct.unpack('>' + 'f'*4, bts))
+
+    def to_bytes(self) -> bytearray:
+        return bytearray(struct.pack('>ffff', self.x, self.y, self.z, self.w))
+
 
 def angle_degree_format(angle):
     return ((angle+180)%360) - 180

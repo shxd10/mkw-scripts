@@ -1,4 +1,4 @@
-from dolphin import event, utils
+from dolphin import event, gui, utils
 import Modules.agc_lib as lib
 from Modules.mkw_classes import RaceManager, RaceState
 import Modules.mkw_utils as mkw_utils
@@ -19,7 +19,7 @@ def main():
 
     metadata, framedatalist, timerdata, rkg_metadata = lib.file_to_framedatalist(filename)
 
-    if timerdata is not None:
+    if not timerdata is None:
         timerdata.add_delay(delay)
 
     
@@ -34,11 +34,11 @@ def on_frame_advance():
     delayed_frame = floor(delay)+frame
     decimal_delay = delay - floor(delay)
 
-    if metadata is not None:
+    if not metadata is None:
         metadata.write(lib.get_metadata_addr(1))
         
     if lib.is_rkg():   
-        if rkg_metadata is not None:
+        if not rkg_metadata is None:
             rkg_metadata.write(lib.get_rkg_metadata_addr())    
         #if not timerdata is None:
             #timerdata.write_rkg()

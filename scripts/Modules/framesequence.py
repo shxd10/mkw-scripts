@@ -1,4 +1,6 @@
 from typing import List, Optional
+from .mkw_classes import KartInput
+from .mkw_classes import RaceManagerPlayer, RaceInputState
 import csv
 
 
@@ -91,6 +93,32 @@ class Frame:
 
         raise StopIteration
 
+    @staticmethod
+    def from_current_frame(slot):
+        race_mgr_player = RaceManagerPlayer(slot)
+        kart_input = KartInput(addr=race_mgr_player.kart_input())
+        current_input_state = RaceInputState(addr=kart_input.current_input_state())
+        ablr = current_input_state.buttons().value
+        dpad = current_input_state.trick()
+        xstick = current_input_state.raw_stick_x() - 7
+        ystick = current_input_state.raw_stick_y() - 7
+        aButton = ablr & 1
+        bButton = (ablr & 2) >> 1
+        lButton = (ablr & 4) >> 2
+        dButton = (ablr & 8) >> 3
+        bdButton = (ablr & 16) >> 4
+
+        return Frame([aButton, bButton, lButton, dButton, bdButton, xstick, ystick, dpad])
+
+    
+    @staticmethod
+    def default():
+        return Frame([0,0,0,0,0,0,0,0])
+
+    def __str__(self):
+        return ','.join(map(str, self))
+    
+        
     def read_button(self, button: str) -> bool:
         """
         Parses the button input into a boolean. Sets `self.valid` to False if invalid.
@@ -174,7 +202,7 @@ def compressInputList(rawInputList):
         elif not prevInputRaw.brake:
             compressedInput[1] = 1
         elif rawInput.drift and not prevInputRaw.drift:
-            compressedInput[1] = 3-prevInputCompressed
+            compressedInput[1] = 3-prevInputCompressed[1]
         else:
             compressedInput[1] = prevInputCompressed[1]
 

@@ -1,6 +1,6 @@
 from dolphin import event, gui, utils
 import Modules.agc_lib as lib
-from Modules.mkw_classes import RaceManager, RaceState
+from Modules.mkw_classes import RaceManager, RaceState, RaceManagerPlayer
 import Modules.mkw_utils as mkw_utils
 import os
 
@@ -32,15 +32,16 @@ def on_frame_advance():
     frame = mkw_utils.frame_of_input()
 
     if (not metadata_saved) and racestate >= RaceState.COUNTDOWN.value:
-        lib.metadata_to_file(filename, 0)
+        lib.rkg_metadata_to_file(filename)
         metadata_saved = True
     
     if (not end) and RaceState.RACE.value >= racestate >= RaceState.COUNTDOWN.value:
-        framedatalist[frame] = lib.get_framedata(0)
-        lib.frame_to_file(filename, framedatalist[frame])
+        framedatalist[frame] = lib.get_framedata(1)
+        lib.frame_to_file(filename, 1)
         
-    if (not end) and racestate == RaceState.FINISHED_RACE.value:
-        lib.framedatalist_to_file(filename, framedatalist, 0)
+    if (not end) and racestate >= RaceState.COUNTDOWN.value and RaceManagerPlayer.race_completion(1)>4:
+        lib.framedatalist_to_file_rkg(filename, framedatalist)
         end = True
+
     
     
