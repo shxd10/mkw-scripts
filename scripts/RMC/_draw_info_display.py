@@ -6,99 +6,13 @@ import os
 from Modules.mkw_classes.common import SurfaceProperties, eulerAngle
 from Modules.mkw_utils import History 
 
+import Modules.settings_utils as setting
 import Modules.mkw_utils as mkw_utils
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, TimerManager
 from Modules.mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings
 from Modules.mkw_classes import KartObject, KartMove, KartSettings, KartBody
 from Modules.mkw_classes import VehicleDynamics, VehiclePhysics, KartBoost, KartJump
 from Modules.mkw_classes import KartState, KartCollide, KartInput, RaceInputState
-
-def populate_default_config(file_path):
-    config = configparser.ConfigParser()
-    
-    config['DEBUG'] = {}
-    config['DEBUG']['Debug'] = "False"
-    
-    config['INFO DISPLAY'] = {}
-    config['INFO DISPLAY']["Frame Count"] = "True"
-    config['INFO DISPLAY']["Lap Splits"] = "False"
-    config['INFO DISPLAY']["Speed"] = "True"
-    config['INFO DISPLAY']["Oriented Speed"] = "False"
-    config['INFO DISPLAY']["Internal Velocity (X, Y, Z)"] = "False"
-    config['INFO DISPLAY']["Oriented Internal Velocity"] = "False"
-    config['INFO DISPLAY']["Internal Velocity (XYZ)"] = "False"
-    config['INFO DISPLAY']["External Velocity (X, Y, Z)"] = "False"
-    config['INFO DISPLAY']["Oriented External Velocity"] = "False"
-    config['INFO DISPLAY']["External Velocity (XYZ)"] = "True"
-    config['INFO DISPLAY']["Moving Road Velocity (X, Y, Z)"] = "False"
-    config['INFO DISPLAY']["Oriented Moving Road Velocity"] = "False"
-    config['INFO DISPLAY']["Moving Road Velocity (XYZ)"] = "False"
-    config['INFO DISPLAY']["Moving Water Velocity (X, Y, Z)"] = "False"
-    config['INFO DISPLAY']["Oriented Moving Water Velocity"] = "False"
-    config['INFO DISPLAY']["Moving Water Velocity (XYZ)"] = "False"
-    config['INFO DISPLAY']["Charges and Boosts"] = "True"
-    config['INFO DISPLAY']["Checkpoints and Completion"] = "True"
-    config['INFO DISPLAY']["Airtime"] = "True"
-    config['INFO DISPLAY']["Miscellaneous"] = "False"
-    config['INFO DISPLAY']["Surface Properties"] = "False"
-    config['INFO DISPLAY']["Position"] = "False"
-    config['INFO DISPLAY']["Rotation"] = "True"
-    config['INFO DISPLAY']["Stick"] = "True"
-    config['INFO DISPLAY']["Text Color (ARGB)"] = "0xFFFFFFFF"
-    config['INFO DISPLAY']["Digits (to round to)"] = "6"
-    config['INFO DISPLAY']["TimeDiff Absolute"] = "False"
-    config['INFO DISPLAY']["TimeDiff Relative"] = "False"
-    config['INFO DISPLAY']["TimeDiff Projected"] = "True"
-    config['INFO DISPLAY']["TimeDiff CrossPath"] = "False"
-    config['INFO DISPLAY']["TimeDiff ToFinish"] = "True"
-    config['INFO DISPLAY']["TimeDiff RaceComp"] = "True"
-    config['INFO DISPLAY']["TimeDiff Setting"] = "behind"
-    config['INFO DISPLAY']["History Size"] = "200"
-    
-    
-    with open(file_path, 'w') as f:
-        config.write(f)
-        
-    return config
-
-class ConfigInstance():
-    def __init__(self, config : configparser.ConfigParser):
-        self.debug = config['DEBUG'].getboolean('Debug')
-        self.frame_count = config['INFO DISPLAY'].getboolean('Frame Count')
-        self.lap_splits = config['INFO DISPLAY'].getboolean('Lap Splits')
-        self.speed = config['INFO DISPLAY'].getboolean('Speed')
-        self.speed_oriented = config['INFO DISPLAY'].getboolean('Oriented Speed')
-        self.iv = config['INFO DISPLAY'].getboolean('Internal Velocity (X, Y, Z)')
-        self.iv_oriented = config['INFO DISPLAY'].getboolean('Oriented Internal Velocity')
-        self.iv_xyz = config['INFO DISPLAY'].getboolean('Internal Velocity (XYZ)')
-        self.ev = config['INFO DISPLAY'].getboolean('External Velocity (X, Y, Z)')
-        self.ev_oriented = config['INFO DISPLAY'].getboolean('Oriented External Velocity')
-        self.ev_xyz = config['INFO DISPLAY'].getboolean('External Velocity (XYZ)')
-        self.mrv = config['INFO DISPLAY'].getboolean('Moving Road Velocity (X, Y, Z)')
-        self.mrv_oriented = config['INFO DISPLAY'].getboolean('Oriented Moving Road Velocity')
-        self.mrv_xyz = config['INFO DISPLAY'].getboolean('Moving Road Velocity (XYZ)')
-        self.mwv = config['INFO DISPLAY'].getboolean('Moving Water Velocity (X, Y, Z)')
-        self.mwv_oriented = config['INFO DISPLAY'].getboolean('Oriented Moving Water Velocity')
-        self.mwv_xyz = config['INFO DISPLAY'].getboolean('Moving Water Velocity (XYZ)')
-        self.charges = config['INFO DISPLAY'].getboolean('Charges and Boosts')
-        self.cps = config['INFO DISPLAY'].getboolean('Checkpoints and Completion')
-        self.air = config['INFO DISPLAY'].getboolean('Airtime')
-        self.misc = config['INFO DISPLAY'].getboolean('Miscellaneous')
-        self.surfaces = config['INFO DISPLAY'].getboolean('Surface Properties')
-        self.position = config['INFO DISPLAY'].getboolean('Position')
-        self.rotation = config['INFO DISPLAY'].getboolean('Rotation')
-        self.td_absolute = config['INFO DISPLAY'].getboolean('TimeDiff Absolute')
-        self.td_relative = config['INFO DISPLAY'].getboolean('TimeDiff Relative')
-        self.td_projected = config['INFO DISPLAY'].getboolean('TimeDiff Projected')
-        self.td_crosspath = config['INFO DISPLAY'].getboolean('TimeDiff CrossPath')
-        self.td_tofinish = config['INFO DISPLAY'].getboolean('TimeDiff ToFinish')
-        self.td_racecomp = config['INFO DISPLAY'].getboolean('TimeDiff RaceComp')
-        self.td_set = config['INFO DISPLAY']['TimeDiff Setting']
-        self.td = self.td_absolute or self.td_relative or self.td_projected or self.td_crosspath or self.td_tofinish or self.td_racecomp
-        self.stick = config['INFO DISPLAY'].getboolean('Stick')
-        self.color = int(config['INFO DISPLAY']['Text Color (ARGB)'], 16)
-        self.digits = min(7, config['INFO DISPLAY'].getint('Digits (to round to)'))
-        self.history_size = config['INFO DISPLAY'].getint('History Size')
 
 
 def make_line_text_speed(left_text_prefix, left_text_suffix, size, speed):
@@ -358,12 +272,29 @@ def on_state_load(fromSlot: bool, slot: int):
 
     
 
+def main():
+    global c
+    c = setting.get_infodisplay_config()
+    
+    #Those 2 variables are used to store some parameters from previous frames
+    global Frame_of_input
+    Frame_of_input = 0
+    global Memory_History
+    size = max(c.history_size, int(c.rotation)+1)
+    Memory_History = History(size)
+
+if __name__ == '__main__':
+    main()
 
 
 @event.on_frameadvance
 def on_frame_advance():
     global Frame_of_input
     global Memory_History
+    global c
+
+    if not (Frame_of_input == mkw_utils.frame_of_input() or Frame_of_input == mkw_utils.frame_of_input()-1):
+        c = setting.get_infodisplay_config()
     
     race_mgr = RaceManager()
     newframe = Frame_of_input != mkw_utils.frame_of_input()
@@ -375,24 +306,3 @@ def on_frame_advance():
     if draw:
         gui.draw_text((10, 10), c.color, create_infodisplay())
 
-def main():
-    config = configparser.ConfigParser()
-
-    file_path = os.path.join(utils.get_script_dir(), 'modules', 'infodisplay.ini')
-    config.read(file_path)
-
-    if not config.sections():
-        config = populate_default_config(file_path)
-    
-    global c
-    c = ConfigInstance(config)
-    
-    #Those 2 variables are used to store some parameters from previous frames
-    global Frame_of_input
-    Frame_of_input = 0
-    global Memory_History
-    size = max(c.history_size, int(c.rotation)+1)
-    Memory_History = History(size)
-
-if __name__ == '__main__':
-    main()

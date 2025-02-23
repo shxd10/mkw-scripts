@@ -11,6 +11,7 @@ import math
 # NOTE (xi): wait for get_game_id() to be put in dolphin.memory before clearing
 #  these commented-out lines:
 
+fps_const = 60000/1001 #Constant for fps in mkw (59.94fps)
 
 class FrameData:
     def __init__(self):

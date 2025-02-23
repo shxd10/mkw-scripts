@@ -1,7 +1,7 @@
 from dolphin import gui, memory, utils
 from .mkw_classes import quatf, vec3
 from .framesequence import Frame
-from .mkw_utils import chase_pointer
+from .mkw_utils import chase_pointer, fps_const
 from .ttk_lib import write_player_inputs, write_ghost_inputs
 from .mkw_classes import VehiclePhysics, KartMove, RaceConfig, Timer, RaceManagerPlayer, RaceConfigPlayer, RaceConfigScenario, Controller, InputMgr
 import math
@@ -145,9 +145,18 @@ class AGCMetaData:
         return res
 
     def load(self, write_slot):
-        pass
+        addr_player = RaceConfigScenario(RaceConfig.race_scenario()).player(write_slot)
+        if write_slot == 0:
+            addr_controller = InputMgr.gc_controller(0)
+        else:
+            addr_controller = InputMgr.ghost_controller(write_slot)
+            
+        memory.write_u32(addr_player + 0x8, self.vehicleID)
+        memory.write_u32(addr_player + 0xC, self.charaID)
+        memory.write_u8(addr_controller + 0x51, self.driftID)
 
     def delay_timer(self, delay):
+        delay /= fps_const
         region = utils.get_game_id()
         try:
             address = {"RMCE01": 0x809BFDC0, "RMCP01": 0x809C4680,
