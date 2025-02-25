@@ -7,9 +7,11 @@ from typing import Tuple, List, Optional
 import zlib
 
 from .framesequence import FrameSequence
+from .rkg_lib import get_RKG_data_memory, decode_rkg_inputs, encodeRKGInput
+from .mkw_utils import chase_pointer
 from . import ttk_config
 
-from .mkw_classes import RaceManager, RaceState
+from .mkw_classes import RaceManager, RaceState, RaceManagerPlayer
 from .mkw_classes import GhostController, GhostButtonsStream
 from .mkw_classes import InputMgr, GhostWriter, PlayerInput, KartInput, Controller
 from .mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings
@@ -53,6 +55,8 @@ def encode_direction_input(X, Y):
     
 def encode_trick_input(input):
     return input * 0x10
+
+
     
 # Reads binary data in-memory for the specified section
 def read_raw_rkg_data(player_type: PlayerType, input_type: ControllerInputType) -> list:
@@ -133,32 +137,40 @@ def decode_rkg_data(data: list, input_type: ControllerInputType) -> List[List[in
 
 # Transform raw RKG data into a FrameSequence
 def read_full_decoded_rkg_data(player_type: PlayerType) -> Optional[FrameSequence]:
-    # First make sure we're actually in a race, otherwise we need to bail out
     race_state = RaceManager.state()
-    if (race_state.value < RaceState.COUNTDOWN.value):
-        gui.add_osd_message("Not in race!")
-        return None
-    elif (race_state.value == RaceState.FINISHED_RACE.value):
-        gui.add_osd_message("Race is over!")
-        return None
+    if player_type == PlayerType.PLAYER and race_state.value == RaceState.FINISHED_RACE.value :
+        has_saved, rkg_data = get_RKG_data_memory()
+        if has_saved :
+            return decode_rkg_inputs(rkg_data)
+        else:
+            gui.add_osd_message("Wait for Ghost data saved message!")
+            return None
+    else:
+        # First make sure we're actually in a race, otherwise we need to bail out
+        if (race_state.value < RaceState.COUNTDOWN.value):
+            gui.add_osd_message("Not in race!")
+            return None
+        elif (race_state.value == RaceState.FINISHED_RACE.value):
+            gui.add_osd_message("Race is over!")
+            return None
 
-    # Read each of the input types
-    face_data = read_raw_rkg_data(player_type, ControllerInputType.FACE)
-    di_data = read_raw_rkg_data(player_type, ControllerInputType.DI)
-    trick_data = read_raw_rkg_data(player_type, ControllerInputType.TRICK)
-    if not face_data or not di_data or not trick_data:
-        return None
-    
-    # Expand into a list where each index is a frame
-    face_data = decode_rkg_data(face_data, ControllerInputType.FACE)
-    di_data = decode_rkg_data(di_data, ControllerInputType.DI)
-    trick_data = decode_rkg_data(trick_data, ControllerInputType.TRICK)
-    
-    # Now transform into a framesequence
-    sequence_list = [face_data[x] + di_data[x] + [trick_data[x]] for x in range(len(face_data))]
-    sequence = FrameSequence()
-    sequence.read_from_list(sequence_list)
-    return sequence
+        # Read each of the input types
+        face_data = read_raw_rkg_data(player_type, ControllerInputType.FACE)
+        di_data = read_raw_rkg_data(player_type, ControllerInputType.DI)
+        trick_data = read_raw_rkg_data(player_type, ControllerInputType.TRICK)
+        if not face_data or not di_data or not trick_data:
+            return None
+        
+        # Expand into a list where each index is a frame
+        face_data = decode_rkg_data(face_data, ControllerInputType.FACE)
+        di_data = decode_rkg_data(di_data, ControllerInputType.DI)
+        trick_data = decode_rkg_data(trick_data, ControllerInputType.TRICK)
+        
+        # Now transform into a framesequence
+        sequence_list = [face_data[x] + di_data[x] + [trick_data[x]] for x in range(len(face_data))]
+        sequence = FrameSequence()
+        sequence.read_from_list(sequence_list)
+        return sequence
 
 @dataclass
 class RKGTuple:
@@ -274,6 +286,35 @@ def createRKGFile(input_data: FrameSequence, track_id: int,
     except ValueError:
         gui.add_osd_message("Attempted to parse byte > 0xFF! Aborting RKG write.")
         return bytearray()
+
+
+def write_inputs_to_current_ghost_rkg(inputList):
+    '''function used for ttk activate ghost hard'''
+    data, fbBytes, diBytes, tiBytes = encodeRKGInput(inputList)
+    controller_address = KartInput(RaceManagerPlayer(1).kart_input()).race_controller()
+    address_fb = chase_pointer(controller_address + 0x94,  [0x4], 'u32')
+    address_di = chase_pointer(controller_address + 0x98,  [0x4], 'u32')
+    address_ti = chase_pointer(controller_address + 0x9C,  [0x4], 'u32')
+
+    address_fb_ptr = memory.read_u32(controller_address + 0x94) + 0x4
+    address_di_ptr = memory.read_u32(controller_address + 0x98) + 0x4
+    address_ti_ptr = memory.read_u32(controller_address + 0x9C) + 0x4
+
+    address_fb_len = memory.read_u32(controller_address + 0x94) + 0xC
+    address_di_len = memory.read_u32(controller_address + 0x98) + 0xC
+    address_ti_len = memory.read_u32(controller_address + 0x9C) + 0xC
+    while len(data) < 0x2774:
+        data.append(0x0)
+
+    memory.write_bytes(address_fb, data[:0x2774])
+
+    memory.write_u32(address_di_ptr, address_fb + 2*fbBytes)
+    memory.write_u32(address_fb_len, 2*fbBytes)
+
+    memory.write_u32(address_ti_ptr, address_fb + 2*(fbBytes+diBytes))
+    memory.write_u32(address_di_len, 2*diBytes)
+
+    memory.write_u32(address_ti_len, 2*tiBytes)
     
 # This is a tiny helper function that prevents slight repetition in filepath lookups
 def write_to_csv(inputs: FrameSequence, player_type: PlayerType) -> None:

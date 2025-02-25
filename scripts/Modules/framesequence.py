@@ -305,6 +305,17 @@ class FrameSequence:
             if not frame:
                 pass
             self.frames.append(frame)
+
+    def read_from_list_of_frames(self, inputs: List) -> None:
+        """
+        Constructs the frames list by using a list of Frames instead of a csv
+        
+        Args:
+            input (List): The raw input data we want to store
+        Returns: None
+        """
+        for frame in inputs:
+            self.frames.append(frame)
     
     def read_from_file(self) -> None:
         """

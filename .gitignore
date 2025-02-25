@@ -1,2 +1,5 @@
-/scripts/MKW_Inputs/*.csv
-scripts/AGC_Data/ghost.data
+scripts/MKW_Inputs/*
+scripts/AGC_Data/*
+scripts/Settings/*
+scripts/Ghost/*
+**/__pycache__
