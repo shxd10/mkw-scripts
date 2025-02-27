@@ -12,14 +12,14 @@ if __name__ == '__main__':
 
 
 
-"""    
+  
 @event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
-"""
 
+    print('state loaded')
 @event.on_frameadvance
 def on_frame_advance():
-    
-    print('frame advance')
+    pass
+    #print('frame advance')
 
 

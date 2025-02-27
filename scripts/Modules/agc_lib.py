@@ -144,6 +144,18 @@ class AGCMetaData:
 
         return res
 
+    @staticmethod
+    def read_from_RKGMetadata(rkg_metadata):
+        res = AGCMetaData(useDefault = True)
+        res.charaID = rkg_metadata.character_id
+        res.vehicleID = rkg_metadata.vehicle_id
+        res.driftID = rkg_metadata.drift_id
+        res.timer_data = [Split(rkg_metadata.lap1_split),
+                          Split(rkg_metadata.lap2_split + rkg_metadata.lap1_split),
+                          Split(rkg_metadata.lap3_split + rkg_metadata.lap2_split + rkg_metadata.lap1_split)]
+
+        return res        
+
     def load(self, write_slot):
         addr_player = RaceConfigScenario(RaceConfig.race_scenario()).player(write_slot)
         if write_slot == 0:

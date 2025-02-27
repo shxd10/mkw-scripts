@@ -1,12 +1,17 @@
 from multiprocessing import shared_memory
 import atexit
 import subprocess
+import os
 
 
 def start_external_script(path: str):
     process = subprocess.Popen(["python", path], creationflags=subprocess.CREATE_NO_WINDOW)
     atexit.register(process.terminate)
 
+
+def run_external_script(path: str):
+    output = subprocess.check_output(["python", path], text=True, creationflags=subprocess.CREATE_NO_WINDOW)
+    return output
 
 class SharedMemoryWriter:
     def __init__(self, name: str, buffer_size: int):
@@ -41,3 +46,38 @@ class SharedMemoryReader:
     
     def close(self):
         self._shm.close()
+
+
+def open_dialog_box(scriptDir, filetypes = [('All files', '*')], initialdir = '', title = '', multiple = False):
+    ''' Shortcut function to prompt a openfile dialog box
+        type_list : list of types allowed for the open dialog box
+            format : ('{File dormat description}', '*.{file extension}') 
+            exemple : ('RKG files', '*.rkg')              '''   
+
+    #Todo : maybe having the text as a subprocess check_output argument instead of SharedMemory, but idk how to implement it
+    script_path = os.path.join(scriptDir, "external", 'open_file_dialog_box.py')
+    type_writer = SharedMemoryWriter('open_file_dialog', 1024)
+    str_list = []
+    for type_ in filetypes:
+        str_list.append(','.join(type_))
+    type_writer.write_text(';'.join(str_list) + '|' + initialdir + '|' + title + '|' + str(multiple))
+    filename = subprocess.check_output(["python", script_path], text=True, creationflags=subprocess.CREATE_NO_WINDOW)
+    type_writer.close()
+    return filename
+
+def save_dialog_box(scriptDir, filetypes = [('All files', '*')], initialdir = '', title = '', defaultextension = ''):
+    ''' Shortcut function to prompt a savefile dialog box
+        type_list : list of types allowed for the open dialog box
+            format : ('{File dormat description}', '*.{file extension}') 
+            exemple : ('RKG files', '*.rkg')              '''   
+
+    #Todo : maybe having the text as a subprocess check_output argument instead of SharedMemory, but idk how to implement it
+    script_path = os.path.join(scriptDir, "external", 'save_file_dialog_box.py')
+    type_writer = SharedMemoryWriter('save_file_dialog', 1024)
+    str_list = []
+    for type_ in filetypes:
+        str_list.append(','.join(type_))
+    type_writer.write_text(';'.join(str_list) + '|' + initialdir + '|' + title + '|' + defaultextension)
+    filename = subprocess.check_output(["python", script_path], text=True, creationflags=subprocess.CREATE_NO_WINDOW)
+    type_writer.close()
+    return filename
