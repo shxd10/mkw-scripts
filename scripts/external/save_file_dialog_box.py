@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import filedialog
 
 root = tk.Tk()
+root.wm_attributes('-topmost', 1)
 root.withdraw()
 
 type_reader = external_utils.SharedMemoryReader('save_file_dialog')

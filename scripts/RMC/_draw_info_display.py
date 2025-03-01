@@ -210,8 +210,12 @@ def create_infodisplay():
     if c.rotation :
         fac = mkw_utils.get_facing_angle(0)
         mov = mkw_utils.get_moving_angle(0)
-        prevfac = Memory_History.get_older_frame(1).euler
-        prevmov = Memory_History.get_older_frame(1).movangle
+        if len(Angle_History) > 1:            
+            prevfac = Angle_History[1]['facing']
+            prevmov = Angle_History[1]['moving']
+        else:
+            prevfac = Angle_History[0]['facing']
+            prevmov = Angle_History[0]['moving']
         facdiff = fac - prevfac
         movdiff = mov - prevmov
         prefix_size = 10
@@ -245,7 +249,7 @@ def create_infodisplay():
             tofinish = s*mkw_utils.get_time_difference_tofinish(p1,p2)
             text += make_text_timediff(tofinish, "ToFinish", size, timesize)
         if c.td_racecomp:
-            racecomp = mkw_utils.get_time_difference_racecompletion(Memory_History)
+            racecomp = mkw_utils.get_time_difference_racecompletion(RaceComp_History)
             text += make_text_timediff(racecomp, "RaceComp", size, timesize)  
         text += "\n"
 
@@ -262,13 +266,15 @@ def create_infodisplay():
 
     return text
 
-"""    
+ 
 @event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
+    global c
     race_mgr = RaceManager()
+    c = setting.get_infodisplay_config()
     if race_mgr.state().value >= RaceState.COUNTDOWN.value:
         gui.draw_text((10, 10), c.color, create_infodisplay())
-"""
+
 
     
 
@@ -279,9 +285,21 @@ def main():
     #Those 2 variables are used to store some parameters from previous frames
     global Frame_of_input
     Frame_of_input = 0
-    global Memory_History
-    size = max(c.history_size, int(c.rotation)+1)
-    Memory_History = History(size)
+
+    def prc():
+        return RaceManagerPlayer(0).race_completion()
+    def grc():
+        return RaceManagerPlayer(1).race_completion()
+    def fa():
+        return mkw_utils.get_facing_angle(0)
+    def ma():
+        return mkw_utils.get_moving_angle(0)
+    
+    global RaceComp_History
+    RaceComp_History = History({'prc':prc, 'grc':grc}, c.history_size)
+
+    global Angle_History
+    Angle_History = History({'facing' : fa, 'moving' : ma}, 2)
 
 if __name__ == '__main__':
     main()
@@ -290,7 +308,8 @@ if __name__ == '__main__':
 @event.on_frameadvance
 def on_frame_advance():
     global Frame_of_input
-    global Memory_History
+    global Angle_History
+    global RaceComp_History
     global c
 
     if not (Frame_of_input == mkw_utils.frame_of_input() or Frame_of_input == mkw_utils.frame_of_input()-1):
@@ -301,7 +320,8 @@ def on_frame_advance():
     draw = race_mgr.state().value >= RaceState.COUNTDOWN.value
     if newframe:
         Frame_of_input = mkw_utils.frame_of_input()
-        Memory_History.update()
+        Angle_History.update()
+        RaceComp_History.update()
 
     if draw:
         gui.draw_text((10, 10), c.color, create_infodisplay())

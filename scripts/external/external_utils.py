@@ -47,6 +47,10 @@ class SharedMemoryReader:
     def close(self):
         self._shm.close()
 
+    def close_with_writer(self):
+        self._shm.close()
+        self._shm.unlink()        
+
 
 def open_dialog_box(scriptDir, filetypes = [('All files', '*')], initialdir = '', title = '', multiple = False):
     ''' Shortcut function to prompt a openfile dialog box

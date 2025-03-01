@@ -152,6 +152,21 @@ class quatf:
     def to_bytes(self) -> bytearray:
         return bytearray(struct.pack('>ffff', self.x, self.y, self.z, self.w))
 
+    @staticmethod
+    def from_angles(angles):
+        #arg : angles : eulerAngle
+        cr = math.cos(angles.pitch * 0.5 / (180/math.pi))
+        sr = math.sin(angles.pitch * 0.5 / (180/math.pi))
+        cp = math.cos(angles.yaw * 0.5 / (180/math.pi))
+        sp = math.sin(angles.yaw * 0.5 / (180/math.pi))
+        cy = math.cos(angles.roll * 0.5 / (180/math.pi))
+        sy = math.sin(angles.roll * 0.5 / (180/math.pi))
+
+        return quatf(cr * sp * sy + sr * cp * cy,
+                     cr * sp * cy + sr * cp * sy,
+                     - cr * cp * sy + sr * sp * cy,
+                     - cr * cp * cy + sr * sp * sy)
+
 
 def angle_degree_format(angle):
     return ((angle+180)%360) - 180
@@ -175,6 +190,17 @@ class eulerAngle:
         yaw = self.yaw - other.yaw
         roll = self.roll - other.roll
         return eulerAngle(pitch, yaw, roll)
+
+    @staticmethod
+    def from_quaternion(q : quatf):
+        x1, x2 = 2*q.x*q.w-2*q.y*q.z, 1-2*q.x*q.x-2*q.z*q.z
+        y1, y2 = 2*q.y*q.w-2*q.x*q.z, 1-2*q.y*q.y-2*q.z*q.z
+        z = 2*q.x*q.y + 2*q.z*q.w
+        roll = 180/math.pi * math.asin(z)
+        pitch = -180/math.pi * math.atan2(x1, x2)
+        yaw = -180/math.pi * math.atan2(y1, y2)
+        return eulerAngle(pitch, yaw, roll)
+    
 
 @dataclass
 class ExactTimer:

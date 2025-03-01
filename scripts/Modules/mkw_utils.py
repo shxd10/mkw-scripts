@@ -1,4 +1,5 @@
 from dolphin import memory, utils, event
+from collections import deque
 
 from .mkw_classes import mat34, quatf, vec3, ExactTimer, eulerAngle
 from .mkw_classes import VehicleDynamics, VehiclePhysics, RaceManagerPlayer, KartObjectManager, RaceManager, RaceState
@@ -13,40 +14,44 @@ import math
 
 fps_const = 60000/1001 #Constant for fps in mkw (59.94fps)
 
-class FrameData:
-    def __init__(self):
-        #Default values
-        self.prc = 0 #PlayerRaceCompletion
-        self.grc = 0 #GhostRaceCompletion
-        self.euler = eulerAngle()
-        self.movangle = eulerAngle()
 
-        #Value for current frame (if available)
-        if RaceManager().state().value >= RaceState.COUNTDOWN.value:
-            self.prc = RaceManagerPlayer(0).race_completion()
-            self.euler = get_facing_angle(0)
-            self.movangle = get_moving_angle(0)
-            if not is_single_player():
-                self.grc = RaceManagerPlayer(1).race_completion()
-            
 class History:
-    def __init__(self, size):
-        self.size = size
-        self.array = []
-        self.index = 0
-        for _ in range(size):
-            self.array.append(FrameData())
+    ''' Class for storing each frame some data
+        get_data_dict must be a dict of functions that return the desired data
+        the functions must be able to take 0 arguments  (Maybe if needed i'll implement an argument dict, for the argument of the corresponding functions
+        
+        Example : {'position' : VehiclePhysics.position,
+                    'rotation'  : VehiclePhysics.main_rotation}
+        data is a list containing dict of data corresponding
+        data[0] contain the latest added frame'''
+    
+    def __init__(self, get_data_dict, max_size):
+        self.max_size = max_size
+        self.get_data = get_data_dict
+        self.data = deque()
 
     def update(self):
-        """Add a new frameData to the array, and move the index"""
-        self.index = (self.index+1)%self.size
-        self.array[self.index] = FrameData()
+        if len(self.data) >= self.max_size:
+            self.data.pop()
+        cur_frame_dict = {}
+        for key in self.get_data.keys():
+            cur_frame_dict[key] = self.get_data[key]()
+        self.data.appendleft(cur_frame_dict)
 
-    def get_older_frame(self,i):
-        """Return the FrameData i frame older"""
-        assert i<self.size
-        return self.array[(self.index-i)%self.size]
+    def __getitem__(self, index):
+        return self.data[index]
 
+    def __len__(self):
+        return len(self.data)
+
+    def clear(self):
+        self.data.clear()
+        
+    def __bool__(self):
+        return bool(self.data)
+
+    def __iter__(self):
+        return iter(self.data)
     
 def chase_pointer(base_address, offsets, data_type):
     """This is a helper function to allow multiple ptr dereferences in
@@ -300,21 +305,21 @@ def find_index(value, value_list):
 def get_time_difference_racecompletion(history):
     """Use RaceCompletionData History to calculate the frame difference
         The function assume that RaceCompletion is increasing every frames"""
-    curframe = history.get_older_frame(0)
-    lastframe = history.get_older_frame(-1)
+    curframe = history[0]
+    lastframe = history[-1]
     inf = float('inf')
-    if curframe.prc>=curframe.grc:
-        if curframe.grc>lastframe.prc:
-            l = [history.get_older_frame(k).prc for k in range(history.size)]
-            i = find_index(curframe.grc, l)
-            t = i + (curframe.grc - l[i])/ (l[i+1] - l[i])
+    if curframe['prc'] >= curframe['grc']:
+        if curframe['grc'] > lastframe['prc']:
+            l = [dic['prc'] for dic in history]
+            i = find_index(curframe['grc'], l)
+            t = i + (curframe['grc'] - l[i])/ (l[i+1] - l[i])
             return -t
         return -inf
     else:
-        if curframe.prc>lastframe.grc:
-            l =[history.get_older_frame(k).grc for k in range(history.size)]
-            i = find_index(curframe.prc, l)
-            t = i + (curframe.prc - l[i])/ (l[i+1] - l[i])
+        if curframe['prc'] > lastframe['grc']:
+            l =[dic['grc'] for dic in history]
+            i = find_index(curframe['prc'], l)
+            t = i + (curframe['prc'] - l[i])/ (l[i+1] - l[i])
             return t
         return inf
 
@@ -333,5 +338,34 @@ def get_timediff_settings(string):
     else:
         print('TimeDiff setting value not recognized. Default to "player"')
         return 0, 1
-        
+
+def player_teleport(player_id = 0,
+                    x = None, y = None, z = None,
+                    pitch = None, yaw = None, roll = None):
+    '''Function to teleport the player in player_id to the
+        corresponding position and rotation.
+        Use None for parameter you don't wanna change'''
+    
+    addr = VehiclePhysics.chain(player_id)
+    posistion = VehiclePhysics.position(player_id)
+    quaternion = VehiclePhysics.main_rotation(player_id)
+    angles = eulerAngle.from_quaternion(quaternion)
+
+    if not x is None:
+        position.x = x
+    if not y is None:
+        position.y = y
+    if not z is None:
+        position.z = z
+    if not pitch is None:
+        angles.pitch = pitch
+    if not yaw is None:
+        angles.yaw = yaw
+    if not roll is None:
+        angles.roll = roll
+    
+    quaternion = quatf.from_angles(angles)
+    position.write(addr + 0x68)
+    quaternion.write(addr + 0xF0)
+
         
