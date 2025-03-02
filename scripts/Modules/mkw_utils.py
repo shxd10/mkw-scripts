@@ -305,23 +305,26 @@ def find_index(value, value_list):
 def get_time_difference_racecompletion(history):
     """Use RaceCompletionData History to calculate the frame difference
         The function assume that RaceCompletion is increasing every frames"""
-    curframe = history[0]
-    lastframe = history[-1]
-    inf = float('inf')
-    if curframe['prc'] >= curframe['grc']:
-        if curframe['grc'] > lastframe['prc']:
-            l = [dic['prc'] for dic in history]
-            i = find_index(curframe['grc'], l)
-            t = i + (curframe['grc'] - l[i])/ (l[i+1] - l[i])
-            return -t
-        return -inf
+    if history:
+        curframe = history[0]
+        lastframe = history[-1]
+        inf = float('inf')
+        if curframe['prc'] >= curframe['grc']:
+            if curframe['grc'] > lastframe['prc']:
+                l = [dic['prc'] for dic in history]
+                i = find_index(curframe['grc'], l)
+                t = i + (curframe['grc'] - l[i])/ (l[i+1] - l[i])
+                return -t
+            return -inf
+        else:
+            if curframe['prc'] > lastframe['grc']:
+                l =[dic['grc'] for dic in history]
+                i = find_index(curframe['prc'], l)
+                t = i + (curframe['prc'] - l[i])/ (l[i+1] - l[i])
+                return t
+            return inf
     else:
-        if curframe['prc'] > lastframe['grc']:
-            l =[dic['grc'] for dic in history]
-            i = find_index(curframe['prc'], l)
-            t = i + (curframe['prc'] - l[i])/ (l[i+1] - l[i])
-            return t
-        return inf
+        return float('inf')
 
 
 def get_timediff_settings(string):
@@ -347,7 +350,7 @@ def player_teleport(player_id = 0,
         Use None for parameter you don't wanna change'''
     
     addr = VehiclePhysics.chain(player_id)
-    posistion = VehiclePhysics.position(player_id)
+    position = VehiclePhysics.position(player_id)
     quaternion = VehiclePhysics.main_rotation(player_id)
     angles = eulerAngle.from_quaternion(quaternion)
 

@@ -66,17 +66,14 @@ def on_frame_advance():
 
     if (not end) and frame != mkw_utils.frame_of_input():
         position_history.update()
-        pos_writer.write(history_to_bytes(position_history))
+        try:
+            pos_writer.write(history_to_bytes(position_history))
+        except:
+            end = True
+            print('mkds minimap closed')
         
     frame = mkw_utils.frame_of_input()
 
-    try:
-        a = ex.SharedMemoryReader('mkds minimap is running')
-        a.close()
-    except:
-        pos_writer.close()
-        end = True
-        print('finished')
 
     
     

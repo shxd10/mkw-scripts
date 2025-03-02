@@ -36,8 +36,9 @@ def main() -> None:
     if input_sequence:
         end = False
         if not mkw_utils.is_single_player():
-            ttk_lib.write_inputs_to_current_ghost_rkg(input_sequence)
-            agc_metadata.delay_timer(0)
+            if RaceManager().state().value > 0:
+                ttk_lib.write_inputs_to_current_ghost_rkg(input_sequence)
+                agc_metadata.delay_timer(0)
     else:
         end = True
     

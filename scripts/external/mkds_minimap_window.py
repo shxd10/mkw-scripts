@@ -39,7 +39,6 @@ def is_inbound(coordinate):
     x,y = coordinate
     return 0<=x<=screen.get_width() and 0<=y<=screen.get_height()
 
-is_finished_writer = ex.SharedMemoryWriter('mkds minimap is running', 1)
 memory_reader = ex.SharedMemoryReader('mkds minimap')
 pygame.init()
 screen = pygame.display.set_mode((480, 480))
@@ -88,6 +87,5 @@ while running:
     dt = clock.tick(60) / 1000
 
 pygame.quit()
-memory_reader.close()
-is_finished_writer.close()
+memory_reader.close_with_writer()
 
