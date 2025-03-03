@@ -4,6 +4,11 @@ from Modules.macro_utils import MKWiiGCController
 
 release_drift = False
 
+# @event.on_savestateload
+# def on_state_load(fromSlot: bool, slot: int):
+#     global release_drift
+#     release_drift = False
+
 @event.on_frameadvance
 def on_frame_advance():
     global release_drift

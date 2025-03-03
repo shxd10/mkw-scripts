@@ -88,7 +88,7 @@ Checkpoints
   Race%: {round_str(race_mgr_player.race_completion())}
   CP: {race_mgr_player.checkpoint_id()} | KCP: {race_mgr_player.max_kcp()} | RP: {race_mgr_player.respawn()}
 
-Airtime: {(kart_move.airtime() + 1) if (surface_properties & 0x1000) == 0 else 0}
+Airtime: {kart_move.airtime()}
 Wallhug: {(surface_properties & mkw.SurfaceProperties.WALL) > 0}
 Barrel Roll: {kart_state.bitfield(field_idx=3) & 0x10 > 0}
 
@@ -96,6 +96,7 @@ HWG Timer: {kart_state.hwg_timer()}
 Glitchy corner: {round_(kart_collide.glitchy_corner())}
 
 Surface properties: {hex(surface_properties)}
+KartState bitfield: {hex(kart_state.bitfield())}
 """)
 
 # Cooldowns
@@ -116,6 +117,8 @@ Surface properties: {hex(surface_properties)}
 #   Angle:  {round_str(rotation.roll)}
 #   Speed:  {round_str(roll_speed)}
 #   Accel:  {delta(roll_speed, LAST_FRAME.get("roll_speed"))}
+
+# Airtime: {(kart_move.airtime() + 1) if (surface_properties & 0x1000) == 0 else 0}s
 
 
     LAST_FRAME.update({
