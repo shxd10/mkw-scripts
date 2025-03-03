@@ -3,5 +3,6 @@ scripts/AGC_Data/**
 scripts/Settings/**
 scripts/Ghost/**
 **/__pycache__
-**test.py
+**/*test.py
 
+scripts/RMC/test.py
