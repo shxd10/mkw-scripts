@@ -89,7 +89,7 @@ def create_infodisplay():
     kart_body = KartBody(addr=kart_object.kart_body())
     vehicle_dynamics = VehicleDynamics(addr=kart_body.vehicle_dynamics())
     vehicle_physics = VehiclePhysics(addr=vehicle_dynamics.vehicle_physics())
-
+    
     if c.debug :
         value = mkw_utils.delta_position(0) - VehiclePhysics.speed(0)
         text += f"Debug : {value.length()}\n"
@@ -112,7 +112,7 @@ def create_infodisplay():
         if player_max_lap > lap_count:
             text += "Final: {}\n".format(mkw_utils.get_unrounded_time(lap_count, 0))
         text += "\n"
-
+    
     if c.speed:
         speed = mkw_utils.delta_position(playerIdx=0)
         engine_speed = kart_move.speed()
@@ -120,17 +120,17 @@ def create_infodisplay():
         text += make_text_speed(speed, "", 0, False, c.speed_oriented, c.speed)
         text += f"     Engine: {round(engine_speed, c.digits)} / {round(cap, c.digits)}\n"
         text += "\n"
-        
+    
     if (c.iv or c.iv_xyz or c.iv_oriented):
         iv = vehicle_physics.internal_velocity()
         text += make_text_speed(iv, "IV ", 0, c.iv, c.iv_oriented, c.iv_xyz)
         text += "\n"
-
+    
     if (c.ev or c.ev_xyz or c.ev_oriented):
         ev = vehicle_physics.external_velocity()
         text += make_text_speed(ev, "EV ", 0, c.ev, c.ev_oriented, c.ev_xyz)
         text += "\n"
-
+    
     if (c.mrv or c.mrv_xyz or c.mrv_oriented):
         mrv = vehicle_physics.moving_road_velocity()
         text += make_text_speed(mrv, "MRV ", 0, c.mrv, c.mrv_oriented, c.mrv_xyz)
@@ -140,7 +140,7 @@ def create_infodisplay():
         mwv = vehicle_physics.moving_water_velocity()
         text += make_text_speed(mwv, "MWV ", 0, c.mwv, c.mwv_oriented, c.mwv_xyz)
         text += "\n"
-        
+       
     if c.charges or c.misc:
         kart_settings = KartSettings(addr=kart_object.kart_settings())
 
@@ -159,7 +159,7 @@ def create_infodisplay():
             text += f"MT Charge: {mt} ({smt}) | SSMT Charge: {ssmt}\n"
             
         text += f"MT: {mt_boost} | Trick: {trick_boost} | Mushroom: {shroom_boost}\n\n"
-
+    
     if c.cps:
         lap_comp = race_mgr_player.lap_completion()
         race_comp = race_mgr_player.race_completion()
@@ -206,12 +206,16 @@ def create_infodisplay():
         text += f"X Pos: {pos.x}\n"
         text += f"Y Pos: {pos.y}\n"
         text += f"Z Pos: {pos.z}\n\n"
-
+    
     if c.rotation :
         fac = mkw_utils.get_facing_angle(0)
         mov = mkw_utils.get_moving_angle(0)
-        prevfac = Memory_History.get_older_frame(1).euler
-        prevmov = Memory_History.get_older_frame(1).movangle
+        if len(Angle_History) > 1:            
+            prevfac = Angle_History[1]['facing']
+            prevmov = Angle_History[1]['moving']
+        else:
+            prevfac = mkw_utils.get_facing_angle(0)
+            prevmov = mkw_utils.get_moving_angle(0)
         facdiff = fac - prevfac
         movdiff = mov - prevmov
         prefix_size = 10
@@ -222,7 +226,7 @@ def create_infodisplay():
         text += make_text_rotation(mov.yaw, movdiff.yaw, "Moving Y", prefix_size, rotsize)
         text += make_text_rotation(fac.roll, facdiff.roll, "Roll", prefix_size, rotsize)
         text += "\n"
-
+    
     if c.td and not mkw_utils.is_single_player():
         size = 10
         timesize = c.digits+4
@@ -245,10 +249,10 @@ def create_infodisplay():
             tofinish = s*mkw_utils.get_time_difference_tofinish(p1,p2)
             text += make_text_timediff(tofinish, "ToFinish", size, timesize)
         if c.td_racecomp:
-            racecomp = mkw_utils.get_time_difference_racecompletion(Memory_History)
+            racecomp = mkw_utils.get_time_difference_racecompletion(RaceComp_History)
             text += make_text_timediff(racecomp, "RaceComp", size, timesize)  
         text += "\n"
-
+    
     # TODO: figure out why classes.RaceInfoPlayer.stick_x() and 
     #       classes.RaceInfoPlayer.stick_y() do not update
     #       (using these as placeholders until further notice)
@@ -259,16 +263,24 @@ def create_infodisplay():
         stick_x = current_input_state.raw_stick_x() - 7
         stick_y = current_input_state.raw_stick_y() - 7
         text += f"X: {stick_x} | Y: {stick_y}\n\n"
-
+    
     return text
 
-"""    
+
 @event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
+    global c
     race_mgr = RaceManager()
-    if race_mgr.state().value >= RaceState.COUNTDOWN.value:
-        gui.draw_text((10, 10), c.color, create_infodisplay())
-"""
+    c = setting.get_infodisplay_config()
+    
+    '''if race_mgr.state().value >= RaceState.COUNTDOWN.value:
+        text = create_infodisplay()
+        gui.draw_text((10, 10), c.color, text)'''
+    
+
+ # Something in that commented code causes dolphin to crash when loading a savestate from boot to in race
+ # It's the create_infodisplay, but I can't figure out a line that makes the crash.
+ # I think it's when there is too much instructions
 
     
 
@@ -279,9 +291,22 @@ def main():
     #Those 2 variables are used to store some parameters from previous frames
     global Frame_of_input
     Frame_of_input = 0
-    global Memory_History
-    size = max(c.history_size, int(c.rotation)+1)
-    Memory_History = History(size)
+
+    def prc():
+        return RaceManagerPlayer(0).race_completion()
+    def grc():
+        return RaceManagerPlayer(1).race_completion()
+    def fa():
+        return mkw_utils.get_facing_angle(0)
+    def ma():
+        return mkw_utils.get_moving_angle(0)
+    
+    global RaceComp_History
+    RaceComp_History = History({'prc':prc, 'grc':grc}, c.history_size)
+
+    global Angle_History
+    Angle_History = History({'facing' : fa, 'moving' : ma}, 2)
+
 
 if __name__ == '__main__':
     main()
@@ -290,7 +315,8 @@ if __name__ == '__main__':
 @event.on_frameadvance
 def on_frame_advance():
     global Frame_of_input
-    global Memory_History
+    global Angle_History
+    global RaceComp_History
     global c
 
     if not (Frame_of_input == mkw_utils.frame_of_input() or Frame_of_input == mkw_utils.frame_of_input()-1):
@@ -299,9 +325,13 @@ def on_frame_advance():
     race_mgr = RaceManager()
     newframe = Frame_of_input != mkw_utils.frame_of_input()
     draw = race_mgr.state().value >= RaceState.COUNTDOWN.value
-    if newframe:
+    if newframe and draw:
         Frame_of_input = mkw_utils.frame_of_input()
-        Memory_History.update()
+        try:
+            Angle_History.update()
+            RaceComp_History.update()
+        except AssertionError:
+            pass
 
     if draw:
         gui.draw_text((10, 10), c.color, create_infodisplay())

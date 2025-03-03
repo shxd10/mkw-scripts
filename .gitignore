@@ -1,5 +1,8 @@
-scripts/MKW_Inputs/*
-scripts/AGC_Data/*
-scripts/Settings/*
-scripts/Ghost/*
+scripts/MKW_Inputs/**
+scripts/AGC_Data/**
+scripts/Settings/**
+scripts/Ghost/**
 **/__pycache__
+**/*test.py
+
+scripts/RMC/test.py
