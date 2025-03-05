@@ -161,7 +161,6 @@ def get_moving_angle(player):
     return speed_to_euler_angle(speed)
 
 
-# TODO: Time difference display helper functions
 """The time difference functions.
 time_difference_[name](P1, S1, P2, S2) is a function that takes as arguments
 P1,S1 : Player1's Position and Speed vec3.
@@ -276,7 +275,7 @@ def get_finish_line_coordinate():
     pointB = vec3(memory.read_f32(kmp_ref+0x4C+offset+0x8+0x8), 0, memory.read_f32(kmp_ref+0x4C+offset+0x8+0xC))
     return pointA, pointB
 
-
+    
 def time_difference_tofinish(P1, P2, S1, S2):
     A,B = get_finish_line_coordinate()
     t1 = time_to_cross(P1, S1, A, B)
