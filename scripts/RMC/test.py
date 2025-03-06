@@ -1,27 +1,30 @@
-from dolphin import event, gui, utils, savestate, memory
-import Modules.mkw_utils as mkw_utils
+from dolphin import event, savestate, memory
 import sys
-from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, VehiclePhysics, RaceConfig
 import time
 
 def main():
+    #savestate.load_from_slot(2)
     pass
-
 
 if __name__ == '__main__':
     main()
+    
 
 
 
 
-  
-@event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
-    time.sleep(2)
     print('state loaded')
-@event.on_frameadvance
-def on_frame_advance():
-    #time.sleep(2)
-    #print('frame advance')
-    pass
+    time.sleep(5)
+#event.on_savestateload(on_state_load)
 
+def on_frame_advance():
+    #print('frame advanced')
+    pass
+event.on_frameadvance(on_frame_advance)
+
+
+while True:
+    await event.savestateload()
+    time.sleep(5)
+    print('state loaded')
