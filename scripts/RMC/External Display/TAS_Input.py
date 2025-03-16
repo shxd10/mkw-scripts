@@ -53,6 +53,6 @@ def on_frame_advance():
     global frame        
     frame = mkw_utils.frame_of_input()
 
-    #run_input()
+    run_input()
     
     
