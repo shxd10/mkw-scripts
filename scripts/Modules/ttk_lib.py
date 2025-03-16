@@ -6,7 +6,7 @@ import os
 from typing import Tuple, List, Optional
 import zlib
 
-from .framesequence import FrameSequence
+from .framesequence import FrameSequence, Frame
 from .rkg_lib import get_RKG_data_memory, decode_rkg_inputs, encodeRKGInput
 from .mkw_utils import chase_pointer
 from . import ttk_config
@@ -448,17 +448,23 @@ def controller_patch() -> None:
         memory.write_u32(patch_ptr + 0x50, memcpy_branch)
         memory.invalidate_icache(patch_ptr, 0x54)
 
-def write_ghost_inputs(inputs: FrameSequence, ghost_id = 1) -> None:
+def write_ghost_inputs(inputs: Frame, ghost_id = 1) -> None:
     controller_patch()
     # TODO: This assumes the ghost is index 1, which is only true when racing a ghost
     controller = Controller(addr=InputMgr.ghost_controller(ghost_id))
     set_buttons(inputs, controller)
 
-def write_player_inputs(inputs: FrameSequence) -> None:
+def write_player_inputs(inputs: Frame, mirror = False) -> None:
     controller_patch()
     kart_input = KartInput(addr=PlayerInput.kart_input())
     controller = Controller(addr=kart_input.race_controller())
+    if mirror:
+        inputs.stick_x = - inputs.stick_x
+        inputs.stick_y = - inputs.stick_y
     set_buttons(inputs, controller)
+    if mirror:
+        inputs.stick_x = - inputs.stick_x
+        inputs.stick_y = - inputs.stick_y
 
 def set_buttons(inputs, controller : Controller):
     """This writes button data to addresses with implicit padding in structs.

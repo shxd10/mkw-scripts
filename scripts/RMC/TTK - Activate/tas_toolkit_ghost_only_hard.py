@@ -14,8 +14,9 @@ The inputs are reloaded on every state load
 
 @event.on_savestateload
 def on_state_load(is_slot, slot):
+    global ghost_inputs
     ghost_inputs.read_from_file()
-    
+    ghost_inputs = ttk_lib.get_input_sequence_from_csv(ttk_lib.PlayerType.GHOST)
 @event.on_frameadvance
 def on_frame_advance():
     global ghost_inputs

@@ -14,8 +14,8 @@ def run_external_script(path: str):
     return output
 
 class SharedMemoryWriter:
-    def __init__(self, name: str, buffer_size: int):
-        self._shm = shared_memory.SharedMemory(create=True, name=name, size=buffer_size)
+    def __init__(self, name: str, buffer_size: int, create=True):
+        self._shm = shared_memory.SharedMemory(create=create, name=name, size=buffer_size)
         atexit.register(self.close)
 
     def write(self, bytes: bytes):

@@ -1,5 +1,13 @@
 from dolphin import event, savestate, memory
 import sys
+
+path = r'C:\Users\Bloun\AppData\Local\Programs\Python\Python38\Lib\site-packages'
+sys.path.append(path)
+tk_path = r'C:\Users\Bloun\AppData\Local\Programs\Python\Python38\Lib'
+sys.path.append(tk_path)
+import tkinter
+
+
 import time
 
 def main():
@@ -21,10 +29,6 @@ def on_state_load(fromSlot: bool, slot: int):
 def on_frame_advance():
     #print('frame advanced')
     pass
-event.on_frameadvance(on_frame_advance)
+#event.on_frameadvance(on_frame_advance)
 
 
-while True:
-    await event.savestateload()
-    time.sleep(5)
-    print('state loaded')

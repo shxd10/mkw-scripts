@@ -47,11 +47,12 @@ class Frame:
             * raw[0] (str) - A
             * raw[1] (str) - B/R
             * raw[2] (str) - L
+            * raw[3] (str) - Drift "ghost" button
+            * raw[4] (str) - BrakeDrift "ghost" button
             * raw[5] (str) - Horizontal stick
             * raw[6] (str) - Vertical stick
             * raw[7] (str) - Dpad
-            * raw[3] (str) - Drift "ghost" button
-            * raw[4] (str) - BrakeDrift "ghost" button
+
         Args:
             raw (List): CSV line to be read
         """
