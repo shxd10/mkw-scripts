@@ -1,7 +1,5 @@
 import struct
 import external_utils as ex
-import tkinter as tk
-from tkinter import filedialog
 import pygame
 import math
 

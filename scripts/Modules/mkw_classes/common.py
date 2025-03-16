@@ -191,6 +191,13 @@ class eulerAngle:
         roll = self.roll - other.roll
         return eulerAngle(pitch, yaw, roll)
 
+    def __mul__(self, other):
+        ''' angle * number -> angle '''
+        pitch = self.pitch * other
+        yaw = self.yaw * other
+        roll = self.roll * other
+        return eulerAngle(pitch, yaw, roll)
+
     @staticmethod
     def from_quaternion(q : quatf):
         x1, x2 = 2*q.x*q.w-2*q.y*q.z, 1-2*q.x*q.x-2*q.z*q.z
@@ -200,7 +207,15 @@ class eulerAngle:
         pitch = -180/math.pi * math.atan2(x1, x2)
         yaw = -180/math.pi * math.atan2(y1, y2)
         return eulerAngle(pitch, yaw, roll)
-    
+
+    def get_unit_vec3(self):
+        """ Return a vec3 of size 1, which point
+            the same direction as self """
+        y = math.sin(self.pitch*math.pi /180)
+        xz = math.cos(self.pitch*math.pi /180)
+        z = xz * math.cos(self.yaw*math.pi /180)
+        x = - xz * math.sin(self.yaw*math.pi /180)
+        return vec3(x,y,z)
 
 @dataclass
 class ExactTimer:

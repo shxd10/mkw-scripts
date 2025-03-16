@@ -32,6 +32,9 @@ class InfoDisplayConfigInstance():
         self.surfaces = config['INFO DISPLAY'].getboolean('Surface Properties')
         self.position = config['INFO DISPLAY'].getboolean('Position')
         self.rotation = config['INFO DISPLAY'].getboolean('Rotation')
+        self.dpg = config['INFO DISPLAY'].getboolean('Distance Player-Ghost (X, Y, Z)')
+        self.dpg_oriented = config['INFO DISPLAY'].getboolean('Oriented Distance Player-Ghost')
+        self.dpg_xyz = config['INFO DISPLAY'].getboolean('Distance Player-Ghost (XYZ)')
         self.td_absolute = config['INFO DISPLAY'].getboolean('TimeDiff Absolute')
         self.td_relative = config['INFO DISPLAY'].getboolean('TimeDiff Relative')
         self.td_projected = config['INFO DISPLAY'].getboolean('TimeDiff Projected')
@@ -79,6 +82,9 @@ def populate_default_config_infodisplay(file_path):
     config['INFO DISPLAY']["Stick"] = "True"
     config['INFO DISPLAY']["Text Color (ARGB)"] = "0xFFFFFFFF"
     config['INFO DISPLAY']["Digits (to round to)"] = "6"
+    config['INFO DISPLAY']["Distance Player-Ghost (X, Y, Z)"] = "False"
+    config['INFO DISPLAY']["Oriented Distance Player-Ghost"] = "False"
+    config['INFO DISPLAY']["Distance Player-Ghost (XYZ)"] = "False"
     config['INFO DISPLAY']["TimeDiff Absolute"] = "False"
     config['INFO DISPLAY']["TimeDiff Relative"] = "False"
     config['INFO DISPLAY']["TimeDiff Projected"] = "True"

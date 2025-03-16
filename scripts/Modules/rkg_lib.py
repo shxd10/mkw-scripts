@@ -3,6 +3,8 @@ from dolphin import gui, memory, utils
 from math import floor
 import os
 import zlib
+from .mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings
+from .mkw_classes import RaceConfigPlayer, PlayerInput, KartInput, Controller
 from .framesequence import Frame, FrameSequence
 from .mkw_utils import chase_pointer
 
@@ -70,7 +72,7 @@ def convertTimerBack(split: float):
 def add_bits(bit_list, number, size):
     ''' Add to a bit list another number, with a bit size'''
     for i in range(size):
-        bit_list.append((number >> (size - i +1)) & 1)
+        bit_list.append((number >> (size - i -1)) & 1)
 
 def bits_to_bytearray(bit_list):
     ''' Convert an array of bits to an array of bytes (grouping bits by 8)'''
@@ -225,9 +227,25 @@ class RKGMetaData:
         add_bits(bit_list, self.state_code, 8)
         add_bits(bit_list, self.location_code, 8*2)
         add_bits(bit_list, 0, 8*4)
-
+    
         return bytearray(b'RKGD') + bits_to_bytearray(bit_list)
+    
+    @staticmethod
+    def from_current_race():
+        metadata = RKGMetaData(None, True)
+        race_config_scenario = RaceConfigScenario(addr=RaceConfig.race_scenario())
+        race_config_settings = RaceConfigSettings(addr=race_config_scenario.settings())
+        race_config_player = RaceConfigPlayer(addr=race_config_scenario.player())
+        player_input = PlayerInput(player_idx=0)
+        kart_input = KartInput(player_input.kart_input())
+        controller = Controller(addr=kart_input.race_controller())
+        
+        metadata.track_id = race_config_settings.course_id().value
+        metadata.vehicle_id = race_config_player.vehicle_id().value
+        metadata.character_id = race_config_player.character_id().value
+        metadata.drift_id = int(controller.drift_is_auto())
 
+        return metadata
 
 
 def decompress_ghost_input(ghost_src):
