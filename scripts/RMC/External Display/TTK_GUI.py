@@ -1,5 +1,3 @@
-import asyncio
-import time
 from dolphin import event, gui, utils # type: ignore
 import os
 import struct
