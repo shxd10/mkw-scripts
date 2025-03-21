@@ -1,8 +1,7 @@
 scripts/MKW_Inputs/**
 scripts/AGC_Data/**
 scripts/Settings/**
-scripts/Ghost/**
-!scripts/Ghost/Default
+/scripts/Ghost/**/*.rkg
 **/__pycache__
 **/*test.py
 
