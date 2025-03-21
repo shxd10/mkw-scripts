@@ -1,8 +1,9 @@
 scripts/MKW_Inputs/**
 scripts/AGC_Data/**
 scripts/Settings/**
-scripts/Ghost/**
+/scripts/Ghost/**/*.rkg
 **/__pycache__
 **/*test.py
 
 scripts/RMC/test.py
+scripts/RMC/test codecallbacl.py

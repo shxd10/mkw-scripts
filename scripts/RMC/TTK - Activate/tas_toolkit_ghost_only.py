@@ -13,7 +13,7 @@ This script reads inputs from the ghost csv files, and applies it live in-game
 The inputs are reloaded on every state load
 """
 
-@event.on_savestateload
+#@event.on_savestateload
 def on_state_load(is_slot, slot):
     global ghost_inputs
     ghost_inputs.read_from_file()
@@ -22,6 +22,11 @@ def on_state_load(is_slot, slot):
 @event.on_frameadvance
 def on_frame_advance():
     global ghost_inputs
+    global frame
+
+    if not (frame == frame_of_input() or frame == frame_of_input()-1):
+        on_state_load(True, 0)
+        
     frame = frame_of_input()
     state = RaceManager.state().value
     inputs_ready = state in (RaceState.COUNTDOWN.value, RaceState.RACE.value)
@@ -34,6 +39,9 @@ def main() -> None:
     # Load both the player and ghost input sequences
     global ghost_inputs
     ghost_inputs = ttk_lib.get_input_sequence_from_csv(ttk_lib.PlayerType.GHOST)
+
+    global frame
+    frame = frame_of_input()
     
     gui.add_osd_message(
         "TTK | Player: {} | Ghost: {}".format(

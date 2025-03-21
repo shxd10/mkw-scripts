@@ -27,7 +27,7 @@ def on_frame_advance():
     global special_event
 
     if not (Frame_of_input == mkw_utils.frame_of_input() or Frame_of_input == mkw_utils.frame_of_input()-1):
-        c = setting.get_infodisplay_config()
+        on_state_load(True, 0)
     
     race_mgr = RaceManager()
     newframe = Frame_of_input != mkw_utils.frame_of_input()
@@ -49,7 +49,7 @@ def on_frame_advance():
         shm_writer.write_text(create_infodisplay(c, RaceComp_History, Angle_History))
 
 
-@event.on_savestateload
+#@event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
     global c
     c = setting.get_infodisplay_config()

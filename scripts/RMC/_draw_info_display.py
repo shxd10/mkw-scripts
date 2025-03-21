@@ -17,20 +17,17 @@ from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState
 
 
 
-@event.on_savestateload
+#@event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
     global c
     race_mgr = RaceManager()
     c = setting.get_infodisplay_config()
     
-    '''if race_mgr.state().value >= RaceState.COUNTDOWN.value:
+    '''
+    if race_mgr.state().value >= RaceState.COUNTDOWN.value:
         text = create_infodisplay()
-        gui.draw_text((10, 10), c.color, text)'''
-    
-
- # Something in that commented code causes dolphin to crash when loading a savestate from boot to in race
- # It's the create_infodisplay, but I can't figure out a line that makes the crash.
- # I think it's when there is too much instructions
+        gui.draw_text((10, 10), c.color, text)
+    '''
 
     
 
@@ -73,7 +70,7 @@ def on_frame_advance():
     global special_event
 
     if not (Frame_of_input == mkw_utils.frame_of_input() or Frame_of_input == mkw_utils.frame_of_input()-1):
-        c = setting.get_infodisplay_config()
+        on_state_load(True, 0) 
     
     race_mgr = RaceManager()
     newframe = Frame_of_input != mkw_utils.frame_of_input()
