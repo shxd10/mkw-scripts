@@ -1,12 +1,18 @@
+import atexit
+import multiprocessing
 from dolphin import event, gui, utils # type: ignore
 import os
 import struct
+import time
+import threading
 from external import external_utils as ex
 from Modules import ttk_lib, rkg_lib
 from Modules.mkw_utils import frame_of_input
 from Modules.mkw_classes import RaceManager, RaceState
 
 PLAYER_STR = ["player", "ghost"]
+
+# Button functions
 
 def game_to_working_csv(source: ttk_lib.PlayerType, target: ttk_lib.PlayerType):
     input_sequence = ttk_lib.read_full_decoded_rkg_data(source)
@@ -29,16 +35,22 @@ def save_ghost_to_ghost_csv():
 
 def working_csv_to_rkg(source: ttk_lib.PlayerType):
     input_sequence = ttk_lib.get_input_sequence_from_csv(source)
-    if not (input_sequence is None or len(input_sequence) == 0):
-        filetype = [('RKG files', '*.rkg'), ('All files', '*')]
-        scriptDir = utils.get_script_dir()
-        ghostDir = os.path.join(utils.get_script_dir(), 'Ghost')
-        file_path = ex.save_dialog_box(scriptDir, filetype, ghostDir, 'Save RKG')
-        with open(os.path.join(scriptDir, 'Ghost', 'Default', "default.mii"), 'rb') as f:
-            mii_data = f.read()[:0x4A]
-        with open(file_path, "wb") as f:
-            f.write(rkg_lib.encode_RKG(rkg_lib.RKGMetaData.from_current_race(), input_sequence, mii_data))
-        gui.add_osd_message(f"Saved {PLAYER_STR[source.value]} CSV to RKG")
+    if input_sequence is None or len(input_sequence) == 0:
+        return
+    
+    filetype = [('RKG files', '*.rkg'), ('All files', '*')]
+    scriptDir = utils.get_script_dir()
+    ghostDir = os.path.join(utils.get_script_dir(), 'Ghost')
+    with open(os.path.join(scriptDir, 'Ghost', 'Default', "default.mii"), 'rb') as f:
+        mii_data = f.read()[:0x4A]
+
+    file_path = ex.save_dialog_box(scriptDir, filetype, ghostDir, 'Save RKG')
+    if not file_path:
+        return
+    with open(file_path, "wb") as f:
+        f.write(rkg_lib.encode_RKG(rkg_lib.RKGMetaData.from_current_race(), input_sequence, mii_data))
+    gui.add_osd_message(f"Saved {PLAYER_STR[source.value]} CSV to RKG")
+
 
 def save_player_csv_to_rkg():
     working_csv_to_rkg(ttk_lib.PlayerType.PLAYER)
@@ -52,12 +64,17 @@ def rkg_to_working_csv(target: ttk_lib.PlayerType):
     scriptDir = utils.get_script_dir()
     ghostDir = os.path.join(utils.get_script_dir(), 'Ghost')
     file_path = ex.open_dialog_box(scriptDir, filetype, ghostDir, 'Open RKG')
+    if not file_path:
+        return
+    
     with open(file_path, 'rb') as f:
         rkg_data = rkg_lib.decode_RKG(f.read())
-        input_sequence = None if rkg_data is None else rkg_data[1]
-    if not (input_sequence is None or len(input_sequence) == 0):
-        ttk_lib.write_to_csv(input_sequence, target)
-        gui.add_osd_message(f"Saved RKG to {PLAYER_STR[target.value]} CSV")
+    input_sequence = None if rkg_data is None else rkg_data[1]
+    if input_sequence is None or len(input_sequence) == 0:
+        return
+    ttk_lib.write_to_csv(input_sequence, target)
+    gui.add_osd_message(f"Saved RKG to {PLAYER_STR[target.value]} CSV")
+
 
 def save_rkg_to_player_csv():
     rkg_to_working_csv(ttk_lib.PlayerType.PLAYER)
@@ -80,10 +97,17 @@ BUTTON_LAYOUT = [
     ],
 ]
 
+stop_thread = False
+# def thread_cleanup():
+#     global stop_thread
+#     stop_thread = True
+#     time.sleep(2)
+#     print("thread cleanup called")
+#     # listener_thread.join()
+
 def main():
-    global shm_activate, shm_buttons, shm_player_csv, shm_ghost_csv
+    global shm_activate, shm_player_csv, shm_ghost_csv
     shm_activate = ex.SharedMemoryBlock.create(name="ttk_gui_activate", buffer_size=2)
-    shm_buttons = ex.SharedMemoryBlock.create(name="ttk_gui_buttons", buffer_size=4)
     shm_player_csv = ex.SharedMemoryWriter(name="ttk_gui_player_csv", buffer_size=256)
     shm_ghost_csv = ex.SharedMemoryWriter(name="ttk_gui_ghost_csv", buffer_size=256)
 
@@ -96,13 +120,46 @@ def main():
     window_script_path = os.path.join(utils.get_script_dir(), "external", "ttk_gui_window.py")
     ex.start_external_script(window_script_path)
 
+    # Handle button events in a separate thread
+    ex.SharedMemoryBlock.create(name="ttk_gui_buttons", buffer_size=4)
+    listener_thread = threading.Thread(target=listen_for_buttons, daemon=True)
+    listener_thread.start()
+    # atexit.register(thread_cleanup)
 
+    # # Handle button events in a separate process
+    # ex.SharedMemoryBlock.create(name="ttk_gui_buttons", buffer_size=4)
+    # listener_proc = multiprocessing.Process(target=listen_for_buttons)
+    # atexit.register(listener_proc.terminate)
+    # listener_proc.start()
+    # # atexit.register(thread_cleanup)
+
+
+# This gets run in a different thread to prevent blocking
+def listen_for_buttons():
+    print("thread started")
+    try:
+        shm_buttons = ex.SharedMemoryBlock.connect(name="ttk_gui_buttons")
+        while not stop_thread:
+            update, section_index, row_index, col_index = struct.unpack('>?BBB', shm_buttons.read()[:4])
+            if update:
+                try:
+                    BUTTON_LAYOUT[section_index][row_index][col_index]()
+                finally:
+                    shm_buttons.clear()
+            time.sleep(0.01)  # Prevents CPU hogging
+    finally:
+        print("thread completed")
+
+
+# Helper that reads state of activate checkboxes
 def get_activation_state():
     return struct.unpack('>??', shm_activate.read())
 
 
 @event.on_savestateload
 def on_state_load(is_slot, slot):
+    # thread_cleanup()
+
     activate_player, activate_ghost = get_activation_state()
     if activate_player:
         player_inputs.read_from_file()
@@ -116,13 +173,6 @@ def on_state_load(is_slot, slot):
 def on_frame_advance():
     if RaceManager.state() not in (RaceState.COUNTDOWN, RaceState.RACE):
         return
-    
-    update, section_index, row_index, col_index = struct.unpack('>?BBB', shm_buttons.read())
-    if update:
-        try:
-            BUTTON_LAYOUT[section_index][row_index][col_index]()
-        finally:
-            shm_buttons.clear()
     
     activate_player, activate_ghost = get_activation_state()
     frame = frame_of_input()

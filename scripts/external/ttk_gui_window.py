@@ -1,9 +1,7 @@
 import time
 import tkinter as tk
 from tkinter import ttk  # lol
-import tksheet
 import os
-import csv
 import struct
 import external_utils as ex
 
@@ -29,6 +27,7 @@ def main():
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Shared memory buffer '{e.filename}' not found. Make sure the `TTK_GUI` script is enabled.")
 
+    # Button presses get stored in a queue and then written to shared memory one at a time
     button_command_queue = []
 
     window = tk.Tk()
@@ -67,6 +66,7 @@ def main():
                     .pack(side=tk.LEFT, padx=5)
 
     while True:
+        # Wait to send next button command until shared memory is cleared
         if button_command_queue and shm_buttons.read()[0] == 0:
             shm_buttons.write(button_command_queue.pop(0))
 
@@ -80,31 +80,7 @@ def main():
 
         window.update_idletasks()
         window.update()
-        time.sleep(0.01)  # Prevents process from hogging CPU
-
-
-def _spreadsheet_test():
-    window = tk.Tk()
-    window.title('TTK Deluxe')
-    window.config(bg="grey")
-    window.geometry('330x600')
-
-    window.grid_columnconfigure(0, weight=1)
-    window.grid_rowconfigure(0, weight=1)
-
-    frame = tk.Frame(window)
-    frame.grid_columnconfigure(0, weight=1)
-    frame.grid_rowconfigure(0, weight=1)
-
-    with open('../MKW_Inputs/bridge.csv') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-
-    sheet = tksheet.Sheet(frame, data=[])
-    sheet.enable_bindings()
-    frame.grid(row=0, column=0, sticky="nswe")
-    sheet.grid(row=0, column=0, sticky="nswe")
-
-    window.mainloop()
+        time.sleep(0.01)  # Prevents CPU hogging
 
 
 if __name__ == '__main__':
