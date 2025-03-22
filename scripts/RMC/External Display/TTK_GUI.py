@@ -1,5 +1,3 @@
-import atexit
-import multiprocessing
 from dolphin import event, gui, utils # type: ignore
 import os
 import struct
@@ -97,14 +95,6 @@ BUTTON_LAYOUT = [
     ],
 ]
 
-stop_thread = False
-# def thread_cleanup():
-#     global stop_thread
-#     stop_thread = True
-#     time.sleep(2)
-#     print("thread cleanup called")
-#     # listener_thread.join()
-
 def main():
     global shm_activate, shm_player_csv, shm_ghost_csv
     shm_activate = ex.SharedMemoryBlock.create(name="ttk_gui_activate", buffer_size=2)
@@ -122,33 +112,22 @@ def main():
 
     # Handle button events in a separate thread
     ex.SharedMemoryBlock.create(name="ttk_gui_buttons", buffer_size=4)
-    listener_thread = threading.Thread(target=listen_for_buttons, daemon=True)
+    current_thread = threading.current_thread()
+    listener_thread = threading.Thread(target=listen_for_buttons, args=(current_thread,))
     listener_thread.start()
-    # atexit.register(thread_cleanup)
-
-    # # Handle button events in a separate process
-    # ex.SharedMemoryBlock.create(name="ttk_gui_buttons", buffer_size=4)
-    # listener_proc = multiprocessing.Process(target=listen_for_buttons)
-    # atexit.register(listener_proc.terminate)
-    # listener_proc.start()
-    # # atexit.register(thread_cleanup)
 
 
 # This gets run in a different thread to prevent blocking
-def listen_for_buttons():
-    print("thread started")
-    try:
-        shm_buttons = ex.SharedMemoryBlock.connect(name="ttk_gui_buttons")
-        while not stop_thread:
-            update, section_index, row_index, col_index = struct.unpack('>?BBB', shm_buttons.read()[:4])
-            if update:
-                try:
-                    BUTTON_LAYOUT[section_index][row_index][col_index]()
-                finally:
-                    shm_buttons.clear()
-            time.sleep(0.01)  # Prevents CPU hogging
-    finally:
-        print("thread completed")
+def listen_for_buttons(parent: threading.Thread):
+    shm_buttons = ex.SharedMemoryBlock.connect(name="ttk_gui_buttons")
+    while parent.is_alive():
+        update, section_index, row_index, col_index = struct.unpack('>?BBB', shm_buttons.read()[:4])
+        if update:
+            try:
+                BUTTON_LAYOUT[section_index][row_index][col_index]()
+            finally:
+                shm_buttons.clear()
+        time.sleep(0.01)  # Prevents CPU hogging
 
 
 # Helper that reads state of activate checkboxes
@@ -158,8 +137,6 @@ def get_activation_state():
 
 @event.on_savestateload
 def on_state_load(is_slot, slot):
-    # thread_cleanup()
-
     activate_player, activate_ghost = get_activation_state()
     if activate_player:
         player_inputs.read_from_file()
