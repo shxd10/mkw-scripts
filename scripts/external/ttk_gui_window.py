@@ -64,9 +64,8 @@ def main():
                     button_command_queue.append(data)
                 ttk.Button(btn_row_frame, text=btn_text, command=on_click, width=15) \
                     .pack(side=tk.LEFT, padx=5)
-
-    while True:
-        # Wait to send next button command until shared memory is cleared
+    
+    def loop_actions():
         if button_command_queue and shm_buttons.read()[0] == 0:
             shm_buttons.write(button_command_queue.pop(0))
 
@@ -77,10 +76,11 @@ def main():
         new_text = shm_ghost_csv.read_text()
         if new_text and new_text != ghost_csv.get():
             ghost_csv.set(new_text)
+        
+        window.after(ms=10, func=loop_actions)
 
-        window.update_idletasks()
-        window.update()
-        time.sleep(0.01)  # Prevents CPU hogging
+    window.after(ms=0, func=loop_actions)
+    window.mainloop()
 
 
 if __name__ == '__main__':
