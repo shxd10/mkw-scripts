@@ -1,3 +1,7 @@
+"""
+Usage: Hold a nonzero vertical stick input to clamp any horizontal stick inputs to optimal
+soft drift values. Useful for soft drifting without turning off Full Input Range.
+"""
 from dolphin import controller, event # type: ignore
 import Modules.mkw_classes as mkw
 from Modules.macro_utils import MKWiiGCController

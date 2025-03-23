@@ -1,14 +1,19 @@
-from dolphin import controller, event
-
-from Modules.mkw_classes import KartMove, RaceManager, RaceState
+"""
+Usage: Hold UP while in a wheelie to perform perfect chain wheelies automatically.
+"""
+from dolphin import controller, event # type: ignore
+import Modules.mkw_classes as mkw
+from Modules.macro_utils import MKWiiGCController
 
 @event.on_frameadvance
 def main():
-    race_mgr = RaceManager()
-    if race_mgr.state().value >= RaceState.COUNTDOWN.value:
-        pressing_up = controller.get_gc_buttons(0)["Up"]
-        if pressing_up and KartMove.wheelie_frames() == 180:
-            controller.set_gc_buttons(
-                0, {"A": True,
-                    "Up": False,
-                    "StickX": controller.get_gc_buttons(0)["StickX"]})
+    if mkw.RaceManager().state() != mkw.RaceState.RACE:
+        return
+
+    ctrl = MKWiiGCController(controller)
+    user_inputs = ctrl.user_inputs()
+
+    if user_inputs["Up"] and mkw.KartMove.wheelie_frames() == 180:
+        ctrl.set_inputs({
+            "Up": False
+        })

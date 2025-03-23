@@ -1,3 +1,7 @@
+"""
+Usage: When holding left or right, neutral inputs will be added to optimize EV building via
+leaning. Can also be used for optimal neutral gliding.
+"""
 from dolphin import controller, event # type: ignore
 import Modules.mkw_classes as mkw
 from Modules.macro_utils import MKWiiGCController
