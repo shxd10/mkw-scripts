@@ -16,7 +16,6 @@ def game_to_working_csv(source: ttk_lib.PlayerType, target: ttk_lib.PlayerType):
     input_sequence = ttk_lib.read_full_decoded_rkg_data(source)
     if not (input_sequence is None or len(input_sequence) == 0):
         ttk_lib.write_to_csv(input_sequence, target)
-        gui.add_osd_message(f"Saved {PLAYER_STR[source.value]} to {PLAYER_STR[target.value]} CSV")
 
 def save_player_to_player_csv():
     game_to_working_csv(ttk_lib.PlayerType.PLAYER, ttk_lib.PlayerType.PLAYER)
@@ -47,7 +46,6 @@ def working_csv_to_rkg(source: ttk_lib.PlayerType):
         return
     with open(file_path, "wb") as f:
         f.write(rkg_lib.encode_RKG(rkg_lib.RKGMetaData.from_current_race(), input_sequence, mii_data))
-    gui.add_osd_message(f"Saved {PLAYER_STR[source.value]} CSV to RKG")
 
 
 def save_player_csv_to_rkg():
@@ -71,7 +69,6 @@ def rkg_to_working_csv(target: ttk_lib.PlayerType):
     if input_sequence is None or len(input_sequence) == 0:
         return
     ttk_lib.write_to_csv(input_sequence, target)
-    gui.add_osd_message(f"Saved RKG to {PLAYER_STR[target.value]} CSV")
 
 
 def save_rkg_to_player_csv():
@@ -111,7 +108,11 @@ def main():
     ex.start_external_script(window_script_path)
 
     # Handle button events in a separate thread
+    global button_queue
+    button_queue = []
+
     ex.SharedMemoryBlock.create(name="ttk_gui_buttons", buffer_size=4)
+
     current_thread = threading.current_thread()
     listener_thread = threading.Thread(target=listen_for_buttons, args=(current_thread,))
     listener_thread.start()
@@ -119,15 +120,32 @@ def main():
 
 # This gets run in a different thread to prevent blocking
 def listen_for_buttons(parent: threading.Thread):
+    BUTTON_WAIT = 1
     shm_buttons = ex.SharedMemoryBlock.connect(name="ttk_gui_buttons")
+
     while parent.is_alive():
-        update, section_index, row_index, col_index = struct.unpack('>?BBB', shm_buttons.read()[:4])
-        if update:
-            try:
-                BUTTON_LAYOUT[section_index][row_index][col_index]()
-            finally:
-                shm_buttons.clear()
+        # If window sent button data, add it to queue
+        button_data = shm_buttons.read()[:4]
+        if button_data[0]:
+            button_queue.append({'data': button_data, 'time': time.time()})
+            shm_buttons.clear()
+
+        # If oldest button data has been in queue longer than BUTTON_WAIT, assume 
+        # emulation is paused and execute button function without waiting for next frame
+        if button_queue and (time.time() - button_queue[0]['time'] > BUTTON_WAIT):
+            execute_button_function()
+
         time.sleep(0.01)  # Prevents CPU hogging
+
+
+# Helper that pops the oldest button command in the queue and executes it
+def execute_button_function():
+    button_data = button_queue.pop(0)['data']
+    section_index, row_index, col_index = struct.unpack('>BBB', button_data[1:4])
+    try:
+        BUTTON_LAYOUT[section_index][row_index][col_index]()
+    except Exception as e:
+        print(f"Error executing button function: {e}")
 
 
 # Helper that reads state of activate checkboxes
@@ -159,6 +177,10 @@ def on_frame_advance():
     
     if activate_ghost and ghost_inputs[frame]:
         ttk_lib.write_ghost_inputs(ghost_inputs[frame])
+
+    # If button queue is not empty, execute oldest button function
+    if button_queue:
+        execute_button_function()
 
 
 if __name__ == '__main__':

@@ -27,9 +27,6 @@ def main():
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Shared memory buffer '{e.filename}' not found. Make sure the `TTK_GUI` script is enabled.")
 
-    # Button presses get stored in a queue and then written to shared memory one at a time
-    button_command_queue = []
-
     window = tk.Tk()
     window.title("TAS Toolkit GUI")
     window.geometry("500x250")
@@ -61,14 +58,11 @@ def main():
             for col_index, btn_text in enumerate(row):
                 button_data = struct.pack('>?BBB', True, section_index, row_index, col_index)
                 def on_click(data=button_data):
-                    button_command_queue.append(data)
+                    shm_buttons.write(data)
                 ttk.Button(btn_row_frame, text=btn_text, command=on_click, width=15) \
                     .pack(side=tk.LEFT, padx=5)
     
     def loop_actions():
-        if button_command_queue and shm_buttons.read()[0] == 0:
-            shm_buttons.write(button_command_queue.pop(0))
-
         new_text = shm_player_csv.read_text()
         if new_text and new_text != player_csv.get():
             player_csv.set(new_text)
