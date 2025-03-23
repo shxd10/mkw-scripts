@@ -1,4 +1,3 @@
-import time
 import tkinter as tk
 from tkinter import ttk  # lol
 import os
@@ -30,17 +29,21 @@ def main():
     window = tk.Tk()
     window.title("TAS Toolkit GUI")
     window.geometry("500x250")
+    # window.attributes('-topmost',True)
     
     root_frame = ttk.Frame(window)
     root_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
+    # Checkboxes state
     activate_state = [tk.BooleanVar(), tk.BooleanVar()]
     def on_checkbox_change():
         shm_activate.write(struct.pack('>??', *[var.get() for var in activate_state]))
     
+    # File name display state
     player_csv = tk.StringVar(value=shm_player_csv.read_text())
     ghost_csv = tk.StringVar(value=shm_ghost_csv.read_text())
 
+    # Construct page layout
     for section_index, section_title in enumerate(["Player Inputs", "Ghost Inputs"]):
         section_frame = ttk.LabelFrame(root_frame, text=section_title)
         section_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
@@ -62,6 +65,7 @@ def main():
                 ttk.Button(btn_row_frame, text=btn_text, command=on_click, width=15) \
                     .pack(side=tk.LEFT, padx=5)
     
+    # Function that runs repeatedly while window is open
     def loop_actions():
         new_text = shm_player_csv.read_text()
         if new_text and new_text != player_csv.get():

@@ -1,4 +1,4 @@
-from dolphin import event, gui, utils # type: ignore
+from dolphin import event, utils # type: ignore
 import os
 import struct
 import time
@@ -108,29 +108,33 @@ def main():
     ex.start_external_script(window_script_path)
 
     # Handle button events in a separate thread
-    global button_queue
-    button_queue = []
-
     ex.SharedMemoryBlock.create(name="ttk_gui_buttons", buffer_size=4)
-
     current_thread = threading.current_thread()
     listener_thread = threading.Thread(target=listen_for_buttons, args=(current_thread,))
     listener_thread.start()
 
+    # If a button function is executed immediately while emulation is not paused, it can cause
+    # pycore to freeze. To avoid this, button events are stored in this queue. If emulation
+    # is not paused, the event will be processed in `on_frame_advance` which won't freeze. If
+    # `on_frame_advance` doesn't process the event within a certain time, it is assumed that
+    # emulation is paused, so the event is processed immediately.
+    global button_queue
+    button_queue = []
 
-# This gets run in a different thread to prevent blocking
+
+# Loop that watches for button events; this gets run in a different thread to prevent blocking
 def listen_for_buttons(parent: threading.Thread):
     BUTTON_WAIT = 1
     shm_buttons = ex.SharedMemoryBlock.connect(name="ttk_gui_buttons")
 
     while parent.is_alive():
-        # If window sent button data, add it to queue
-        button_data = shm_buttons.read()[:4]
-        if button_data[0]:
-            button_queue.append({'data': button_data, 'time': time.time()})
+        # If window sent a button event, add it to queue
+        button_event = shm_buttons.read()[:4]
+        if button_event[0]:
+            button_queue.append({'data': button_event, 'time': time.time()})
             shm_buttons.clear()
 
-        # If oldest button data has been in queue longer than BUTTON_WAIT, assume 
+        # If oldest button event has been in queue longer than BUTTON_WAIT, assume 
         # emulation is paused and execute button function without waiting for next frame
         if button_queue and (time.time() - button_queue[0]['time'] > BUTTON_WAIT):
             execute_button_function()
@@ -138,10 +142,10 @@ def listen_for_buttons(parent: threading.Thread):
         time.sleep(0.01)  # Prevents CPU hogging
 
 
-# Helper that pops the oldest button command in the queue and executes it
+# Helper that pops the oldest button event in the queue and executes it
 def execute_button_function():
-    button_data = button_queue.pop(0)['data']
-    section_index, row_index, col_index = struct.unpack('>BBB', button_data[1:4])
+    button_event = button_queue.pop(0)['data']
+    section_index, row_index, col_index = struct.unpack('>BBB', button_event[1:4])
     try:
         BUTTON_LAYOUT[section_index][row_index][col_index]()
     except Exception as e:
