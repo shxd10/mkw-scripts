@@ -47,6 +47,8 @@ def on_frame_advance():
     race_mgr = mkw.RaceManager()
     if race_mgr.state().value != mkw.RaceState.RACE.value:
         return
+    if not mkw.KartSettings.is_bike():
+        return
 
     ctrl = MKWiiGCController(controller)
     user_inputs = ctrl.user_inputs()
