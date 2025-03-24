@@ -1,3 +1,8 @@
+"""
+Usage: While script is active, commit to a drift to start superhopping in that direction.
+To counterhop, hold the stick in the opposite direction of the superhopping. To wheelie between
+hops, hold the UP button. Vertical stick inputs will not be overwritten.
+"""
 from dolphin import controller, event, gui # type: ignore
 import dataclasses
 import Modules.mkw_classes as mkw
@@ -8,9 +13,6 @@ class State:
     stage: int = -1
     direction: int = 0
     hold_drift: bool = False
-    Z_held: bool = False
-    prev_ev_xz: float = 0
-    neutral_glide: bool = False
 
     def __repr__(self):
         return str(self.__dict__)
@@ -24,6 +26,7 @@ SAVESTATES = [S.copy()] * 10
 
 TOGGLE_BUTTON = False
 DEBUG_DISPLAY = False
+
 
 @event.on_savestatesave
 def on_save_state(is_slot: bool, slot: int):
@@ -44,18 +47,17 @@ def on_frame_advance():
     race_mgr = mkw.RaceManager()
     if race_mgr.state().value != mkw.RaceState.RACE.value:
         return
+    if not mkw.KartSettings.is_bike():
+        return
 
     ctrl = MKWiiGCController(controller)
     user_inputs = ctrl.user_inputs()
 
     kart_object = mkw.KartObject()
     kart_move = mkw.KartMove(addr=kart_object.kart_move())
-    commit_dir = kart_move.hop_stick_x()
 
     kart_collide = mkw.KartCollide(addr=kart_object.kart_collide())
     surface_properties = kart_collide.surface_properties().value
-
-    ev = mkw.VehiclePhysics.external_velocity()
 
     """
     Ideas:
@@ -67,34 +69,23 @@ def on_frame_advance():
     if DEBUG_DISPLAY:
         gui.draw_text((10, gui.get_display_size()[1] - 20), 0xFFFFFFFF, S.__repr__())
 
-    if TOGGLE_BUTTON:
-        # Activate/deactivate superhopping with Z
-        if user_inputs["Z"] and not S.Z_held and (S.stage != -1 or commit_dir != 0):
-            S.stage = 0 if S.stage == -1 else -1
-            S.direction = commit_dir
-            S.Z_held = True
-        elif not user_inputs["Z"] and S.Z_held:
-            S.Z_held = False
-        ctrl.set_inputs({"Z": False})
-    else:
-        # Start superhopping on first drift commit
-        if S.stage == -1 and commit_dir != 0:
-            S.stage = 0
-            S.direction = commit_dir
+    # Start superhopping on first drift commit
+    if S.stage == -1 and kart_move.hop_stick_x() != 0:
+        S.stage = 0
+        S.direction = kart_move.hop_stick_x()
 
     # Default superhopping state
     if S.stage == 0:
         # If vehicle is on ground, start hop sequence
         if surface_properties != 0:
-            S.neutral_glide = False
             S.stage = 1
         # Otherwise, vehicle is in air so apply spindrift inputs
         else:
-            S.neutral_glide = not S.neutral_glide and (ev.length_xz() - S.prev_ev_xz) < 0
+            neutral_glide = abs(kart_move.lean_rot()) + kart_move.lean_rot_increase() > kart_move.lean_rot_cap()
             ctrl.set_inputs({
                 "A": True,
                 "B": True,
-                "StickX": 0 if S.neutral_glide else (7 * S.direction),
+                "StickX": 0 if neutral_glide else (7 * S.direction),
                 "Up": False,
             })
     
@@ -146,7 +137,5 @@ def on_frame_advance():
         S.hold_drift = not S.hold_drift
         S.stage = 0
     
-    S.prev_ev_xz = ev.length_xz()
-
     if S.stage > 0:
         S.stage += 1

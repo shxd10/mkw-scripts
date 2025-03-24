@@ -13,6 +13,7 @@ def run_external_script(path: str):
     output = subprocess.check_output(["python", path], text=True, creationflags=subprocess.CREATE_NO_WINDOW)
     return output
 
+
 class SharedMemoryWriter:
     def __init__(self, name: str, buffer_size: int, create=True):
         self._shm = shared_memory.SharedMemory(create=create, name=name, size=buffer_size)
@@ -49,7 +50,53 @@ class SharedMemoryReader:
 
     def close_with_writer(self):
         self._shm.close()
-        self._shm.unlink()        
+        self._shm.unlink()
+
+
+class SharedMemoryBlock:
+    """ Allows both reading and writing to a shared memory block """
+    def __init__(self, _shm: shared_memory.SharedMemory):
+        self._shm = _shm
+
+    @staticmethod
+    def create(name: str, buffer_size: int):
+        """ Create new shared memory block """
+        shm = SharedMemoryBlock(shared_memory.SharedMemory(create=True, name=name, size=buffer_size))
+        atexit.register(shm.destroy)
+        return shm
+    
+    @staticmethod
+    def connect(name: str):
+        """ Connect to existing shared memory block """
+        shm = SharedMemoryBlock(shared_memory.SharedMemory(name=name))
+        atexit.register(shm.disconnect)
+        return shm
+
+    def clear(self):
+        self._shm.buf[:len(self._shm.buf)] = b'\x00' * len(self._shm.buf)
+
+    def read(self):
+        return bytes(self._shm.buf)
+    
+    def read_text(self):
+        return self.read().rstrip(b'\x00').decode('utf-8')
+
+    def write(self, bytes: bytes):
+        if len(bytes) > len(self._shm.buf):
+            raise ValueError("Data is too large for shared memory buffer.")
+        self.clear()
+        self._shm.buf[:len(bytes)] = bytes
+
+    def write_text(self, text: str):
+        bytes = text.encode('utf-8')
+        self.write(bytes)
+    
+    def disconnect(self):
+        self._shm.close()
+    
+    def destroy(self):
+        self.disconnect()
+        self._shm.unlink()
 
 
 def open_dialog_box(scriptDir, filetypes = [('All files', '*')], initialdir = '', title = '', multiple = False):

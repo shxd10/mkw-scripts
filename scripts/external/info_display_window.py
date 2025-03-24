@@ -1,5 +1,6 @@
 import tkinter
 import external_utils
+import time
 
 # Fix blurry text
 from ctypes import windll
@@ -34,11 +35,12 @@ def main():
     try:
         while True:
             new_text = shm_reader.read_text()
-            if new_text and new_text != display_text:
+            if new_text and new_text != display_text.get():
                 display_text.set(new_text)
 
             window.update_idletasks()
             window.update()
+            time.sleep(0.01)
 
     except KeyboardInterrupt:
         print("Reader stopped.")

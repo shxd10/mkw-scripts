@@ -1,4 +1,5 @@
-scripts/MKW_Inputs/**
+scripts/MKW_Inputs/*.csv
+scripts/MKW_Inputs/*.rkg
 scripts/AGC_Data/**
 scripts/Settings/**
 /scripts/Ghost/**/*.rkg
