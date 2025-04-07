@@ -1,6 +1,6 @@
-scripts/MKW_Inputs/*.csv
-scripts/MKW_Inputs/*.rkg
-scripts/AGC_Data/**/*agc
+scripts/MKW_Inputs/**/*.csv
+scripts/MKW_Inputs/**/*.rkg
+scripts/AGC_Data/**/*.agc
 scripts/Settings/**/*.ini
 /scripts/Ghost/**/*.rkg
 **/__pycache__
@@ -8,3 +8,4 @@ scripts/Settings/**/*.ini
 
 scripts/RMC/test.py
 scripts/RMC/test codecallbacl.py
+scripts/RMC/test.py
