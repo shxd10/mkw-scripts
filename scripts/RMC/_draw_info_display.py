@@ -9,7 +9,7 @@ from Modules.mkw_utils import History
 from external.external_utils import run_external_script
 import Modules.settings_utils as setting
 import Modules.mkw_utils as mkw_utils
-from Modules.infodisplay_utils import draw_infodisplay, draw_infodisplay_fr, special
+from Modules.infodisplay_utils import draw_infodisplay
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState
 
 
@@ -17,17 +17,21 @@ from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState
 
 
 
-#@event.on_savestateload
+@event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
     global c
     race_mgr = RaceManager()
     c = setting.get_infodisplay_config()
     
-    '''
+    
     if race_mgr.state().value >= RaceState.COUNTDOWN.value:
-        text = create_infodisplay()
-        gui.draw_text((10, 10), c.color, text)
-    '''
+        draw_infodisplay(c, RaceComp_History, Angle_History)
+
+@event.on_savestatesave
+def on_state_load(fromSlot: bool, slot: int):    
+    if race_mgr.state().value >= RaceState.COUNTDOWN.value:
+        draw_infodisplay(c, RaceComp_History, Angle_History)
+    
 
     
 
@@ -68,9 +72,6 @@ def on_frame_advance():
     global RaceComp_History
     global c
     global special_event
-
-    if not (Frame_of_input == mkw_utils.frame_of_input() or Frame_of_input == mkw_utils.frame_of_input()-1):
-        on_state_load(True, 0) 
     
     race_mgr = RaceManager()
     newframe = Frame_of_input != mkw_utils.frame_of_input()
@@ -84,13 +85,4 @@ def on_frame_advance():
             pass
 
     if draw:
-        if not special():
-            draw_infodisplay(c, RaceComp_History, Angle_History)
-        else:
-            if Frame_of_input>240 and not special_event[0]:
-                special_event = (True, run_external_script(os.path.join(utils.get_script_dir(), 'external', 'special.py')).split('\n')[-1] == 'w')
-            if Frame_of_input<=240 or special_event[1]:
-                draw_infodisplay(c, RaceComp_History, Angle_History)
-            else:
-                draw_infodisplay_fr(c, RaceComp_History, Angle_History)
-
+        draw_infodisplay(c, RaceComp_History, Angle_History)

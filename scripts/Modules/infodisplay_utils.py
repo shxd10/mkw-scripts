@@ -117,7 +117,7 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
         engine_speed = kart_move.speed()
         cap = kart_move.soft_speed_limit()
         text += make_text_speed(speed, "", 0, False, c.speed_oriented, c.speed, c.digits)
-        text += f"     Engine: {round(engine_speed, c.digits)} / {round(cap, c.digits)}\n"
+        text += f"     Engine: {engine_speed:.{c.digits}f} / {cap:.{c.digits}f}\n"
         text += "\n"
     
     if (c.iv or c.iv_xyz or c.iv_oriented):
@@ -165,8 +165,8 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
         cp = race_mgr_player.checkpoint_id()
         kcp = race_mgr_player.max_kcp()
         rp = race_mgr_player.respawn()
-        text += f" Lap%: {round(lap_comp,c.digits)}\n"
-        text += f"Race%: {round(race_comp,c.digits)}\n"
+        text += f" Lap%: {lap_comp:.{c.digits}f}\n"
+        text += f"Race%: {race_comp:.{c.digits}f}\n"
         text += f"CP: {cp} | KCP: {kcp} | RP: {rp}\n\n"
 
     if c.air:
@@ -180,6 +180,7 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
         kart_jump = KartJump(addr=kart_move.kart_jump())
         trick_cd = kart_jump.cooldown()
         hwg_timer = kart_state.hwg_timer()
+        gcf = kart_collide.glitchy_corner()
         oob_timer = kart_collide.solid_oob_timer()
         respawn_timer = kart_collide.time_before_respawn()
         offroad_inv = kart_move.offroad_invincibility()
@@ -187,8 +188,8 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
             text += f"Wheelie Length: {kart_move.wheelie_frames()}\n"
             text += f"Wheelie CD: {kart_move.wheelie_cooldown()} | "
         text += f"Trick CD: {trick_cd}\n"
-        text += f"HWG: {hwg_timer} | OOB: {oob_timer}\n"
-        text += f"Respawn: {respawn_timer}\n"
+        text += f"HWG: {hwg_timer} | GCF: {gcf:.{c.digits}f}\n"
+        text += f"Respawn: {respawn_timer} | OOB: {oob_timer}\n"
         text += f"Offroad: {offroad_inv}\n\n"
 
     if c.surfaces:
@@ -198,7 +199,7 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
         kcl_speed_mod = kart_move.kcl_speed_factor()
         text += f"  Offroad: {is_offroad}\n"
         text += f"Trickable: {is_trickable}\n"
-        text += f"KCL Speed Modifier: {round(kcl_speed_mod * 100, c.digits)}%\n\n"
+        text += f"KCL Speed Modifier: {kcl_speed_mod * 100:.{c.digits}f}%\n\n"
 
     if c.position:
         pos = vehicle_physics.position()
