@@ -1,18 +1,17 @@
-from dolphin import gui, utils, memory
+from dolphin import gui, utils, memory, event
 from Modules import ttk_lib
 from external import external_utils as ex
 from Modules.rkg_lib import decode_RKG, encode_RKG, RKGMetaData
 from Modules.framesequence import FrameSequence
 import os
 import sys
-
+import time
 
 
 
 def main() -> None:
     gui.add_osd_message("Script started")
 
-    #Prompt the user to select a .rkg file
     scriptDir = utils.get_script_dir()
     scriptname = os.path.join(scriptDir, 'external', 'TTK_Save_GUI_window.py')
     
@@ -59,3 +58,11 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+    global script_end_time
+    script_end_time = time.time()
+
+
+@event.on_timertick
+def cancel():
+    if script_end_time and (time.time() - script_end_time > 0.2):
+        utils.cancel_script(utils.get_script_name())

@@ -1,7 +1,8 @@
-from dolphin import gui, utils
+from dolphin import gui, utils, event
 from Modules import ttk_lib
 from external import external_utils as ex
 import os
+import time
 
 """
 save_player_to_player_csv
@@ -27,7 +28,15 @@ def main() -> None:
     if write_file:
         input_sequence.write_to_file(write_file)
     else:
-        gui.add_osd_message("You didn't entered a filename to save as")
+        gui.add_osd_message("Save Aborted")
 
 if __name__ == '__main__':
     main()
+    global script_end_time
+    script_end_time = time.time()
+
+
+@event.on_timertick
+def cancel():
+    if script_end_time and (time.time() - script_end_time > 0.2):
+        utils.cancel_script(utils.get_script_name())

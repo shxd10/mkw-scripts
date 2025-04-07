@@ -1,5 +1,6 @@
-from dolphin import gui
+from dolphin import gui, event, utils
 from Modules import ttk_lib
+import time
 
 """
 save_player_to_player_csv
@@ -21,3 +22,11 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+    global script_end_time
+    script_end_time = time.time()
+
+
+@event.on_timertick
+def cancel():
+    if script_end_time and (time.time() - script_end_time > 0.2):
+        utils.cancel_script(utils.get_script_name())
