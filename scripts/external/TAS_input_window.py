@@ -36,7 +36,7 @@ root = Tk()
 root.title('TAS Input')
 root.wm_attributes('-topmost', 1) #Always on top
 
-content = ttk.Frame(root)
+content = ttk.Frame(root, padding = 10)
 
 Avar = BooleanVar(value=False)
 Bvar = BooleanVar(value=False)
