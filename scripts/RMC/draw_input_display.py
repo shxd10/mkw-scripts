@@ -7,9 +7,7 @@ from Modules.mkw_classes import KartInput, RaceInputState, ButtonActions
 stick_dict = {-7: 0, -6: 60, -5: 70, -4: 80, -3: 90, -2: 100, -1: 110,
               0: 128, 1: 155, 2: 165, 3: 175, 4: 185, 5: 195, 6: 200, 7: 255}
 
-
-@event.on_frameadvance
-def on_frame_advance():
+def draw():
     race_mgr = RaceManager()
     if race_mgr.state().value >= RaceState.COUNTDOWN.value:
 
@@ -66,3 +64,16 @@ def on_frame_advance():
         # Control Stick
         display.create_control_stick([210, gui.get_display_size()[1] - 100], 50, 30, 50,
             stick_dict.get(xstick, 0), stick_dict.get(ystick, 0), 0xFFFFFFFF)
+
+
+@event.on_frameadvance
+def on_frame_advance():
+    draw()
+
+@event.on_savestatesave
+def on_state_load(fromSlot: bool, slot: int):    
+    draw()
+    
+@event.on_savestateload
+def on_state_load(fromSlot: bool, slot: int):
+    draw()
