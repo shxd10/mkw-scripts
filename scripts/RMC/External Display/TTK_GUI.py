@@ -37,7 +37,7 @@ def working_csv_to_rkg(source: ttk_lib.PlayerType):
     filetype = [('RKG files', '*.rkg'), ('All files', '*')]
     scriptDir = utils.get_script_dir()
     ghostDir = os.path.join(utils.get_script_dir(), 'Ghost')
-    with open(os.path.join(scriptDir, 'Ghost', 'Default', "default.mii"), 'rb') as f:
+    with open(os.path.join(scriptDir, 'Modules', "default.mii"), 'rb') as f:
         mii_data = f.read()[:0x4A]
 
     file_path = ex.save_dialog_box(scriptDir, filetype, ghostDir, 'Save RKG')

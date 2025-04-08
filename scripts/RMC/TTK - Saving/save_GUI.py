@@ -39,7 +39,7 @@ def main() -> None:
             else:
                 raise ValueError('Invalid source file')
 
-    with open(os.path.join(scriptDir, 'Ghost', 'Default', "default.mii"), 'rb') as f:
+    with open(os.path.join(scriptDir, 'Modules', "default.mii"), 'rb') as f:
         mii_data = f.read()[:0x4A]
     
     for i in range(1, len(args)):

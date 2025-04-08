@@ -104,6 +104,7 @@ def extended_race_state():
             return state
         else:
             try:
+                region = utils.get_game_id()
                 address = {"RMCE01": 0x809B8F88, "RMCP01": 0x809BD748,
                         "RMCJ01": 0x809BC7A8, "RMCK01": 0x809ABD88}
                 rkg_addr = chase_pointer(address[region], [0x18], 'u32')
