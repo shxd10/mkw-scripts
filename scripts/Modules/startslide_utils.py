@@ -24,22 +24,22 @@ def check_vehicle(vehicle: str):
     path = utils.get_script_dir()
 
     if vehicle in flame_slide_bikes:
-        return os.path.join(path, "MKW_Inputs", "Startslides", f"flame_{direction.value}.csv")
+        return os.path.join(path, "Startslides", f"flame_{direction.value}.csv")
 
     elif vehicle in spear_slide_bikes:
-        return os.path.join(path, "MKW_Inputs", "Startslides", f"spear_{direction.value}.csv")
+        return os.path.join(path, "Startslides", f"spear_{direction.value}.csv")
 
     elif vehicle in mach_slide_bikes:
-        return os.path.join(path, "MKW_Inputs", "Startslides", f"mach_{direction.value}.csv")
+        return os.path.join(path, "Startslides", f"mach_{direction.value}.csv")
 
     elif vehicle in wario_slide_bikes:
-        return os.path.join(path, "MKW_Inputs", "Startslides", f"wario_{direction.value}.csv")
+        return os.path.join(path, "Startslides", f"wario_{direction.value}.csv")
     
     elif vehicle in wiggle_slide_bikes:
-        return os.path.join(path, "MKW_Inputs", "Startslides", f"wiggle_{direction.value}.csv")
+        return os.path.join(path, "Startslides", f"wiggle_{direction.value}.csv")
 
-    else:  # Karts fall here
-        return None
+    else:  # Karts fall here. We take any slides, just for the startboost
+        return os.path.join(path, "Startslides", f"spear_{direction.value}.csv")
 
 
 def on_state_load(is_slot, slot):
