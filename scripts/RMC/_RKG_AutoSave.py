@@ -9,6 +9,7 @@ from Modules.mkw_utils import History
 
 import Modules.settings_utils as setting
 import Modules.mkw_utils as mkw_utils
+import Modules.mkw_translations as mkw_translations
 from Modules.rkg_lib import get_RKG_data_memory, decode_RKG
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, TimerManager
 from Modules.mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings
@@ -41,7 +42,7 @@ def on_frame_advance():
                 metadata, inputList, mii_data = decode_RKG(rkg_data)
                 crc_string = str(hexlify(rkg_data[-4:]))[2:-2]
                 ft_string = f'_{metadata.finish_time:.3f}s_'
-                filename = os.path.join(utils.get_script_dir(), 'Ghost', 'AutoSave', course_id.name+ft_string+crc_string+'.rkg')
+                filename = os.path.join(utils.get_script_dir(), 'Ghost', 'AutoSave', mkw_translations.course_slot_abbreviation() +ft_string+crc_string+'.rkg')
                 with open(filename, 'wb') as f:
                     f.write(rkg_data)
                 gui.add_osd_message("Ghost saved to "+filename)

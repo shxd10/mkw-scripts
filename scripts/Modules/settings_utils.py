@@ -116,7 +116,7 @@ class AGCConfigInstance():
         self.ghost_delay = config['DELAY'].getfloat('Ghost delay')
         self.player_delay = config['DELAY'].getfloat('Player delay')
         self.ghost_path = config['PATH'].get('Ghost .agc file path')
-        self.player_path = config['PATH'].get('Ghost .agc file path')
+        self.player_path = config['PATH'].get('Player .agc file path')
 
 def populate_default_config_agc(file_path):
     config = configparser.ConfigParser()
@@ -142,4 +142,39 @@ def get_agc_config():
     if not config.sections():
         config = populate_default_config_agc(file_path)
     return AGCConfigInstance(config)
+
+
+################## TTK CONFIG ########################
+class TTKConfigInstance():
+    def __init__(self, config : configparser.ConfigParser):
+        #self.ttk_path = config['PATH'].get('TTK folder path')
+        self.player_filename = config['PATH'].get('Player filename')
+        self.ghost_filename = config['PATH'].get('Ghost filename')
+        self.track_suffix = config['PATH'].getboolean('Use track suffix')
+        self.ttk_backup = config['BACKUP'].getint('Backup Amount')
+
+def populate_default_config_ttk(file_path):
+    config = configparser.ConfigParser()
+
+    config['PATH'] = {}
+    #config['PATH']['TTK folder path'] = "MKW_Inputs/"
+    config['PATH']['Player filename'] = "TTK_Player_Inputs"
+    config['PATH']['Ghost filename'] = "TTK_Ghost_Inputs"
+    config['PATH']['Use track suffix'] = 'True'
+
+    config['BACKUP'] = {}
+    config['BACKUP']['Backup Amount'] = '5'
+
+    with open(file_path, 'w') as f:
+        config.write(f)
+        
+    return config
+
+def get_ttk_config():
+    config = configparser.ConfigParser()
+    file_path = os.path.join(utils.get_script_dir(), 'Settings', 'TTK.ini')
+    config.read(file_path)
+    if not config.sections():
+        config = populate_default_config_ttk(file_path)
+    return TTKConfigInstance(config)
 
