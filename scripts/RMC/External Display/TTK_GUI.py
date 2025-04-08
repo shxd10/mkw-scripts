@@ -2,7 +2,6 @@ from dolphin import event, utils # type: ignore
 import os
 import struct
 import time
-import threading
 from external import external_utils as ex
 from Modules import ttk_lib, rkg_lib
 from Modules.mkw_utils import frame_of_input
@@ -109,9 +108,9 @@ def main():
 
     # Handle button events in a separate thread
     ex.SharedMemoryBlock.create(name="ttk_gui_buttons", buffer_size=4)
-    current_thread = threading.current_thread()
-    listener_thread = threading.Thread(target=listen_for_buttons, args=(current_thread,))
-    listener_thread.start()
+
+    global shm_buttons
+    shm_buttons = ex.SharedMemoryBlock.connect(name="ttk_gui_buttons")
 
     # If a button function is executed immediately while emulation is not paused, it can cause
     # pycore to freeze. To avoid this, button events are stored in this queue. If emulation
@@ -122,24 +121,26 @@ def main():
     button_queue = []
 
 
-# Loop that watches for button events; this gets run in a different thread to prevent blocking
-def listen_for_buttons(parent: threading.Thread):
-    BUTTON_WAIT = 1
-    shm_buttons = ex.SharedMemoryBlock.connect(name="ttk_gui_buttons")
 
-    while parent.is_alive():
-        # If window sent a button event, add it to queue
-        button_event = shm_buttons.read()[:4]
-        if button_event[0]:
-            button_queue.append({'data': button_event, 'time': time.time()})
-            shm_buttons.clear()
+@event.on_timertick
+def on_timer_tick():
+    #Only do stuff when the game is paused to avoid crashes
+    if utils.is_paused():
+        listen_for_buttons()
+        
+# Function that watches for button events    
+def listen_for_buttons():
+    BUTTON_WAIT = 0.2
 
-        # If oldest button event has been in queue longer than BUTTON_WAIT, assume 
-        # emulation is paused and execute button function without waiting for next frame
-        if button_queue and (time.time() - button_queue[0]['time'] > BUTTON_WAIT):
-            execute_button_function()
+    # If window sent a button event, add it to queue
+    button_event = shm_buttons.read()[:4]
+    if button_event[0]:
+        button_queue.append({'data': button_event, 'time': time.time()})
+        shm_buttons.clear()
 
-        time.sleep(0.01)  # Prevents CPU hogging
+    if button_queue:
+        execute_button_function()
+
 
 
 # Helper that pops the oldest button event in the queue and executes it
@@ -159,17 +160,24 @@ def get_activation_state():
 
 @event.on_savestateload
 def on_state_load(is_slot, slot):
+    global player_inputs
+    global ghost_inputs
+    
     activate_player, activate_ghost = get_activation_state()
     if activate_player:
+        player_inputs = ttk_lib.get_input_sequence_from_csv(ttk_lib.PlayerType.PLAYER)
         player_inputs.read_from_file()
         shm_player_csv.write_text(player_inputs.filename)
     if activate_ghost:
+        ghost_inputs = ttk_lib.get_input_sequence_from_csv(ttk_lib.PlayerType.GHOST)
         ghost_inputs.read_from_file()
         shm_ghost_csv.write_text(ghost_inputs.filename)
 
 
-@event.on_frameadvance
-def on_frame_advance():
+@event.on_framebegin
+def on_frame_begin():
+    listen_for_buttons()
+    
     if RaceManager.state() not in (RaceState.COUNTDOWN, RaceState.RACE):
         return
     
@@ -181,10 +189,6 @@ def on_frame_advance():
     
     if activate_ghost and ghost_inputs[frame]:
         ttk_lib.write_ghost_inputs(ghost_inputs[frame])
-
-    # If button queue is not empty, execute oldest button function
-    if button_queue:
-        execute_button_function()
 
 
 if __name__ == '__main__':

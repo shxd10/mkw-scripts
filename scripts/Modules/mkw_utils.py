@@ -113,6 +113,7 @@ def extended_race_state():
                 return 5
             else:
                 return 4
+            
 def delta_position(playerIdx=0):
     dynamics_ref = VehicleDynamics(playerIdx)
     physics_ref = VehiclePhysics(addr=dynamics_ref.vehicle_physics())
