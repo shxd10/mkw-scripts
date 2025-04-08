@@ -3,10 +3,6 @@ from external import external_utils as ex
 import Modules.ttk_lib as lib
 from Modules.framesequence import Frame
 import Modules.mkw_utils as mkw_utils
-import time
-import asyncio
-import multiprocessing
-import threading
 import os
 
 def run_input(_ = None):
@@ -29,9 +25,6 @@ def run_input_loop(_ = None):
 def main():
     global end
     end = False
-
-    global frame
-    frame = mkw_utils.frame_of_input()
     
     global input_writer
     input_writer = ex.SharedMemoryWriter('mkw tas input', 30)
@@ -48,11 +41,8 @@ if __name__ == '__main__':
 
 
 
-@event.on_frameadvance
-def on_frame_advance():
-    global frame        
-    frame = mkw_utils.frame_of_input()
-
+@event.on_framebegin
+def on_frame_begin():
     run_input()
     
     
