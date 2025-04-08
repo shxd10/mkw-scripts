@@ -10,7 +10,7 @@ from external.external_utils import run_external_script
 import Modules.settings_utils as setting
 import Modules.mkw_utils as mkw_utils
 from Modules.infodisplay_utils import draw_infodisplay
-from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState
+from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, KartObjectManager
 
 
 
@@ -24,12 +24,12 @@ def on_state_load(fromSlot: bool, slot: int):
     c = setting.get_infodisplay_config()
     
     
-    if race_mgr.state().value >= RaceState.COUNTDOWN.value:
+    if mkw_utils.extended_race_state() >= 0:
         draw_infodisplay(c, RaceComp_History, Angle_History)
 
 @event.on_savestatesave
 def on_state_load(fromSlot: bool, slot: int):    
-    if race_mgr.state().value >= RaceState.COUNTDOWN.value:
+    if mkw_utils.extended_race_state() >= 0:
         draw_infodisplay(c, RaceComp_History, Angle_History)
     
 
@@ -57,9 +57,6 @@ def main():
     global Angle_History
     Angle_History = History({'facing' : fa, 'moving' : ma}, 2)
 
-    global special_event
-    special_event = (False,False)
-
 
 if __name__ == '__main__':
     main()
@@ -71,11 +68,10 @@ def on_frame_advance():
     global Angle_History
     global RaceComp_History
     global c
-    global special_event
     
     race_mgr = RaceManager()
     newframe = Frame_of_input != mkw_utils.frame_of_input()
-    draw = race_mgr.state().value >= RaceState.COUNTDOWN.value
+    draw = mkw_utils.extended_race_state() >= 0
     if newframe and draw:
         Frame_of_input = mkw_utils.frame_of_input()
         try:
@@ -86,3 +82,4 @@ def on_frame_advance():
 
     if draw:
         draw_infodisplay(c, RaceComp_History, Angle_History)
+

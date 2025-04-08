@@ -12,7 +12,7 @@ from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, Timer
 from Modules.mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings
 from Modules.mkw_classes import KartObject, KartMove, KartSettings, KartBody
 from Modules.mkw_classes import VehicleDynamics, VehiclePhysics, KartBoost, KartJump
-from Modules.mkw_classes import KartState, KartCollide, KartInput, RaceInputState
+from Modules.mkw_classes import KartState, KartCollide, KartInput, RaceInputState, KartObjectManager
 
 
 def make_line_text_speed(left_text_prefix, left_text_suffix, size, speed, digits):
@@ -90,8 +90,8 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
     vehicle_physics = VehiclePhysics(addr=vehicle_dynamics.vehicle_physics())
     
     if c.debug :
-        value = mkw_utils.delta_position(0) - VehiclePhysics.speed(0)
-        text += f"Debug : {value.length()}\n"
+        value = KartObjectManager.player_count()
+        text += f"Debug : {value}\n"
     
     if c.frame_count:
         text += f"Frame: {mkw_utils.frame_of_input()}\n\n"

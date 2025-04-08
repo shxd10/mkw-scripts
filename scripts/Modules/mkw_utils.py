@@ -86,6 +86,33 @@ def frame_of_input():
                "RMCJ01": 0x809C2920, "RMCK01": 0x809B1F00}
     return memory.read_u32(address[id])
 
+def extended_race_state():
+    ''' Return an extended RaceState.
+    -1 <-> Not in a race
+    0  <-> Intro Camera
+    1  <-> Countdown
+    2  <-> In the race
+    3  <-> Race over (waiting for other to finish)
+    4  <-> Race over (everyone is finished)
+    5  <-> Race over and ghost saved'''
+    if KartObjectManager.player_count()==0:
+        return -1
+    else:
+        race_mgr = RaceManager()
+        state = race_mgr.state().value
+        if state < 4:
+            return state
+        else:
+            try:
+                address = {"RMCE01": 0x809B8F88, "RMCP01": 0x809BD748,
+                        "RMCJ01": 0x809BC7A8, "RMCK01": 0x809ABD88}
+                rkg_addr = chase_pointer(address[region], [0x18], 'u32')
+            except KeyError:
+                raise RegionError
+            if memory.read_u32(rkg_addr) == 0x524b4744 :
+                return 5
+            else:
+                return 4
 def delta_position(playerIdx=0):
     dynamics_ref = VehicleDynamics(playerIdx)
     physics_ref = VehiclePhysics(addr=dynamics_ref.vehicle_physics())
