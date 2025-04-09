@@ -19,15 +19,14 @@ class SharedMemoryWriter:
         self._shm = shared_memory.SharedMemory(create=create, name=name, size=buffer_size)
         atexit.register(self.close)
 
-    def write(self, bytes: bytes):
-        if len(bytes) > len(self._shm.buf):
+    def write(self, bytes_: bytes):
+        if len(bytes_) > len(self._shm.buf):
             raise ValueError("Data is too large for shared memory buffer.")
-        self._shm.buf[:len(self._shm.buf)] = b'\x00' * len(self._shm.buf)
-        self._shm.buf[:len(bytes)] = bytes
+        self._shm.buf[:len(self._shm.buf)] = bytes_ + b'\x00' * (len(self._shm.buf) -  len(bytes_))
 
     def write_text(self, text: str):
-        bytes = text.encode('utf-8')
-        self.write(bytes)
+        bytes_ = text.encode('utf-8')
+        self.write(bytes_)
 
     def close(self):
         self._shm.close()
