@@ -10,10 +10,12 @@ BUTTON_LAYOUT = [
     [
         ["Load from Player", "Load from Ghost"],
         ["Save to RKG", "Load from RKG"],
+        ["Open in Editor", "Load from CSV"],
     ],
     [
         ["Load from Player", "Load from Ghost"],
         ["Save to RKG", "Load from RKG"],
+        ["Open in Editor", "Load from CSV"],
     ],
 ]
 
@@ -23,6 +25,7 @@ def main():
         shm_buttons = ex.SharedMemoryBlock.connect(name="ttk_gui_buttons")
         shm_player_csv = ex.SharedMemoryReader(name="ttk_gui_player_csv")
         shm_ghost_csv = ex.SharedMemoryReader(name="ttk_gui_ghost_csv")
+        shm_close_event = ex.SharedMemoryBlock.connect(name="ttk_gui_window_closed")
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Shared memory buffer '{e.filename}' not found. Make sure the `TTK_GUI` script is enabled.")
 
@@ -40,8 +43,8 @@ def main():
         shm_activate.write(struct.pack('>??', *[var.get() for var in activate_state]))
     
     # File name display state
-    player_csv = tk.StringVar(value=shm_player_csv.read_text())
-    ghost_csv = tk.StringVar(value=shm_ghost_csv.read_text())
+    player_csv = tk.StringVar(value=f"File : {os.path.basename(shm_player_csv.read_text())}")
+    ghost_csv = tk.StringVar(value=f"File : {os.path.basename(shm_ghost_csv.read_text())}")
 
     # Construct page layout
     for section_index, section_title in enumerate(["Player Inputs", "Ghost Inputs"]):
@@ -51,7 +54,7 @@ def main():
         ttk.Checkbutton(section_frame, text="Activate", variable=activate_state[section_index], command=on_checkbox_change) \
             .pack(pady=5)
         
-        ttk.Label(section_frame, text=f"File: {os.path.basename([player_csv, ghost_csv][section_index].get())}") \
+        ttk.Label(section_frame, textvariable=[player_csv, ghost_csv][section_index]) \
             .pack(pady=5)
 
         for row_index, row in enumerate(BUTTON_LAYOUT[section_index]):
@@ -68,17 +71,22 @@ def main():
     # Function that runs repeatedly while window is open
     def loop_actions():
         new_text = shm_player_csv.read_text()
-        if new_text and new_text != player_csv.get():
-            player_csv.set(new_text)
+        if new_text:
+            player_csv.set(f"File : {os.path.basename(new_text)}")
         
         new_text = shm_ghost_csv.read_text()
-        if new_text and new_text != ghost_csv.get():
-            ghost_csv.set(new_text)
+        if new_text:
+            ghost_csv.set(f"File : {os.path.basename(new_text)}")
         
         window.after(ms=10, func=loop_actions)
 
+    shm_close_event.write_text("0")
+    
     window.after(ms=0, func=loop_actions)
     window.mainloop()
+
+    #This part of the code is only accessed when the window has been closed
+    shm_close_event.write_text("1")
 
 
 if __name__ == '__main__':

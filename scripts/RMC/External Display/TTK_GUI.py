@@ -4,6 +4,8 @@ import struct
 import time
 from external import external_utils as ex
 from Modules import ttk_lib, rkg_lib
+from Modules.framesequence import FrameSequence
+from Modules.mkw_translations import course_slot_abbreviation
 from Modules.mkw_utils import frame_of_input
 from Modules.mkw_classes import RaceManager, RaceState
 
@@ -76,7 +78,33 @@ def save_rkg_to_player_csv():
 def save_rkg_to_ghost_csv():
     rkg_to_working_csv(ttk_lib.PlayerType.GHOST)
 
+def open_player_editor():
+    ex.open_file(player_inputs.filename)
 
+def open_ghost_editor():
+    ex.open_file(ghost_inputs.filename)
+
+def csv_to_working_csv(target: ttk_lib.PlayerType):
+    filetype = [('CSV files', '*.csv'), ('All files', '*')]
+    scriptDir = utils.get_script_dir()
+    ttkDir = os.path.join(utils.get_script_dir(), 'MKW_Inputs')
+    file_path = ex.open_dialog_box(scriptDir, filetype, ttkDir, 'Open CSV')
+    if not file_path:
+        return
+    
+    input_sequence = FrameSequence(file_path)
+    input_sequence.read_from_file()
+    if input_sequence is None or len(input_sequence) == 0:
+        return
+    print(len(input_sequence))
+    ttk_lib.write_to_csv(input_sequence, target)    
+
+def save_csv_to_player():
+    csv_to_working_csv(ttk_lib.PlayerType.PLAYER)
+
+def save_csv_to_ghost():
+    csv_to_working_csv(ttk_lib.PlayerType.GHOST)
+    
 # This constant determines the function that gets called by each button.
 # The position of each function should match the corresponding button text in
 # the other BUTTON_LAYOUT in `external/ttk_gui_window.py`
@@ -84,10 +112,12 @@ BUTTON_LAYOUT = [
     [
         [save_player_to_player_csv, save_ghost_to_player_csv],
         [save_player_csv_to_rkg, save_rkg_to_player_csv],
+        [open_player_editor, save_csv_to_player]
     ],
     [
         [save_player_to_ghost_csv, save_ghost_to_ghost_csv],
-        [save_ghost_csv_to_rkg, save_rkg_to_ghost_csv]
+        [save_ghost_csv_to_rkg, save_rkg_to_ghost_csv],
+        [open_ghost_editor, save_csv_to_ghost],
     ],
 ]
 
@@ -103,49 +133,52 @@ def main():
     shm_player_csv.write_text(player_inputs.filename)
     shm_ghost_csv.write_text(ghost_inputs.filename)
 
-    window_script_path = os.path.join(utils.get_script_dir(), "external", "ttk_gui_window.py")
-    ex.start_external_script(window_script_path)
-
-    # Handle button events in a separate thread
     ex.SharedMemoryBlock.create(name="ttk_gui_buttons", buffer_size=4)
-
     global shm_buttons
     shm_buttons = ex.SharedMemoryBlock.connect(name="ttk_gui_buttons")
+
+    ex.SharedMemoryBlock.create(name="ttk_gui_window_closed", buffer_size=2)
+    global shm_close
+    shm_close = ex.SharedMemoryBlock.connect(name="ttk_gui_window_closed")
 
     # If a button function is executed immediately while emulation is not paused, it can cause
     # pycore to freeze. To avoid this, button events are stored in this queue. If emulation
     # is not paused, the event will be processed in `on_frame_advance` which won't freeze. If
-    # `on_frame_advance` doesn't process the event within a certain time, it is assumed that
-    # emulation is paused, so the event is processed immediately.
+    # emulation is paused, the event will be processed in `on_timertick`.
     global button_queue
     button_queue = []
 
+    global prev_track
+    prev_track = course_slot_abbreviation()
+
+    window_script_path = os.path.join(utils.get_script_dir(), "external", "ttk_gui_window.py")
+    ex.start_external_script(window_script_path)
 
 
-@event.on_timertick
-def on_timer_tick():
-    #Only do stuff when the game is paused to avoid crashes
-    if utils.is_paused():
-        listen_for_buttons()
         
-# Function that watches for button events    
+# Function that watches for button events
+# This function should be called continuously:
+# either `on_timertick` when the game is paused
+# or `on_frameadvance` when the game isn't paused
 def listen_for_buttons():
-    BUTTON_WAIT = 0.2
 
     # If window sent a button event, add it to queue
     button_event = shm_buttons.read()[:4]
     if button_event[0]:
-        button_queue.append({'data': button_event, 'time': time.time()})
+        button_queue.append(button_event)
         shm_buttons.clear()
 
     if button_queue:
         execute_button_function()
 
-
+    close_event = shm_close.read_text()
+    if close_event == "1":
+        utils.cancel_script(utils.get_script_name())
+        shm_close.write_text('0')
 
 # Helper that pops the oldest button event in the queue and executes it
 def execute_button_function():
-    button_event = button_queue.pop(0)['data']
+    button_event = button_queue.pop(0)
     section_index, row_index, col_index = struct.unpack('>BBB', button_event[1:4])
     try:
         BUTTON_LAYOUT[section_index][row_index][col_index]()
@@ -158,26 +191,41 @@ def get_activation_state():
     return struct.unpack('>??', shm_activate.read())
 
 
-@event.on_savestateload
-def on_state_load(is_slot, slot):
+def reload_inputs():
     global player_inputs
     global ghost_inputs
     
-    activate_player, activate_ghost = get_activation_state()
-    if activate_player:
-        player_inputs = ttk_lib.get_input_sequence_from_csv(ttk_lib.PlayerType.PLAYER)
-        player_inputs.read_from_file()
-        shm_player_csv.write_text(player_inputs.filename)
-    if activate_ghost:
-        ghost_inputs = ttk_lib.get_input_sequence_from_csv(ttk_lib.PlayerType.GHOST)
-        ghost_inputs.read_from_file()
-        shm_ghost_csv.write_text(ghost_inputs.filename)
+    player_inputs = ttk_lib.get_input_sequence_from_csv(ttk_lib.PlayerType.PLAYER)
+    player_inputs.read_from_file()
+    shm_player_csv.write_text(player_inputs.filename)
+    
+    ghost_inputs = ttk_lib.get_input_sequence_from_csv(ttk_lib.PlayerType.GHOST)
+    ghost_inputs.read_from_file()
+    shm_ghost_csv.write_text(ghost_inputs.filename)
+
+        
+@event.on_timertick
+def on_timer_tick():
+    #Only do stuff when the game is paused to avoid crashes
+    if utils.is_paused():
+        listen_for_buttons()
+
+        
+@event.on_savestateload
+def on_state_load(is_slot, slot):
+    reload_inputs()
 
 
 @event.on_framebegin
 def on_frame_begin():
     listen_for_buttons()
-    
+
+    global prev_track
+    track = course_slot_abbreviation()
+    if track != prev_track:
+        reload_inputs()
+    prev_track = track
+        
     if RaceManager.state() not in (RaceState.COUNTDOWN, RaceState.RACE):
         return
     

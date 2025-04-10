@@ -38,6 +38,8 @@ def main() -> None:
                 inputs.read_from_file()
             else:
                 raise ValueError('Invalid source file')
+    else:
+        raise ValueError('Invalid source file')
 
     with open(os.path.join(scriptDir, 'Modules', "default.mii"), 'rb') as f:
         mii_data = f.read()[:0x4A]

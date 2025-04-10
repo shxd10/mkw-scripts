@@ -16,12 +16,14 @@ af_text = ['How did you get there ?', 'what.', 'Huh WTF ?', 'Keep trying', 'Almo
 def write_state(_ = None):
     if source_combobox.get():
         std_text = source_combobox.get()
+        if std_text == 'File':
+            std_text = source_file_text.get(1.0, END).split('\n')[0]
         if csv_player_var.get():
             std_text += '|' + 'csv_player'
         if csv_ghost_var.get():
             std_text += '|' + 'csv_ghost'
         if dest_file_var.get():
-            std_text += '|' + dest_file_text.get(1.0, END)
+            std_text += '|' + dest_file_text.get(1.0, END).split('\n')[0]
         print(std_text, end = '')
         root.destroy()
     else:

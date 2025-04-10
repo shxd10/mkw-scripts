@@ -2,6 +2,7 @@ from multiprocessing import shared_memory
 import atexit
 import subprocess
 import os
+import platform
 
 
 def start_external_script(path: str):
@@ -13,6 +14,14 @@ def run_external_script(path: str):
     output = subprocess.check_output(["python", path], text=True, creationflags=subprocess.CREATE_NO_WINDOW)
     return output
 
+#Open a file with the default application
+def open_file(path: str):
+    if platform.system() == 'Darwin':       # macOS
+        subprocess.call(('open', path))
+    elif platform.system() == 'Windows':    # Windows
+        os.startfile(path, 'edit')
+    else:                                   # linux variants
+        subprocess.call(('xdg-open', path))
 
 class SharedMemoryWriter:
     def __init__(self, name: str, buffer_size: int, create=True):
