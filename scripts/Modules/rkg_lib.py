@@ -464,7 +464,8 @@ def encode_RKG(metadata : 'RKGMetaData', inputList : 'FrameSequence', mii_data :
     inputHeader = bytearray([fbBytes >> 8, fbBytes & 0xFF, diBytes >> 8, diBytes & 0xFF, tiBytes >> 8, tiBytes & 0xFF, 0, 0])
 
     if metadata.compressed_flag:
-        rkg_data = metadata_bytes + mii_data + crc16_data + compress(inputHeader + inputData)
+        compressed_input_data = compress(inputHeader + inputData)
+        rkg_data = metadata_bytes + mii_data + crc16_data + len(compressed_input_data).to_bytes(4, 'big') + compressed_input_data
     else:
         rkg_data = metadata_bytes + mii_data + crc16_data + inputHeader + inputData
     crc32 = zlib.crc32(rkg_data)
