@@ -7,6 +7,7 @@ from .mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings
 from .mkw_classes import RaceConfigPlayer, PlayerInput, KartInput, Controller
 from .framesequence import Frame, FrameSequence
 from .mkw_utils import chase_pointer
+from .src import decompress, compress
 
 def extract_bits(data, start_bit, length):
     byte_index = start_bit // 8
@@ -118,7 +119,7 @@ class RKGMetaData:
             self.month = 1
             self.day = 1
             self.controller_id = 3
-            self.compressed_flag = 0
+            self.compressed_flag = 1
             self.ghost_type = 38
             self.drift_id = 0
             self.input_data_length = 908
@@ -456,14 +457,16 @@ def encode_RKG(metadata : 'RKGMetaData', inputList : 'FrameSequence', mii_data :
     inputData, fbBytes, diBytes, tiBytes = encodeRKGInput(inputList)
     dataIndex = (fbBytes + diBytes + tiBytes) * 0x2
     metadata.input_data_length = dataIndex + 0x8
-    metadata.compressed_flag = 0
     crc16_int = crc16(mii_data)
 
     metadata_bytes = metadata.to_bytes()
     crc16_data = bytearray([crc16_int >> 8, crc16_int & 0xFF])
     inputHeader = bytearray([fbBytes >> 8, fbBytes & 0xFF, diBytes >> 8, diBytes & 0xFF, tiBytes >> 8, tiBytes & 0xFF, 0, 0])
 
-    rkg_data = metadata_bytes + mii_data + crc16_data + inputHeader + inputData
+    if metadata.compressed_flag:
+        rkg_data = metadata_bytes + mii_data + crc16_data + compress(inputHeader + inputData)
+    else:
+        rkg_data = metadata_bytes + mii_data + crc16_data + inputHeader + inputData
     crc32 = zlib.crc32(rkg_data)
     arg1 = floor(crc32 / 0x1000000)
     arg2 = floor((crc32 & 0x00FF0000) / 0x10000)
