@@ -20,11 +20,14 @@ from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, KartO
 @event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
     global c
-    race_mgr = RaceManager()
     c = setting.get_infodisplay_config()
-    
+
+    RaceComp_History.clear()
+    Angle_History.clear()
     
     if mkw_utils.extended_race_state() >= 0:
+        Angle_History.update()
+        RaceComp_History.update()
         draw_infodisplay(c, RaceComp_History, Angle_History)
 
 @event.on_savestatesave
