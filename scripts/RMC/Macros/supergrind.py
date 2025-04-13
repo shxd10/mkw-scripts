@@ -1,5 +1,5 @@
 """
-Usage: Hold B to rapid fire hop.
+Usage: Hold B and left/right to supergrind.
 """
 from dolphin import controller, event # type: ignore
 import Modules.mkw_classes as mkw
@@ -16,6 +16,8 @@ def on_frame_advance():
 
     if user_inputs["B"]:
         hop_pressed = mkw.KartState.bitfield() & 0x80 > 0
-        ctrl.set_inputs({
-            "B": not hop_pressed,
-        })
+        if hop_pressed:
+            ctrl.set_inputs({
+                "B": False,
+                "StickX": 0,
+            })
