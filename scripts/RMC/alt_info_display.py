@@ -2,7 +2,7 @@
 EPIK95
 An alternative infodisplay that I made for personal use. The text that gets displayed is created in one large
 formatted string, which makes it very easy to modify or add to the display directly instead of using a config file.
-Setting EXTERNAL_MODE to True will render the display in a separate window with 0 delay (requires Python to be installed).
+Setting EXTERNAL_MODE to True will render the display in a separate window (requires Python to be installed).
 """
 from dolphin import event, gui, utils # type: ignore
 import os
@@ -46,13 +46,19 @@ def create_infodisplay():
     pos = vehicle_physics.position()
     v = mkw_utils.delta_position()
     ev = vehicle_physics.external_velocity()
-    # ev2 = vehicle_physics.external_velocity(player_idx=1)
+    facing_angle = mkw_utils.get_facing_angle(player=0)
+
+    if race_scenario.player_count() > 1:
+        ev2 = mkw.VehiclePhysics.external_velocity(player_idx=1)
+    else:
+        ev2 = mkw.common.vec3()
 
     is_bike = mkw.KartSettings.is_bike()
     surface_properties = kart_collide.surface_properties().value
 
     # Create infodisplay text
     text = (
+
 f"""
 Frame: {mkw_utils.frame_of_input()}
 
@@ -68,9 +74,9 @@ Velocity
   Y:       {round_str(v.y)}
 
 External Velocity
-  XYZ:  {round_str(ev.length())}  ({delta(ev.length(), last_frame_values.get("EV_XYZ"))})
-  XZ:   {round_str(ev.length_xz())}  ({delta(ev.length_xz(), last_frame_values.get("EV_XZ"))})
-  Y:    {round_str(ev.y)}  ({delta(ev.y, last_frame_values.get("EV_Y"))})
+  XYZ:  {round_str(ev.length())}  ({delta(ev.length(), last_frame_values.get("ev_xyz"))})
+  XZ:   {round_str(ev.length_xz())}  ({delta(ev.length_xz(), last_frame_values.get("ev_xz"))})
+  Y:    {round_str(ev.y)}  ({delta(ev.y, last_frame_values.get("ev_y"))})
 
 Lean Rotation
   Angle:  {is_bike and round_(kart_move.lean_rot())}
@@ -94,12 +100,11 @@ Barrel Roll: {kart_state.bitfield(field_idx=3) & 0x10 > 0}
 
 HWG Timer: {kart_state.hwg_timer()}
 Glitchy corner: {round_(kart_collide.glitchy_corner())}
-
-Surface properties: {hex(surface_properties)}
 """)
 
     #? Other infodisplay sections that can be copy/pasted in if needed
     _unused = (
+
 """
 Cooldowns
   Wheelie: {kart_move.wheelie_cooldown()} | Trick: {kart_jump.cooldown()}
@@ -107,43 +112,35 @@ Cooldowns
 Offroad: {(surface_properties & mkw.SurfaceProperties.OFFROAD) > 0}
 OOB Timer: {kart_collide.solid_oob_timer()}
 
-  Forward:  {round_str(v.forward(facing_angle))}
-  Sideways: {round_str(v.sideway(facing_angle))}
+  Forward:  {round_str(v.forward(facing_angle.yaw))}
+  Sideways: {round_str(v.sideway(facing_angle.yaw))}
 
 External Velocity (Ghost)
-  XYZ:  {rounded(ev2.length())}  ({last_frame_diff(ev2.length(), "EV_XYZ_2")})
-  XZ:   {rounded(ev2.length_xz())}  ({last_frame_diff(ev2.length_xz(), "EV_XZ_2")})
-  Y:    {rounded(ev2.y)}  ({last_frame_diff(ev2.y, "EV_Y_2")})
-
-Roll Rotation
-  Angle:  {round_str(rotation.roll)}
-  Speed:  {round_str(roll_speed)}
-  Accel:  {delta(roll_speed, LAST_FRAME.get("roll_speed"))}
+  XYZ:  {round_str(ev2.length())}  ({delta(ev2.length(), last_frame_values.get("ev2_xyz"))})
+  XZ:   {round_str(ev2.length_xz())}  ({delta(ev2.length_xz(), last_frame_values.get("ev2_xz"))})
+  Y:    {round_str(ev2.y)}  ({delta(ev2.y, last_frame_values.get("ev2_y"))})
 
 Airtime: {(kart_move.airtime() + 1) if (surface_properties & 0x1000) == 0 else 0}
 """)
 
     # Store any values that will be needed on the next frame
     last_frame_values.update({
-        "EV_XYZ": ev.length(),
-        "EV_XZ": ev.length_xz(),
-        "EV_Y": ev.y,
-        # "EV_XYZ_2": ev2.length(),
-        # "EV_XZ_2": ev2.length_xz(),
-        # "EV_Y_2": ev2.y,
-        # "roll": rotation.roll,
-        # "roll_speed": roll_speed,
+        "ev_xyz": ev.length(),
+        "ev_xz": ev.length_xz(),
+        "ev_y": ev.y,
+        "ev2_xyz": ev2.length(),
+        "ev2_xz": ev2.length_xz(),
+        "ev2_y": ev2.y,
     })
 
     return text.strip()
 
 
 def update_infodisplay():
-    if mkw.RaceManager().state() != mkw.RaceState.INTRO_CAMERA:
-        if EXTERNAL_MODE:
-            shm_writer.write_text(create_infodisplay())
-        else:
-            gui.draw_text((10, 10), TEXT_COLOR, create_infodisplay())
+    if EXTERNAL_MODE:
+        shm_writer.write_text(create_infodisplay())
+    else:
+        gui.draw_text((10, 10), TEXT_COLOR, create_infodisplay())
 
 
 @event.on_frameadvance
@@ -152,13 +149,15 @@ def on_frame_advance():
     if current_frame != (mkw_utils.frame_of_input() - 1):
         last_frame_values.clear()
     current_frame = mkw_utils.frame_of_input()
-    update_infodisplay()
+
+    if mkw_utils.extended_race_state() >= 0:
+        update_infodisplay()
 
 
-#! Disabled until event binding is fixed to prevent crashing
-# @event.on_savestateload
-# def on_state_load(fromSlot: bool, slot: int):
-#     update_infodisplay()
+@event.on_savestateload
+def on_state_load(fromSlot: bool, slot: int):
+    if mkw_utils.extended_race_state() >= 0:
+        update_infodisplay()
 
 
 def main():

@@ -1,4 +1,4 @@
-from dolphin import gui, event
+from dolphin import gui, event # type: ignore
 from Modules import input_display as display
 
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState
@@ -6,6 +6,8 @@ from Modules.mkw_classes import KartInput, RaceInputState, ButtonActions
 
 stick_dict = {-7: 0, -6: 60, -5: 70, -4: 80, -3: 90, -2: 100, -1: 110,
               0: 128, 1: 155, 2: 165, 3: 175, 4: 185, 5: 195, 6: 200, 7: 255}
+
+LEFT_OFFSET = 250
 
 def draw():
     race_mgr = RaceManager()
@@ -26,26 +28,26 @@ def draw():
             func = display.fill_pressed_button
         else:
             func = display.create_unpressed_button
-        func([330, gui.get_display_size()[1] - 95], 35, 0xFFFFFFFF)
+        func([LEFT_OFFSET + 330, gui.get_display_size()[1] - 95], 35, 0xFFFFFFFF)
 
         # L Button
         if ablr.value & ButtonActions.L:
             func = display.fill_pressed_bumper
         else:
             func = display.create_unpressed_bumper
-        func([30, gui.get_display_size()[1] - 200], 100, 50, 0xFFFFFFFF)
+        func([LEFT_OFFSET + 30, gui.get_display_size()[1] - 200], 100, 50, 0xFFFFFFFF)
             
         # R Button
         if ablr.value & ButtonActions.B:
             func = display.fill_pressed_bumper
         else:
             func = display.create_unpressed_bumper
-        func([280, gui.get_display_size()[1] - 200], 100, 50, 0xFFFFFFFF)
+        func([LEFT_OFFSET + 280, gui.get_display_size()[1] - 200], 100, 50, 0xFFFFFFFF)
 
         # D-Pad
         # TODO: fix the module so that -35 does not have to be used here
         display.create_dpad(
-            [30, gui.get_display_size()[1] - 32.5], 30, -35, 0xFFFFFFFF)
+            [LEFT_OFFSET + 30, gui.get_display_size()[1] - 32.5], 30, -35, 0xFFFFFFFF)
         
         direction = None
         if dpad == 1:
@@ -58,11 +60,11 @@ def draw():
             direction = ["Right"]
         
         if direction:
-            display.fill_dpad([30, gui.get_display_size()[1] - 32.5],
+            display.fill_dpad([LEFT_OFFSET + 30, gui.get_display_size()[1] - 32.5],
                               30, -35, 0xFFFFFFFF, direction)
 
         # Control Stick
-        display.create_control_stick([210, gui.get_display_size()[1] - 100], 50, 30, 50,
+        display.create_control_stick([LEFT_OFFSET + 210, gui.get_display_size()[1] - 100], 50, 30, 50,
             stick_dict.get(xstick, 0), stick_dict.get(ystick, 0), 0xFFFFFFFF)
 
 
@@ -73,7 +75,7 @@ def on_frame_advance():
 @event.on_savestatesave
 def on_state_load(fromSlot: bool, slot: int):    
     draw()
-    
+
 @event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
     draw()
