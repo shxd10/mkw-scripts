@@ -1,4 +1,4 @@
-from dolphin import event, gui, utils
+from dolphin import event, gui, utils, memory
 
 import Modules.settings_utils as setting
 import Modules.ttk_lib as ttk_lib
@@ -16,6 +16,11 @@ if __name__ == '__main__':
 @event.on_beforesavestateload
 def do_backup(_, __):
     global backup_count
+
+    #test for https://blounard.s-ul.eu/1E62ITQK.png
+    memory.read_u32(0x809B4242)
+    #If you get the same error with the address above, it's
+    #because of this script
     
     if RaceManager.state().value in [1,2]:      
         config = setting.get_ttk_config()
