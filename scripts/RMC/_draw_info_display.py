@@ -31,7 +31,7 @@ def on_state_load(fromSlot: bool, slot: int):
         draw_infodisplay(c, RaceComp_History, Angle_History)
 
 @event.on_savestatesave
-def on_state_load(fromSlot: bool, slot: int):    
+def on_state_save(fromSlot: bool, slot: int):    
     if mkw_utils.extended_race_state() >= 0:
         draw_infodisplay(c, RaceComp_History, Angle_History)
     
@@ -46,9 +46,13 @@ def main():
     Frame_of_input = 0
 
     def prc():
-        return RaceManagerPlayer(0).race_completion()
+        if KartObjectManager.player_count() > 0:
+            return RaceManagerPlayer(0).race_completion()
+        return 0
     def grc():
-        return RaceManagerPlayer(1).race_completion()
+        if KartObjectManager.player_count() > 1:
+            return RaceManagerPlayer(1).race_completion()
+        return 0
     def fa():
         return mkw_utils.get_facing_angle(0)
     def ma():
@@ -77,11 +81,8 @@ def on_frame_advance():
     draw = mkw_utils.extended_race_state() >= 0
     if newframe and draw:
         Frame_of_input = mkw_utils.frame_of_input()
-        try:
-            Angle_History.update()
-            RaceComp_History.update()
-        except AssertionError:
-            pass
+        Angle_History.update()
+        RaceComp_History.update()
 
     if draw:
         draw_infodisplay(c, RaceComp_History, Angle_History)
