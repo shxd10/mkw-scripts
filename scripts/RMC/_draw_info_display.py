@@ -31,9 +31,12 @@ def on_state_load(fromSlot: bool, slot: int):
         draw_infodisplay(c, RaceComp_History, Angle_History)
 
 @event.on_savestatesave
-def on_state_save(fromSlot: bool, slot: int):    
-    if mkw_utils.extended_race_state() >= 0:
-        draw_infodisplay(c, RaceComp_History, Angle_History)
+def on_state_save(fromSlot: bool, slot: int):
+    #Checking if the game is paused, since for now
+    #on_state_save can be in an unstable state to read memory
+    if utils.is_paused():
+        if mkw_utils.extended_race_state() >= 0:
+            draw_infodisplay(c, RaceComp_History, Angle_History)
     
 
     
