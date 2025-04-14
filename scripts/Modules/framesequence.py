@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List, Optional
 from .mkw_classes import KartInput
 from .mkw_classes import RaceManagerPlayer, RaceInputState
@@ -118,7 +119,9 @@ class Frame:
 
     def __str__(self):
         return ','.join(map(str, self))
-    
+
+    def copy(self):
+        return Frame(str(self).split(','))    
         
     def read_button(self, button: str) -> bool:
         """
@@ -292,6 +295,12 @@ class FrameSequence:
         if (self.iter_idx < len(self.frames)):
             return self.frames[self.iter_idx]
         raise StopIteration
+
+    def copy(self) -> 'FrameSequence':
+        res = FrameSequence()
+        for frame in self.frames:
+            res.frames.append(frame.copy())
+        return res
         
     def read_from_list(self, inputs: List) -> None:
         """
@@ -347,6 +356,8 @@ class FrameSequence:
             A boolean indicating whether the write was successful
         """
         try:
+            output_file = Path(filename)
+            output_file.parent.mkdir(exist_ok=True, parents=True)
             with open(filename, 'w', newline='') as f:
                 writer = csv.writer(f, delimiter=',')
                 writer.writerows(compressInputList(self.frames))

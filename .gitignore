@@ -9,3 +9,4 @@ scripts/Settings/**/*.ini
 scripts/RMC/test.py
 scripts/RMC/test codecallbacl.py
 
+/scripts/Input_optimizer

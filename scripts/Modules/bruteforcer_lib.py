@@ -1,7 +1,11 @@
 from dolphin import controller, event, savestate
 
-from Modules.framesequence import Frame
 from Modules import ttk_lib
+from Modules.framesequence import FrameSequence, Frame
+import Modules.mkw_utils as mkw_utils
+from Modules.mkw_classes import RaceManagerPlayer, VehiclePhysics
+import random
+import os
 
 def save(name):
     b = savestate.save_to_bytes()
@@ -222,3 +226,46 @@ def makeFrame(inp):
 def run_input2(inp):
     f = makeFrame(inp)
     ttk_lib.write_player_inputs(f)
+
+
+class Randomizer:
+    ''' Class for making random modification to a FrameSequence
+        modif_index is the index of the input you want to modify
+            example : 0 is the A button, 1 is the B button etc
+        frame is the frame of input you want to randomize
+        probability is the probability of a random modification actually happenning when calling the random method
+        modif_range is the max amplitude of the modification.
+            example with 2, you can only change a +4 stick input to {+2, +3, +4, +5, +6}'''
+    def __init__(self, modif_index, frame, probability = 0.1, modif_range = 15):
+        self.index = modif_index
+        self.proba = probability
+        self.range = modif_range
+        self.frame = frame
+
+    def random(self, inputList : FrameSequence):
+        '''THIS FUNCTION MODIFIES inputList'''
+        if self.frame < len(inputList.frames):
+            if random.random() < self.proba:
+                baseFrame = inputList.frames[self.frame]
+                if self.index == 5:
+                    baseFrame.stick_x = random.randint(max(-7, baseFrame.stick_x - self.range), min(7, baseFrame.stick_x + self.range))
+                elif self.index == 6:
+                    baseFrame.stick_y = random.randint(max(-7, baseFrame.stick_y - self.range), min(7, baseFrame.stick_y + self.range))
+                else:
+                    raise IndexError(f'Index {self.index} is not supported yet')
+
+def score_racecomp(frame_limit):
+    def res():
+        frame = mkw_utils.frame_of_input()
+        if frame < frame_limit :
+            return None
+        return RaceManagerPlayer(0).race_completion()
+    return res
+
+def score_XZ_EV(frame_limit):
+    def res():
+        frame = mkw_utils.frame_of_input()
+        if frame < frame_limit :
+            return None
+        return VehiclePhysics(0).external_velocity().length_xz()
+    return res
