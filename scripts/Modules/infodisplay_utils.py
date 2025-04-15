@@ -57,6 +57,15 @@ def make_text_speed(speed, speedname, player, boolspd, boolspdoriented, boolspdx
         text += make_line_text_speed(speedname,"XYZ: ", offset_size, speed.length(), digits)
     return text
 
+def make_text_speeddiff(playerSpeed, ghostSpeed, prefix_text, digits):
+    xyz = playerSpeed.length() - ghostSpeed.length()
+    xz = playerSpeed.length_xz() - ghostSpeed.length_xz()
+    y = playerSpeed.y - ghostSpeed.y
+    return f"{prefix_text} XYZ: {xyz:.{digits}f} XZ: {xz:.{digits}f} Y: {y:.{digits}f}"
+
+def make_text_rotdiff(rotdiff, prefix_text, digits):
+    return f"{prefix_text}: {rotdiff:.{digits}f}"
+
 
 def make_text_timediff(timediff, prefix_text, prefix_size, timesize, digits):
     timediffms = timediff/59.94
@@ -230,7 +239,51 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
         dpg = VehiclePhysics.position(1) - VehiclePhysics.position(0)
         text += make_text_speed(dpg, "Dist PG ", 0, c.dpg, c.dpg_oriented, c.dpg_xyz, c.digits)
         text += "\n"
+
+    newline = False
+    if (c.vd_spd and not mkw_utils.is_single_player()):
+        newline = True
+        text += make_text_speeddiff(mkw_utils.delta_position(playerIdx=0), mkw_utils.delta_position(playerIdx=1), 'Spd Diff', c.digits)
+        text += "\n"
+
+    if (c.vd_iv and not mkw_utils.is_single_player()):
+        newline = True
+        text += make_text_speeddiff(VehiclePhysics.internal_velocity(0), VehiclePhysics.internal_velocity(1), ' IV Diff', c.digits)
+        text += "\n"
+
+    if (c.vd_ev and not mkw_utils.is_single_player()):
+        newline = True
+        text += make_text_speeddiff(VehiclePhysics.external_velocity(0), VehiclePhysics.external_velocity(1), ' EV Diff', c.digits)
+        text += "\n"
         
+    if (not mkw_utils.is_single_player()) and (c.rd_pitch or c.rd_yaw or c.rd_roll or c.rd_movy):
+        facdiff = mkw_utils.get_facing_angle(0) - mkw_utils.get_facing_angle(1)        
+        movdiff = mkw_utils.get_moving_angle(0) - mkw_utils.get_moving_angle(1)
+        
+    if (c.rd_pitch and not mkw_utils.is_single_player()):
+        newline = True
+        text += make_text_rotdiff(facdiff.pitch, "Pitch diff", c.digits)
+        text += "\n"
+
+    if (c.rd_yaw and not mkw_utils.is_single_player()):
+        newline = True
+        text += make_text_rotdiff(facdiff.yaw, "  Yaw diff", c.digits)
+        text += "\n"
+
+    if (c.rd_movy and not mkw_utils.is_single_player()):
+        newline = True
+        text += make_text_rotdiff(movdiff.yaw, " MovY diff", c.digits)
+        text += "\n"
+
+    if (c.rd_roll and not mkw_utils.is_single_player()):
+        newline = True
+        text += make_text_rotdiff(facdiff.roll, " Roll diff", c.digits)
+        text += "\n"
+
+    if newline:
+        text += "\n"
+        newline = False
+
     if c.td and not mkw_utils.is_single_player():
         size = 10
         timesize = c.digits+4

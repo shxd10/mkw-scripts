@@ -35,6 +35,13 @@ class InfoDisplayConfigInstance():
         self.dpg = config['INFO DISPLAY'].getboolean('Distance Player-Ghost (X, Y, Z)')
         self.dpg_oriented = config['INFO DISPLAY'].getboolean('Oriented Distance Player-Ghost')
         self.dpg_xyz = config['INFO DISPLAY'].getboolean('Distance Player-Ghost (XYZ)')
+        self.vd_spd = config['INFO DISPLAY'].getboolean('Player-Ghost Speed diff')
+        self.vd_iv = config['INFO DISPLAY'].getboolean('Player-Ghost IV diff')
+        self.vd_ev = config['INFO DISPLAY'].getboolean('Player-Ghost EV diff')
+        self.rd_pitch = config['INFO DISPLAY'].getboolean('Player-Ghost Pitch diff')
+        self.rd_yaw = config['INFO DISPLAY'].getboolean('Player-Ghost Facing Yaw diff')
+        self.rd_movy = config['INFO DISPLAY'].getboolean('Player-Ghost Moving Yaw diff')
+        self.rd_roll = config['INFO DISPLAY'].getboolean('Player-Ghost Roll diff')
         self.td_absolute = config['INFO DISPLAY'].getboolean('TimeDiff Absolute')
         self.td_relative = config['INFO DISPLAY'].getboolean('TimeDiff Relative')
         self.td_projected = config['INFO DISPLAY'].getboolean('TimeDiff Projected')
@@ -85,6 +92,13 @@ def populate_default_config_infodisplay(file_path):
     config['INFO DISPLAY']["Distance Player-Ghost (X, Y, Z)"] = "False"
     config['INFO DISPLAY']["Oriented Distance Player-Ghost"] = "False"
     config['INFO DISPLAY']["Distance Player-Ghost (XYZ)"] = "False"
+    config['INFO DISPLAY']['Player-Ghost Speed diff'] = "False"
+    config['INFO DISPLAY']['Player-Ghost IV diff'] = "False"
+    config['INFO DISPLAY']['Player-Ghost EV Yaw diff'] = "False"
+    config['INFO DISPLAY']['Player-Ghost Pitch diff'] = "False"
+    config['INFO DISPLAY']['Player-Ghost Facing Yaw diff'] = "False"
+    config['INFO DISPLAY']['Player-Ghost Moving Yaw diff'] = "False"
+    config['INFO DISPLAY']['Player-Ghost Roll Yaw diff'] = "False"
     config['INFO DISPLAY']["TimeDiff Absolute"] = "False"
     config['INFO DISPLAY']["TimeDiff Relative"] = "False"
     config['INFO DISPLAY']["TimeDiff Projected"] = "True"
