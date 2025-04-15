@@ -73,8 +73,14 @@ def make_text_timediff(timediff, prefix_text, prefix_size, timesize, digits):
     frame = f"{timediff:.{digits}f}"
     ms += " "*(timesize - len(ms))
     ms = ms[:timesize]
-    frame = frame[:timesize]+"f"
-    return prefix_text+":"+" "*(prefix_size - len(prefix_text))+ms+"| "+frame+"\n"
+    frame = frame[:timesize]
+    if timediff == 0:
+        extra = " (Tied)"
+    elif timediff > 0:
+        extra = " (Behind)"
+    else:
+        extra = " (Ahead)"
+    return prefix_text+":"+" "*(prefix_size - len(prefix_text))+ms+"| "+frame+extra+"\n"
 
 
 def make_text_rotation(rot, rotspd, prefix_text, prefix_size, rotsize, digits):
