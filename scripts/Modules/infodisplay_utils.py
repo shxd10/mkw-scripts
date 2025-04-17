@@ -8,6 +8,7 @@ from Modules.mkw_utils import History
 from dolphin import gui, utils
 import Modules.settings_utils as setting
 import Modules.mkw_utils as mkw_utils
+import Modules.ttk_lib as ttk_lib
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, TimerManager
 from Modules.mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings
 from Modules.mkw_classes import KartObject, KartMove, KartSettings, KartBody
@@ -105,11 +106,22 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
     vehicle_physics = VehiclePhysics(addr=vehicle_dynamics.vehicle_physics())
     
     if c.debug :
-        value = KartObjectManager.player_count()
-        text += f"Debug : {value}\n"
-    
+        value = 100*ttk_lib.get_full_rkg_size(ttk_lib.PlayerType.PLAYER)/0x13b0
+        text += f"Debug : {value:2.3f}%\n"
+        
+    newline = False
     if c.frame_count:
-        text += f"Frame: {mkw_utils.frame_of_input()}\n\n"
+        newline = True
+        text += f"Frame: {mkw_utils.frame_of_input()}\n"
+
+    if c.rkg_buffer_size:
+        newline = True
+        value = 100*ttk_lib.get_full_rkg_size(ttk_lib.PlayerType.PLAYER)/0x13b0
+        text += f"RKG Buffer : {value:2.3f}%\n"
+
+    if newline:
+        text += '\n'
+        newline = False
     
     if c.lap_splits:
         # The actual max lap address does not update when crossing the finish line
