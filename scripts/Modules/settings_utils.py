@@ -10,6 +10,7 @@ class InfoDisplayConfigInstance():
     def __init__(self, config : configparser.ConfigParser):
         self.debug = config['DEBUG'].getboolean('Debug')
         self.frame_count = config['INFO DISPLAY'].getboolean('Frame Count')
+        self.rkg_buffer_size = config['INFO DISPLAY'].getboolean('RKG Buffer Size')
         self.lap_splits = config['INFO DISPLAY'].getboolean('Lap Splits')
         self.speed = config['INFO DISPLAY'].getboolean('Speed')
         self.speed_oriented = config['INFO DISPLAY'].getboolean('Oriented Speed')
@@ -64,6 +65,7 @@ def populate_default_config_infodisplay(file_path):
     
     config['INFO DISPLAY'] = {}
     config['INFO DISPLAY']["Frame Count"] = "True"
+    config['INFO DISPLAY']["RKG Buffer Size"] = "False"
     config['INFO DISPLAY']["Lap Splits"] = "False"
     config['INFO DISPLAY']["Speed"] = "True"
     config['INFO DISPLAY']["Oriented Speed"] = "False"

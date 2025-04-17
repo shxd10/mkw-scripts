@@ -374,16 +374,13 @@ def encodeDirectionInput(horizontalInput, verticalInput):
 def encodeTrickInput(trickInput):
     return trickInput << 4
 
-def encodeRKGInput(inputList : 'FrameSequence'):
+def encodeRKGFaceButtonInput(inputList : 'FrameSequence'):
     data = bytearray()
-    dataIndex = 0
-    iL = inputList.frames    
-    fbBytes, diBytes, tiBytes = 0, 0, 0
-
+    iL = inputList.frames
+    fbBytes = 0
     if len(iL) == 0 :
-        return data, fbBytes, diBytes, tiBytes
+        return data, fbBytes
 
-    #Encode face buttons inputs
     prevInput = encodeFaceButton(iL[0].accel, iL[0].brake, iL[0].item, iL[0].drift, iL[0].brakedrift) #Not sure if it should be 0 instead
     amountCurrentFrames = 0x0   
     for ipt in iL:
@@ -399,8 +396,15 @@ def encodeRKGInput(inputList : 'FrameSequence'):
     data.append(prevInput)
     data.append(amountCurrentFrames)  
     fbBytes = fbBytes + 1
+    return data, fbBytes
 
-    #Encode joystick inputs
+def encodeRKGDirectionInput(inputList : 'FrameSequence'):
+    data = bytearray()
+    iL = inputList.frames
+    diBytes = 0
+    if len(iL) == 0 :
+        return data, diBytes
+
     prevInput = encodeDirectionInput(iL[0].stick_x, iL[0].stick_y)
     amountCurrentFrames = 0x0
     for ipt in iL:
@@ -416,8 +420,15 @@ def encodeRKGInput(inputList : 'FrameSequence'):
     data.append(prevInput)
     data.append(amountCurrentFrames)  
     diBytes = diBytes + 1
-    
-    #Encode trick inputs
+    return data, diBytes
+
+def encodeRKGTrickInput(inputList : 'FrameSequence'):
+    data = bytearray()
+    iL = inputList.frames
+    tiBytes = 0
+    if len(iL) == 0 :
+        return data, tiBytes
+
     prevInput = encodeTrickInput(iL[0].dpad_raw())
     amountCurrentFrames = 0x0  
     for ipt in iL:
@@ -434,8 +445,19 @@ def encodeRKGInput(inputList : 'FrameSequence'):
     data.append(prevInput + (amountCurrentFrames >> 8))
     data.append(amountCurrentFrames % 0x100)
     tiBytes = tiBytes + 1
+    return data, tiBytes
+    
+def encodeRKGInput(inputList : 'FrameSequence'):
+    #Encode face buttons inputs
+    fbData, fbBytes = encodeRKGFaceButtonInput(inputList)
+
+    #Encode joystick inputs
+    diData, diBytes = encodeRKGDirectionInput(inputList)
+    
+    #Encode trick inputs
+    tiData, tiBytes = encodeRKGTrickInput(inputList)
             
-    return data, fbBytes, diBytes, tiBytes
+    return fbData+diData+tiData, fbBytes, diBytes, tiBytes
 
 
 def decode_RKG(raw_data : bytearray):
