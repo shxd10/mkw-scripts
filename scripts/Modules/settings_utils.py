@@ -129,7 +129,7 @@ def get_infodisplay_config():
 class AGCConfigInstance():
     def __init__(self, config : configparser.ConfigParser):
         self.useFrames = config['DELAY'].getboolean('Delay unit in frame')
-        self.ghost_delay = config['DELAY'].getfloat('Ghost delay')
+        self.ghost_delay = eval(config['DELAY']['Ghost delay'])
         self.player_delay = config['DELAY'].getfloat('Player delay')
         self.ghost_path = config['PATH'].get('Ghost .agc file path')
         self.player_path = config['PATH'].get('Player .agc file path')
