@@ -99,10 +99,11 @@ class AGCFrameData:
             memory.write_f32(kma + 0x9C, self.ODA)
             self.Dir.write(kma + 0x5C)
             memory.write_f32(kma + 0xF4, self.Dive)
-        if write_slot == 0 :
-            write_player_inputs(self.Input)
         else:
-            write_ghost_inputs(self.Input, write_slot)
+            if write_slot == 0 :
+                write_player_inputs(self.Input)
+            else:
+                write_ghost_inputs(self.Input, write_slot)
 
 
 
