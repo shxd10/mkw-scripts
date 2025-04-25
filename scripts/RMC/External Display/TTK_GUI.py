@@ -1,4 +1,4 @@
-from dolphin import event, utils # type: ignore
+from dolphin import event, utils, memory # type: ignore
 import os
 import struct
 import time
@@ -23,12 +23,15 @@ def save_player_to_player_csv():
 
 def save_ghost_to_player_csv():
     game_to_working_csv(ttk_lib.PlayerType.GHOST, ttk_lib.PlayerType.PLAYER)
+    reload_inputs()
 
 def save_player_to_ghost_csv():
     game_to_working_csv(ttk_lib.PlayerType.PLAYER, ttk_lib.PlayerType.GHOST)
+    reload_inputs()
 
 def save_ghost_to_ghost_csv():
     game_to_working_csv(ttk_lib.PlayerType.GHOST, ttk_lib.PlayerType.GHOST)
+    reload_inputs()
 
 
 def working_csv_to_rkg(source: ttk_lib.PlayerType):
@@ -74,9 +77,11 @@ def rkg_to_working_csv(target: ttk_lib.PlayerType):
 
 def save_rkg_to_player_csv():
     rkg_to_working_csv(ttk_lib.PlayerType.PLAYER)
+    reload_inputs()
 
 def save_rkg_to_ghost_csv():
     rkg_to_working_csv(ttk_lib.PlayerType.GHOST)
+    reload_inputs()
 
 def open_player_editor():
     ex.open_file(player_inputs.filename)
@@ -101,9 +106,11 @@ def csv_to_working_csv(target: ttk_lib.PlayerType):
 
 def save_csv_to_player():
     csv_to_working_csv(ttk_lib.PlayerType.PLAYER)
+    reload_inputs()
 
 def save_csv_to_ghost():
     csv_to_working_csv(ttk_lib.PlayerType.GHOST)
+    reload_inputs()
     
 # This constant determines the function that gets called by each button.
 # The position of each function should match the corresponding button text in
@@ -207,13 +214,16 @@ def reload_inputs():
 @event.on_timertick
 def on_timer_tick():
     #Only do stuff when the game is paused to avoid crashes
+    #Maybe can crash if memory not accessible despite game being paused ?
+    #But memory.is_memory_accessible seems to always return False in timertick
     if utils.is_paused():
         listen_for_buttons()
 
         
 @event.on_savestateload
 def on_state_load(is_slot, slot):
-    reload_inputs()
+    if memory.is_memory_accessible():
+        reload_inputs()
 
 
 @event.on_framebegin

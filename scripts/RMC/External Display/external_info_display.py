@@ -2,7 +2,7 @@
 Writes infodisplay text to a shared memory buffer than can be accessed by external applications
 """
 import os
-from dolphin import event, utils # type: ignore
+from dolphin import event, utils, memory # type: ignore
 from external import external_utils
 import Modules.settings_utils as setting
 import Modules.mkw_utils as mkw_utils
@@ -49,10 +49,12 @@ def on_frame_advance():
         shm_writer.write_text(create_infodisplay(c, RaceComp_History, Angle_History))
 
 
-#@event.on_savestateload
+@event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
     global c
     c = setting.get_infodisplay_config()
+    if memory.is_memory_accessible() and mkw_utils.extended_race_state() >= 0:
+        shm_writer.write_text(create_infodisplay(c, RaceComp_History, Angle_History))
 
 
 def main():

@@ -16,13 +16,9 @@ if __name__ == '__main__':
 @event.on_beforesavestateload
 def do_backup(_, __):
     global backup_count
-
-    #test for https://blounard.s-ul.eu/1E62ITQK.png
-    memory.read_u32(0x809B4242)
-    #If you get the same error with the address above, it's
-    #because of this script
     
-    if RaceManager.state().value in [1,2]:      
+    
+    if memory.is_memory_accessible() and RaceManager.state().value in [1,2]:      
         config = setting.get_ttk_config()
         backup_count += 1
         backup_count %= config.ttk_backup

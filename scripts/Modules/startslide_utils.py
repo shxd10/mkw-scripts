@@ -1,5 +1,5 @@
 from enum import Enum
-from dolphin import event, gui, utils # type: ignore
+from dolphin import event, gui, utils, memory # type: ignore
 from Modules import ttk_lib
 from Modules.mkw_utils import frame_of_input
 from Modules import mkw_translations as translate
@@ -44,8 +44,9 @@ def check_vehicle(vehicle: str):
 
 def on_state_load(is_slot, slot):
     global player_inputs
-    player_inputs = FrameSequence(check_vehicle(translate.vehicle_id()))
-    player_inputs.read_from_file()
+    if memory.is_memory_accessible():
+        player_inputs = FrameSequence(check_vehicle(translate.vehicle_id()))
+        player_inputs.read_from_file()
 
 def on_frame_advance():
     frame = frame_of_input()

@@ -1,4 +1,4 @@
-from dolphin import gui, utils, event
+from dolphin import gui, utils, event, memory
 from Modules import ttk_lib
 from Modules import agc_lib
 from Modules import mkw_utils
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
 @event.on_savestateload
 def on_state_load(is_slot, slot):
-    if not mkw_utils.is_single_player():
+    if memory.is_memory_accessible() and not mkw_utils.is_single_player():
         ttk_lib.write_inputs_to_current_ghost_rkg(input_sequence)
         agc_metadata.delay_timer(0)
     

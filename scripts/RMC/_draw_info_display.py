@@ -1,4 +1,4 @@
-from dolphin import event, gui, utils
+from dolphin import event, gui, utils, memory
 import configparser
 import math
 import os
@@ -25,20 +25,16 @@ def on_state_load(fromSlot: bool, slot: int):
     RaceComp_History.clear()
     Angle_History.clear()
     
-    if mkw_utils.extended_race_state() >= 0:
+    if memory.is_memory_accessible() and mkw_utils.extended_race_state() >= 0:
         Angle_History.update()
         RaceComp_History.update()
         draw_infodisplay(c, RaceComp_History, Angle_History)
 
 @event.on_savestatesave
 def on_state_save(fromSlot: bool, slot: int):
-    #Checking if the game is paused, since for now
-    #on_state_save can be in an unstable state to read memory
-    if utils.is_paused():
+    if memory.is_memory_accessible():
         if mkw_utils.extended_race_state() >= 0:
             draw_infodisplay(c, RaceComp_History, Angle_History)
-    
-
     
 
 def main():

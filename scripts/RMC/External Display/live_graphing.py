@@ -26,13 +26,6 @@ def on_frame_advance():
         shm_writer.write(b'\x00')
 
 
-# @event.on_savestateload
-# def on_state_load(fromSlot: bool, slot: int):
-#     race_mgr = mkw.RaceManager()
-#     if race_mgr.state().value >= mkw.RaceState.COUNTDOWN.value:
-#         write_shared_memory(create_infodisplay())
-
-
 def main():
     global in_race
     in_race = False

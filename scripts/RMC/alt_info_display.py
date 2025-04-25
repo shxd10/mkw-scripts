@@ -4,7 +4,7 @@ An alternative infodisplay that I made for personal use. The text that gets disp
 formatted string, which makes it very easy to modify or add to the display directly instead of using a config file.
 Setting EXTERNAL_MODE to True will render the display in a separate window (requires Python to be installed).
 """
-from dolphin import event, gui, utils # type: ignore
+from dolphin import event, gui, utils, memory # type: ignore
 import os
 from Modules import mkw_classes as mkw, mkw_utils
 from external import external_utils as ex
@@ -156,9 +156,13 @@ def on_frame_advance():
 
 @event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
-    if mkw_utils.extended_race_state() >= 0:
+    if memory.is_memory_accessible() and mkw_utils.extended_race_state() >= 0:
         update_infodisplay()
 
+@event.on_savestatesave
+def on_state_save(fromSlot: bool, slot: int):
+    if memory.is_memory_accessible()and mkw_utils.extended_race_state() >= 0:
+        update_infodisplay()
 
 def main():
     global current_frame

@@ -1,4 +1,4 @@
-from dolphin import event, gui
+from dolphin import event, gui, memory
 from Modules import ttk_lib
 from Modules.mkw_utils import frame_of_input
 from Modules.framesequence import FrameSequence
@@ -16,7 +16,8 @@ The inputs are reloaded on every state load
 @event.on_savestateload
 def on_state_load(is_slot, slot):
     global ghost_inputs
-    ghost_inputs = ttk_lib.get_input_sequence_from_csv(ttk_lib.PlayerType.GHOST)
+    if memory.is_memory_accessible():
+        ghost_inputs = ttk_lib.get_input_sequence_from_csv(ttk_lib.PlayerType.GHOST)
     ghost_inputs.read_from_file()
 
 @event.on_framebegin
