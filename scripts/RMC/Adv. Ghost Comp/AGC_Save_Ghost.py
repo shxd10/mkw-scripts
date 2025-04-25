@@ -5,7 +5,7 @@ import Modules.settings_utils as setting
 from Modules.mkw_classes import RaceManager, RaceState
 import Modules.mkw_utils as mkw_utils
 import os
-import atexit
+
 
 def main():
     global c
@@ -23,11 +23,15 @@ def main():
     global end
     end = False
 
-    atexit.register(save)
+    global metadata
+    metadata = lib.AGCMetaData(read_id = 0)
 
-def save():
-    lib.framedatalist_to_file(filename, framedatalist, 0)
-    print("saved data")
+@event.on_scriptend
+def save(id_):
+    if utils.get_script_id() == id_:
+        
+        lib.framedatalist_to_file(filename, framedatalist, metadata)
+        print("saved data")
     
 
 @event.on_frameadvance
@@ -36,6 +40,8 @@ def on_frame_advance():
     global end
     global frame
     global c
+    global metadata
+    metadata = lib.AGCMetaData(read_id = 0)
 
     if not (frame == mkw_utils.frame_of_input() or frame == mkw_utils.frame_of_input()-1):
         c = setting.get_agc_config()
@@ -47,8 +53,9 @@ def on_frame_advance():
         framedatalist[frame] = lib.AGCFrameData()
         
     if (not end) and racestate == RaceState.FINISHED_RACE.value:
-        utils.cancel_script(utils.get_script_name())
         end = True
+        utils.cancel_script(utils.get_script_name())
+        
         
 
 

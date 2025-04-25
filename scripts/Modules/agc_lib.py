@@ -272,8 +272,7 @@ def file_to_framedatalist(filename):
         return metadata, datalist
 
 
-def framedatalist_to_file(filename, datalist, rid):
-    metadata = AGCMetaData(rid)
+def framedatalist_to_file(filename, datalist, metadata):
     file = open(filename, 'w')
     if file is None :
         gui.add_osd_message("Error : could not create "+filename)
