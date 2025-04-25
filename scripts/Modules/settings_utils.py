@@ -56,6 +56,61 @@ class InfoDisplayConfigInstance():
         self.digits = min(7, config['INFO DISPLAY'].getint('Digits (to round to)'))
         self.history_size = config['INFO DISPLAY'].getint('History Size')
 
+    def write_to_file(self):
+        config = configparser.ConfigParser()
+        config['DEBUG'] = {}
+        config['DEBUG']['Debug'] = str(self.debug)
+        
+        config['INFO DISPLAY'] = {}
+        config['INFO DISPLAY']["Frame Count"] = str(self.frame_count)
+        config['INFO DISPLAY']["RKG Buffer Size"] = str(self.rkg_buffer_size)
+        config['INFO DISPLAY']["Lap Splits"] = str(self.lap_splits)
+        config['INFO DISPLAY']["Speed"] = str(self.speed)
+        config['INFO DISPLAY']["Oriented Speed"] = str(self.speed_oriented)
+        config['INFO DISPLAY']["Internal Velocity (X, Y, Z)"] = str(self.iv)
+        config['INFO DISPLAY']["Oriented Internal Velocity"] = str(self.iv_oriented)
+        config['INFO DISPLAY']["Internal Velocity (XYZ)"] = str(self.iv_xyz)
+        config['INFO DISPLAY']["External Velocity (X, Y, Z)"] = str(self.ev)
+        config['INFO DISPLAY']["Oriented External Velocity"] = str(self.ev_oriented)
+        config['INFO DISPLAY']["External Velocity (XYZ)"] = str(self.ev_xyz)
+        config['INFO DISPLAY']["Moving Road Velocity (X, Y, Z)"] = str(self.mrv)
+        config['INFO DISPLAY']["Oriented Moving Road Velocity"] = str(self.mrv_oriented)
+        config['INFO DISPLAY']["Moving Road Velocity (XYZ)"] = str(self.mrv_xyz)
+        config['INFO DISPLAY']["Moving Water Velocity (X, Y, Z)"] = str(self.mwv)
+        config['INFO DISPLAY']["Oriented Moving Water Velocity"] = str(self.mwv_oriented)
+        config['INFO DISPLAY']["Moving Water Velocity (XYZ)"] = str(self.mwv_xyz)
+        config['INFO DISPLAY']["Charges and Boosts"] = str(self.charges)
+        config['INFO DISPLAY']["Checkpoints and Completion"] = str(self.cps)
+        config['INFO DISPLAY']["Airtime"] = str(self.air)
+        config['INFO DISPLAY']["Miscellaneous"] = str(self.misc)
+        config['INFO DISPLAY']["Surface Properties"] = str(self.surfaces)
+        config['INFO DISPLAY']["Position"] = str(self.position)
+        config['INFO DISPLAY']["Rotation"] = str(self.rotation)        
+        config['INFO DISPLAY']["Distance Player-Ghost (X, Y, Z)"] = str(self.dpg)
+        config['INFO DISPLAY']["Oriented Distance Player-Ghost"] = str(self.dpg_oriented)
+        config['INFO DISPLAY']["Distance Player-Ghost (XYZ)"] = str(self.dpg_xyz)
+        config['INFO DISPLAY']['Player-Ghost Speed diff'] = str(self.vd_spd)
+        config['INFO DISPLAY']['Player-Ghost IV diff'] = str(self.vd_iv)
+        config['INFO DISPLAY']['Player-Ghost EV diff'] = str(self.vd_ev)
+        config['INFO DISPLAY']['Player-Ghost Pitch diff'] = str(self.rd_pitch)
+        config['INFO DISPLAY']['Player-Ghost Facing Yaw diff'] = str(self.rd_yaw)
+        config['INFO DISPLAY']['Player-Ghost Moving Yaw diff'] = str(self.rd_movy)
+        config['INFO DISPLAY']['Player-Ghost Roll diff'] = str(self.rd_roll)
+        config['INFO DISPLAY']["TimeDiff Absolute"] = str(self.td_absolute)
+        config['INFO DISPLAY']["TimeDiff Relative"] = str(self.td_relative)
+        config['INFO DISPLAY']["TimeDiff Projected"] = str(self.td_projected)
+        config['INFO DISPLAY']["TimeDiff CrossPath"] = str(self.td_crosspath)
+        config['INFO DISPLAY']["TimeDiff ToFinish"] = str(self.td_tofinish)
+        config['INFO DISPLAY']["TimeDiff RaceComp"] = str(self.td_racecomp)
+        config['INFO DISPLAY']["TimeDiff Setting"] = self.td_set
+        config['INFO DISPLAY']["Stick"] = str(self.stick)
+        config['INFO DISPLAY']["Text Color (ARGB)"] = str(self.color)
+        config['INFO DISPLAY']["Digits (to round to)"] = str(self.digits)
+        config['INFO DISPLAY']["History Size"] = str(self.history_size)
+        
+        file_path = os.path.join(utils.get_script_dir(), 'Settings', 'Infodisplay.ini')
+        with open(file_path, 'w') as f:
+            config.write(f)
 
 def populate_default_config_infodisplay(file_path):
     config = configparser.ConfigParser()
@@ -88,19 +143,16 @@ def populate_default_config_infodisplay(file_path):
     config['INFO DISPLAY']["Surface Properties"] = "False"
     config['INFO DISPLAY']["Position"] = "False"
     config['INFO DISPLAY']["Rotation"] = "True"
-    config['INFO DISPLAY']["Stick"] = "True"
-    config['INFO DISPLAY']["Text Color (ARGB)"] = "0xFFFFFFFF"
-    config['INFO DISPLAY']["Digits (to round to)"] = "6"
     config['INFO DISPLAY']["Distance Player-Ghost (X, Y, Z)"] = "False"
     config['INFO DISPLAY']["Oriented Distance Player-Ghost"] = "False"
     config['INFO DISPLAY']["Distance Player-Ghost (XYZ)"] = "False"
     config['INFO DISPLAY']['Player-Ghost Speed diff'] = "False"
     config['INFO DISPLAY']['Player-Ghost IV diff'] = "False"
-    config['INFO DISPLAY']['Player-Ghost EV Yaw diff'] = "False"
+    config['INFO DISPLAY']['Player-Ghost EV diff'] = "False"
     config['INFO DISPLAY']['Player-Ghost Pitch diff'] = "False"
     config['INFO DISPLAY']['Player-Ghost Facing Yaw diff'] = "False"
     config['INFO DISPLAY']['Player-Ghost Moving Yaw diff'] = "False"
-    config['INFO DISPLAY']['Player-Ghost Roll Yaw diff'] = "False"
+    config['INFO DISPLAY']['Player-Ghost Roll diff'] = "False"
     config['INFO DISPLAY']["TimeDiff Absolute"] = "False"
     config['INFO DISPLAY']["TimeDiff Relative"] = "False"
     config['INFO DISPLAY']["TimeDiff Projected"] = "True"
@@ -108,6 +160,9 @@ def populate_default_config_infodisplay(file_path):
     config['INFO DISPLAY']["TimeDiff ToFinish"] = "True"
     config['INFO DISPLAY']["TimeDiff RaceComp"] = "True"
     config['INFO DISPLAY']["TimeDiff Setting"] = "behind"
+    config['INFO DISPLAY']["Stick"] = "True"
+    config['INFO DISPLAY']["Text Color (ARGB)"] = "0xFFFFFFFF"
+    config['INFO DISPLAY']["Digits (to round to)"] = "6"
     config['INFO DISPLAY']["History Size"] = "200"
     
     

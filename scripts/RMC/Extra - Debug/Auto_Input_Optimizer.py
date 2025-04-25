@@ -34,14 +34,14 @@ def calculate_score():
         This function is called on every newframe, so you can store data with
         some mkw_utils.History for more complex data to calculate score for example'''
     
-    return score_racecomp(4242)()
+    return score_racecomp(1286)()
     
 def main():
 
     global randlist
     randlist = []
-    for frame in range(3265, 3600):
-        randlist.append(Randomizer(5, frame, 1/100, 15))
+    for frame in range(1080, 1286):
+        randlist.append(Randomizer(6, frame, 1/200, 5))
 
     global highscore
     highscore = None
