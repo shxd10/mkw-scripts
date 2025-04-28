@@ -1,0 +1,44 @@
+https://mariokartwii.com/showthread.php?tid=1954
+
+Range : 0x80000100 to 0x80001800
+
+
+0x800002CE thru 0x800002D3 FanCy Speedometer [JoshuaMK] https://mariokartwii.com/showthread.php?tid=1492
+0x800002CE thru 0x800002D3 FanCy HUD [JoshuaMK] https://mariokartwii.com/showthread.php?tid=1496
+0x800002E0 - 0x80000300 : PyCore Exact finish time
+0x800005FD Rapid Fire (GCN) [mdmwii] https://mariokartwii.com/showthread.php?tid=263
+0x800007C0 thru 0x800007C3 File Encryptor/Decryptor [Vega / 1superchip] https://mariokartwii.com/showthread.php?tid=1612
+0x80000A20 thru 0x80000A23 Steal-Mii [Vega] https://mariokartwii.com/showthread.php?tid=1218
+0x80000DC0 thru 0x80000DCF FanCy Speedometer [JoshuaMK] https://mariokartwii.com/showthread.php?tid=1492
+0x80000DC0 thru 0x80000DCF FanCy HUD [JoshuaMK] https://mariokartwii.com/showthread.php?tid=1496
+0x80000F98 thru 0x80000FBF Clock [Vega] https://mariokartwii.com/showthread.php?tid=1194
+0x80000FA0 thru 0x800012FF FanCy Speedometer [JoshuaMK] https://mariokartwii.com/showthread.php?tid=1492
+0x80000FA0 thru 0x800012FF FanCy HUD [JoshuaMK] https://mariokartwii.com/showthread.php?tid=1496
+0x80000FC8 thru 0x80000FCF Luck Wheelie Bot [Vega] https://mariokartwii.com/showthread.php?tid=1861
+0x80000FCC thru 0x80000FCF Rapid Fire/Hop [Vega] https://mariokartwii.com/showthread.php?tid=1862
+0x80001100 thru 0x80001197 Vehicle Stats Modifier [JoshuaMK] https://mariokartwii.com/showthread.php?tid=1334
+0x800014B0 thru 0x80001503 Draw Text To Screen [SwareJonge] https://mariokartwii.com/showthread.php?tid=1714
+0x800014B0 thru 0x8000152F Graphical Speedometer [SwareJonge] https://mariokartwii.com/showthread.php?tid=1715
+0x80001500 thru 0x80001518 Graphical In-Game Item Spy Online [Vega] https://mariokartwii.com/showthread.php?tid=1116
+0x80001500 thru 0x80001518 Graphical In-Game Item Spy Offline [Vega] https://mariokartwii.com/showthread.php?tid=1115
+0x80001500 thru 0x8000152F USB Gecko Item Spy -Offline- [NoHack2Win] https://mariokartwii.com/showthread.php?tid=568
+0x8000152C thru 0x8000152F Mii Cloner [mdmwii]  https://mariokartwii.com/showthread.php?tid=274
+0x80001534 thru 0x80001537 Future Fly (Wii Chuck) [mdmwii]  https://mariokartwii.com/showthread.php?tid=1078
+0x80001534 thru 0x80001537 Future Fly (GCN) [mdmwii] https://mariokartwii.com/showthread.php?...6&pid=1923
+0x80001534 thru 0x8000153F Stalking [mdmwii]  https://mariokartwii.com/showthread.php?tid=558
+0x80001550 thru 0x80001553 AutoPilot [mdmwii] https://mariokartwii.com/showthread.php?tid=768
+0x80001550 thru 0x80001553 MarioBOT [mdmwii] https://mariokartwii.com/showthread.php?tid=54
+0x80001570 thru 0x8000157B 1st Person Camera View [JoshuaMK, mdmwii] https://mariokartwii.com/showthread.php?tid=1331
+0x80001570 thru 0x8000157F 1st Person Camera View [mdmwii] https://mariokartwii.com/showthread.php?tid=597
+0x80001574 thru 0x80001577 Random Item From Item Box [Star] https://mariokartwii.com/showthread.php?tid=540
+0x80001584 thru 0x80001587 Satellite Camera [mdmwii]  https://mariokartwii.com/showthread.php?tid=616
+0x80001600 thru 0x8000161B Future Fly (Wii Chuck) [mdmwii] https://mariokartwii.com/showthread.php?tid=1078
+0x80001600 thru 0x8000161F Future Fly (GCN) [mdmwii] https://mariokartwii.com/showthread.php?...6&pid=1923
+0x80001620 thru 0x80001627 DWC_Authdata NAND File Modifier [Vega] https://mariokartwii.com/showthread.php?tid=1075
+0x80001624 thru 0x80001627 Item Wheel Hack [Bully] https://mariokartwii.com/showthread.php?tid=817
+0x80001640 thru 0x80001643 Set Wii To Shutdown After Specific Time [Vega] https://mariokartwii.com/showthread.php?tid=1009
+0x80001648 thru 0x8000164B Ultimate Region ID Cycler In Between Races [Vega] https://mariokartwii.com/showthread.php?tid=1070
+0x80001660 thru 0x80001663 Speed-O-Meter; TTs Only [mdmwii] https://mariokartwii.com/showthread.php?tid=1040
+0x80001660 thru 0x80001663 Graphical Speed/MTC/Air/Boost Meter [Vega] https://mariokartwii.com/showthread.php?tid=1112
+0x80001660 thru 0x80001663 Graphical Speed-O-Meter [Vega] https://mariokartwii.com/showthread.php?tid=1111
+0x80001660 thru 0x80001689 Graphical SpeedBar [Vega] https://mariokartwii.com/showthread.php?tid=1113
