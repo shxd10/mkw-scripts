@@ -10,7 +10,7 @@ import Modules.settings_utils as setting
 import Modules.mkw_utils as mkw_utils
 import Modules.ttk_lib as ttk_lib
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, TimerManager
-from Modules.mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings
+from Modules.mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings, RaceConfigPlayer, RaceConfigPlayerType
 from Modules.mkw_classes import KartObject, KartMove, KartSettings, KartBody
 from Modules.mkw_classes import VehicleDynamics, VehiclePhysics, KartBoost, KartJump
 from Modules.mkw_classes import KartState, KartCollide, KartInput, RaceInputState, KartObjectManager
@@ -97,6 +97,7 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
     
     race_mgr_player = RaceManagerPlayer()
     race_scenario = RaceConfigScenario(addr=RaceConfig.race_scenario())
+    race_config_player = RaceConfigPlayer(addr=race_scenario.player())
     race_settings = RaceConfigSettings(race_scenario.settings())
     kart_object = KartObject()
     kart_state = KartState(addr=kart_object.kart_state())
@@ -106,7 +107,7 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
     vehicle_physics = VehiclePhysics(addr=vehicle_dynamics.vehicle_physics())
     
     if c.debug :
-        value = 100*ttk_lib.get_full_rkg_size(ttk_lib.PlayerType.PLAYER)/0x13b0
+        value = 0
         text += f"Debug : {value:2.3f}%\n"
         
     newline = False
@@ -114,7 +115,7 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
         newline = True
         text += f"Frame: {mkw_utils.frame_of_input()}\n"
 
-    if c.rkg_buffer_size:
+    if c.rkg_buffer_size and race_config_player.type() == RaceConfigPlayerType.REAL_LOCAL:
         newline = True
         value = 100*ttk_lib.get_full_rkg_size(ttk_lib.PlayerType.PLAYER)/0x13b0
         text += f"RKG Buffer : {value:2.3f}%\n"
