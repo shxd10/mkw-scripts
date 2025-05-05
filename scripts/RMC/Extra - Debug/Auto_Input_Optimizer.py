@@ -19,8 +19,10 @@ THIS SCRIPT USES SAVESTATE SLOT 4
 from dolphin import event, savestate, utils
 from Modules import ttk_lib
 import Modules.mkw_utils as mkw_utils
+import Modules.mkw_classes as mkw
 from Modules.framesequence import FrameSequence, Frame
-from Modules.bruteforcer_lib import Randomizer, score_racecomp, score_XZ_EV
+from Modules.bruteforcer_lib import score_racecomp, score_XZ_EV
+from Modules import bruteforcer_lib as lib
 import random
 import os
 
@@ -34,15 +36,33 @@ def calculate_score():
         This function is called on every newframe, so you can store data with
         some mkw_utils.History for more complex data to calculate score for example'''
     
-    return score_racecomp(1286)()
+    frame = mkw_utils.frame_of_input()
+    if frame < 1700 :
+        return None
+    if mkw_utils.get_facing_angle(0).yaw%360 > 180.90:
+        return -float('inf')
+    return -mkw.VehiclePhysics(0).position().z 
     
 def main():
 
     global randlist
     randlist = []
-    for frame in range(1080, 1286):
-        randlist.append(Randomizer(6, frame, 1/200, 5))
+    
+    for frame in range(1407, 1633):
+        randlist.append(lib.Randomizer_Raw_Stick("Y", frame, 1/300, 5))
+        randlist.append(lib.Randomizer_Raw_Stick("X", frame, 1/600, 5))
+        randlist.append(lib.Randomizer_Alternate_Stick("Y", frame, 1/100, 2))
+        randlist.append(lib.Randomizer_Alternate_Stick("X", frame, 1/300, 2))
+    
+    
+    for frame in range(1450,1490):
+        randlist.append(lib.Randomizer_Alternate_Stick("Y", frame, 1/50, 2))
+        randlist.append(lib.Randomizer_Raw_Stick("Y", frame, 1/200, 15))
 
+    for frame in range(1570,1615):
+        randlist.append(lib.Randomizer_Alternate_Stick("Y", frame, 1/50, 2))
+        randlist.append(lib.Randomizer_Raw_Stick("Y", frame, 1/200, 15))
+    
     global highscore
     highscore = None
 
@@ -56,6 +76,9 @@ def main():
     attempt_counter = 0
 
     savestate.load_from_slot(4)
+
+    global save
+    save = savestate.save_to_bytes()
 
 
 @event.on_frameadvance
@@ -85,7 +108,7 @@ def on_frame_advance():
                     rand.random(cur_csv)
                 attempt_counter+= 1
                 print(f"random attempt since last improvement : {attempt_counter}")
-                savestate.load_from_slot(4)
+                savestate.load_from_bytes(save)
                 
     
 @event.on_framebegin
