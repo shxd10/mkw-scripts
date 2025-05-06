@@ -66,6 +66,11 @@ def main():
     global highscore
     highscore = None
 
+    savestate.load_from_slot(4)
+
+    global save
+    save = savestate.save_to_bytes()
+    
     global cur_csv
     cur_csv = ttk_lib.get_input_sequence_from_csv(ttk_lib.PlayerType.PLAYER)
 
@@ -74,11 +79,6 @@ def main():
 
     global attempt_counter
     attempt_counter = 0
-
-    savestate.load_from_slot(4)
-
-    global save
-    save = savestate.save_to_bytes()
 
 
 @event.on_frameadvance
