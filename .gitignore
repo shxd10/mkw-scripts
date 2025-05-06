@@ -1,6 +1,7 @@
 scripts/MKW_Inputs/**/*.csv
 scripts/MKW_Inputs/**/*.rkg
 scripts/AGC_Data/**/*.agc
+scripts/external/**/*.ini
 scripts/Settings/**/*.ini
 /scripts/Ghost/**/*.rkg
 **/__pycache__

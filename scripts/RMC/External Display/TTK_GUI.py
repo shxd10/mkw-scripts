@@ -130,7 +130,7 @@ BUTTON_LAYOUT = [
 
 def main():
     global shm_activate, shm_player_csv, shm_ghost_csv
-    shm_activate = ex.SharedMemoryBlock.create(name="ttk_gui_activate", buffer_size=2)
+    shm_activate = ex.SharedMemoryBlock.create(name="ttk_gui_activate", buffer_size=3)
     shm_player_csv = ex.SharedMemoryWriter(name="ttk_gui_player_csv", buffer_size=256)
     shm_ghost_csv = ex.SharedMemoryWriter(name="ttk_gui_ghost_csv", buffer_size=256)
 
@@ -147,6 +147,9 @@ def main():
     ex.SharedMemoryBlock.create(name="ttk_gui_window_closed", buffer_size=2)
     global shm_close
     shm_close = ex.SharedMemoryBlock.connect(name="ttk_gui_window_closed")
+
+    global g_activate_ghost_hard
+    g_activate_ghost_hard = False
 
     # If a button function is executed immediately while emulation is not paused, it can cause
     # pycore to freeze. To avoid this, button events are stored in this queue. If emulation
@@ -195,7 +198,7 @@ def execute_button_function():
 
 # Helper that reads state of activate checkboxes
 def get_activation_state():
-    return struct.unpack('>??', shm_activate.read())
+    return struct.unpack('>???', shm_activate.read())
 
 
 def reload_inputs():
@@ -210,13 +213,20 @@ def reload_inputs():
     ghost_inputs.read_from_file()
     shm_ghost_csv.write_text(ghost_inputs.filename)
 
+    if g_activate_ghost_hard:
+        ttk_lib.write_inputs_to_current_ghost_rkg(ghost_inputs)
+
         
 @event.on_timertick
 def on_timer_tick():
     #Only do stuff when the game is paused to avoid crashes
-    #Maybe can crash if memory not accessible despite game being paused ?
-    #But memory.is_memory_accessible seems to always return False in timertick
-    if utils.is_paused():
+
+    global g_activate_ghost_hard
+    if utils.is_paused() and memory.is_memory_accessible():
+        if not g_activate_ghost_hard:
+            if get_activation_state()[2]:
+                ttk_lib.write_inputs_to_current_ghost_rkg(ghost_inputs)
+        g_activate_ghost_hard = get_activation_state()[2]
         listen_for_buttons()
 
         
@@ -238,14 +248,19 @@ def on_frame_begin():
         
     if RaceManager.state() not in (RaceState.COUNTDOWN, RaceState.RACE):
         return
-    
-    activate_player, activate_ghost = get_activation_state()
+
+    global g_activate_ghost_hard
+    activate_player, activate_ghost_soft, activate_ghost_hard = get_activation_state()
+    if not g_activate_ghost_hard:
+        if get_activation_state()[2]:
+            ttk_lib.write_inputs_to_current_ghost_rkg(ghost_inputs)
+    g_activate_ghost_hard = activate_ghost_hard
     frame = frame_of_input()
     
     if activate_player and player_inputs[frame]:
         ttk_lib.write_player_inputs(player_inputs[frame])
     
-    if activate_ghost and ghost_inputs[frame]:
+    if activate_ghost_soft and ghost_inputs[frame]:
         ttk_lib.write_ghost_inputs(ghost_inputs[frame])
 
 

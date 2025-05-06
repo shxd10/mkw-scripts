@@ -2,6 +2,7 @@ from multiprocessing import shared_memory
 import atexit
 import subprocess
 import os
+import configparser
 import platform
 
 
@@ -140,3 +141,39 @@ def save_dialog_box(scriptDir, filetypes = [('All files', '*')], initialdir = ''
     filename = subprocess.check_output(["python", script_path], text=True, creationflags=subprocess.CREATE_NO_WINDOW)
     type_writer.close()
     return filename
+
+#The 2 following functions are used to save and restore
+#various tkinter settings
+def save_external_setting(config_file, setting_name, setting_value):
+    ''' Param : config_file : str, filename of the savefile
+                setting_name : str, unique name of the setting (used as a key in the config file)
+                setting_value : str, value of the setting'''
+    
+    #create an empty file if it doesn't exist
+    if not os.path.exists(config_file):
+        with open(config_file, 'w') as f:
+            pass
+
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    if not config.sections():
+        config["SETTINGS"] = {}
+    config["SETTINGS"][setting_name] = setting_value
+
+    with open(config_file, 'w') as f:
+        config.write(f)
+    
+def load_external_setting(config_file, setting_name):
+    ''' Param : config_file : str, filename of the savefile
+                setting_name : str, unique name of the setting (used as a key in the config file)'''
+    
+    if not os.path.exists(config_file):
+        return None
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    if not config.sections():
+        return None
+    if config["SETTINGS"].get(setting_name):
+        return config["SETTINGS"].get(setting_name)
+    return None
+   
