@@ -3,6 +3,7 @@ EPIK95
 An alternative infodisplay that I made for personal use. The text that gets displayed is created in one large
 formatted string, which makes it very easy to modify or add to the display directly instead of using a config file.
 Setting EXTERNAL_MODE to True will render the display in a separate window (requires Python to be installed).
+If "Remove UI Delay" is enabled in Dolphin's graphics settings, set NO_DELAY to True to prevent flickering.
 """
 from dolphin import event, gui, utils, memory # type: ignore
 import os
@@ -10,6 +11,7 @@ from Modules import mkw_classes as mkw, mkw_utils
 from external import external_utils as ex
 
 EXTERNAL_MODE = False
+NO_DELAY = True
 
 ROUND_DIGITS = 6
 TEXT_COLOR = 0xFFFFFFFF
@@ -161,8 +163,9 @@ def on_state_load(fromSlot: bool, slot: int):
 
 @event.on_savestatesave
 def on_state_save(fromSlot: bool, slot: int):
-    if memory.is_memory_accessible()and mkw_utils.extended_race_state() >= 0:
+    if NO_DELAY and memory.is_memory_accessible() and mkw_utils.extended_race_state() >= 0:
         update_infodisplay()
+
 
 def main():
     global current_frame
