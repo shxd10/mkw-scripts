@@ -219,7 +219,7 @@ def quaternion_to_euler_angle(q):
     yaw = -180/math.pi * math.atan2(y1, y2)
     return eulerAngle(pitch, yaw, roll)
 
-def get_facing_angle(player):
+def get_facing_angle(player = 0):
     """Param : int player_id
         Return : eulerAngle , correspond to facing angles"""
     quaternion = VehiclePhysics(player).main_rotation()
