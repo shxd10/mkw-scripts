@@ -3,6 +3,14 @@ scripts/MKW_Inputs/**/*.rkg
 scripts/AGC_Data/**/*.agc
 scripts/external/**/*.ini
 scripts/Settings/**/*.ini
+scripts/FrameDumps/**/*.txt
+scripts/FrameDumps/**/*.ini
+scripts/FrameDumps/**/*.mp4
+scripts/FrameDumps/**/*.mp3
+scripts/FrameDumps/**/*.wav
+scripts/FrameDumps/**/*.png
+scripts/FrameDumps/**
+scripts/Data Dump/**
 /scripts/Ghost/**/*.rkg
 **/__pycache__
 **/*test.py
