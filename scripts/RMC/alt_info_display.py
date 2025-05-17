@@ -122,6 +122,8 @@ External Velocity (Ghost)
   XZ:   {round_str(ev2.length_xz())}  ({delta(ev2.length_xz(), last_frame_values.get("ev2_xz"))})
   Y:    {round_str(ev2.y)}  ({delta(ev2.y, last_frame_values.get("ev2_y"))})
 
+Boost Panel: {kart_boost.mushroom_and_boost_panel_timer() - kart_move.mushroom_timer()}
+
 Airtime: {(kart_move.airtime() + 1) if (surface_properties & 0x1000) == 0 else 0}
 """)
 
