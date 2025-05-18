@@ -8,8 +8,8 @@ scripts/FrameDumps/**/*.ini
 scripts/FrameDumps/**/*.mp4
 scripts/FrameDumps/**/*.mp3
 scripts/FrameDumps/**/*.wav
-scripts/FrameDumps/**/*.png
-scripts/FrameDumps/**
+scripts/FrameDumps/*.png
+
 scripts/Data Dump/**
 /scripts/Ghost/**/*.rkg
 **/__pycache__

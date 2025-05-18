@@ -460,4 +460,8 @@ def player_teleport(player_id = 0,
     position.write(addr + 0x68)
     quaternion.write(addr + 0xF0)
 
+def set_external_velocity(player_id = 0, ev = 0):
+    addr = VehiclePhysics.chain(player_id)
+    ev.write(addr + 0x74)
+
         
