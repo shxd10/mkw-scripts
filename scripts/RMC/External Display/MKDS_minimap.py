@@ -91,7 +91,9 @@ def main():
     
 if __name__ == '__main__':
     main()
-
+@event.on_savestateload
+def clear_history(*_):
+    position_history.clear()
 
 @event.on_frameadvance
 def on_frame_advance():

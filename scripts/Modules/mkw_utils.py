@@ -169,12 +169,13 @@ def calculate_exact_finish(positions, lap):
     fl1, fl2 = get_finish_line_coordinate()
     t = time_to_cross(prevPos, pos-prevPos, fl1, fl2)
     if not (0<= t <= 1):
-        raise ValueError(t)
-        return 0
-    
-    exact_finish = (frame_of_input()+t-241)/fps_const
-    address = 0x800002E0 + lap*0x4
-    memory.write_f32(address, exact_finish)
+        #Error detected. We write a default value instead
+        address = 0x800002E0 + lap*0x4
+        memory.write_f32(address, 999.999999)
+    else:
+        exact_finish = (frame_of_input()+t-241)/fps_const
+        address = 0x800002E0 + lap*0x4
+        memory.write_f32(address, exact_finish)
 
 def read_exact_finish(lap):
     #Read exact finish from EVA, stored with above function
@@ -460,8 +461,12 @@ def player_teleport(player_id = 0,
     position.write(addr + 0x68)
     quaternion.write(addr + 0xF0)
 
-def set_external_velocity(player_id = 0, ev = 0):
+def add_angular_ev(player_id = 0, angle = 90, magnitude = 100, y = 0):
     addr = VehiclePhysics.chain(player_id)
+    yaw = get_facing_angle(player_id).yaw
+    z = math.cos((-yaw+angle)*math.pi/180) * magnitude
+    x = math.sin((-yaw+angle)*math.pi/180) * magnitude
+    ev = vec3(x,y,z)
     ev.write(addr + 0x74)
 
         
