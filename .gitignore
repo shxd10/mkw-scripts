@@ -1,5 +1,6 @@
-scripts/MKW_Inputs/**/*.csv
-scripts/MKW_Inputs/**/*.rkg
+scripts/MKW_Inputs/**/*
+!scripts/MKW_Inputs/Startslides/
+!scripts/MKW_Inputs/**/Startslides/**
 scripts/AGC_Data/**/*.agc
 scripts/Settings/**/*.ini
 /scripts/Ghost/**/*.rkg

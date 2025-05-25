@@ -323,6 +323,9 @@ def write_to_csv(inputs: FrameSequence, player_type: PlayerType) -> None:
     relative_path = ttk_config.text_file_path(player_str)
     absolute_path = os.path.join(utils.get_script_dir(), relative_path)
     
+    if not os.path.exists(os.path.dirname(absolute_path)):
+        os.makedirs(os.path.dirname(absolute_path))
+    
     # Write to csv, error if cannot write
     if inputs.write_to_file(absolute_path):
         gui.add_osd_message("{} inputs written to {}".format(player_str, relative_path))

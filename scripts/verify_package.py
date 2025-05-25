@@ -1,7 +1,8 @@
 import numpy
 import matplotlib
 import pygame
-import tkinter
+import tkinter # ?
+import PySide6
 import requests
 import os
 

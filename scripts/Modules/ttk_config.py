@@ -13,12 +13,15 @@ def text_file_path(path_name: str) -> str:
     if ttk_settings.track_suffix:    
         course = '_' + mkw_translations.course_slot_abbreviation()
     else:
-        course = ''
+        course = mkw_translations.course_slot_abbreviation()
     
     text_file_paths = {
-        "Player": "MKW_Inputs/" + ttk_settings.player_filename + course + ".csv",
-        "Ghost": "MKW_Inputs/" + ttk_settings.ghost_filename + course + ".csv",
-        "Backup": "MKW_Inputs/Backups/" "ttk_backup##" + course +".csv"
+        "Player": "MKW_Inputs/" + course + "/Player.csv",
+        "Ghost": "MKW_Inputs/" + course + "/Ghost.csv",
+        "Backup": "MKW_Inputs/" + course + "/Backups/backup##.csv"
+        #"Player": "MKW_Inputs/MKW_Player_Inputs_" + course + ".csv",
+        #"Ghost": "MKW_Inputs/MKW_Ghost_Inputs_" + course + ".csv",
+        #"Backup": "MKW_Inputs/Backups/" + course + "_" + "backup##.csv"
     }
     
     return text_file_paths[path_name]
@@ -26,6 +29,8 @@ def text_file_path(path_name: str) -> str:
 # rkgs that player and ghost inputs will be written to
 course = mkw_translations.course_slot_abbreviation()
 rkg_file_path = {
-    "Player": "MKW_Inputs/MKW_Player_Inputs_" + course + ".rkg",
-    "Ghost": "MKW_Inputs/MKW_Ghost_Inputs_" + course + ".rkg"
+    "Player": "MKW_Inputs/" + course + "/Player.rkg",
+    "Ghost": "MKW_Inputs/" + course + "/Ghost.rkg",
+    #"Player": "MKW_Inputs/MKW_Player_Inputs_" + course + ".rkg",
+    #"Ghost": "MKW_Inputs/MKW_Ghost_Inputs_" + course + ".rkg"
 }
