@@ -77,11 +77,19 @@ def create_config(filename):
     config.set('Infodisplay', '\n#draw the infodisplay')
     config.set('Infodisplay', 'show_infodisplay', 'True')#
     config.set('Infodisplay', '\n#Font filename. You must put the font in the Font folder.')
-    config.set('Infodisplay', 'font', 'CONSOLA.TTF')#
+    config.set('Infodisplay', 'font', 'MKW_Font')#
     config.set('Infodisplay', '\n#font size in pixel on the final output resolution.')
     config.set('Infodisplay', 'font_size', '48')#
-    config.set('Infodisplay', '\n#Top left anchor for infodisplay text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
-    config.set('Infodisplay', 'top_left', '0.1,0.1')#
+    config.set('Infodisplay', '\n#Scaling factor for MKW Font if used')
+    config.set('Infodisplay', 'mkw_font_scaling', '3')#
+    config.set('Infodisplay', '\n#vertical spacing in pixel between lines')
+    config.set('Infodisplay', 'spacing', '4')#
+    config.set('Infodisplay', '\n#Anchor for infodisplay text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
+    config.set('Infodisplay', 'anchor', '0.2,0.1')#
+    config.set('Infodisplay', '\n#Choice "left", "middle", "right"')
+    config.set('Infodisplay', 'anchor_style', 'middle')#
+    config.set('Infodisplay', '\n# True for having the value, then the text, False for having the text, then the value')
+    config.set('Infodisplay', 'invert_text', 'True')#
     config.set('Infodisplay', '\n#size of the outline of the font in pixel')
     config.set('Infodisplay', 'outline_width', '3')#
     config.set('Infodisplay', '\n#color of the outline of the font')
@@ -89,48 +97,48 @@ def create_config(filename):
     
     config.set('Infodisplay', '\n#parameters for the XYZ speed (delta position)')
     config.set('Infodisplay', 'show_speed_xyz', 'True')
-    config.set('Infodisplay', 'text_speed_xyz', 'Speed : ')
+    config.set('Infodisplay', 'text_speed_xyz', '. Speed')
     config.set('Infodisplay', 'color_speed_xyz', 'FF0000FF')
 
     
     config.set('Infodisplay', '\n#parameters for the XZ speed (delta position)')   
     config.set('Infodisplay', 'show_speed_xz', 'False')
-    config.set('Infodisplay', 'text_speed_xz', 'XZ Speed : ')
+    config.set('Infodisplay', 'text_speed_xz', '. Speed XZ')
     config.set('Infodisplay', 'color_speed_xz', 'FF0000FF')
 
     config.set('Infodisplay', '\n#parameters for the Y speed (delta position)')
     config.set('Infodisplay', 'show_speed_y', 'False')
-    config.set('Infodisplay', 'text_speed_y', 'Y Speed : ')
+    config.set('Infodisplay', 'text_speed_y', '. Speed Y')
     config.set('Infodisplay', 'color_speed_y', 'FF0000FF')
 
     config.set('Infodisplay', '\n#parameters for the XYZ internal velocity')
     config.set('Infodisplay', 'show_iv_xyz', 'True')
-    config.set('Infodisplay', 'text_iv_xyz', 'Internal Velocity : ')
+    config.set('Infodisplay', 'text_iv_xyz', '. IV')
     config.set('Infodisplay', 'color_iv_xyz', '00FF00FF')
 
     config.set('Infodisplay', '\n#parameters for the XZ internal velocity')
     config.set('Infodisplay', 'show_iv_xz', 'False')
-    config.set('Infodisplay', 'text_iv_xz', 'XZ Internal Velocity : ')
+    config.set('Infodisplay', 'text_iv_xz', '. IV XZ')
     config.set('Infodisplay', 'color_iv_xz', '00FF00FF')
 
     config.set('Infodisplay', '\n#parameters for the Y internal velocity')
     config.set('Infodisplay', 'show_iv_y', 'False')
-    config.set('Infodisplay', 'text_iv_y', 'Y Internal Velocity : ')
+    config.set('Infodisplay', 'text_iv_y', '. IV Y')
     config.set('Infodisplay', 'color_iv_y', '00FF00FF')
 
     config.set('Infodisplay', '\n#parameters for the XYZ external velocity')
     config.set('Infodisplay', 'show_ev_xyz', 'True')
-    config.set('Infodisplay', 'text_ev_xyz', 'External Velocity : ')
+    config.set('Infodisplay', 'text_ev_xyz', '. EV')
     config.set('Infodisplay', 'color_ev_xyz', '0000FFFF')
 
     config.set('Infodisplay', '\n#parameters for the XZ external velocity')
     config.set('Infodisplay', 'show_ev_xz', 'False')
-    config.set('Infodisplay', 'text_ev_xz', 'XZ External Velocity : ')
+    config.set('Infodisplay', 'text_ev_xz', '. EV XZ ')
     config.set('Infodisplay', 'color_ev_xz', '0000FFFF')
 
     config.set('Infodisplay', '\n#parameters for the Y external velocity')
     config.set('Infodisplay', 'show_ev_y', 'False')
-    config.set('Infodisplay', 'text_ev_y', 'Y External Velocity : ')
+    config.set('Infodisplay', 'text_ev_y', '. EV Y')
     config.set('Infodisplay', 'color_ev_y', '0000FFFF')
     
     config.set('Infodisplay', '\n\n##############################################################################\n')

@@ -48,7 +48,7 @@ def make_input_display(raw_input_text, config_id, font, INPUT_DISPLAY_IMG):
 
     if config_id.getboolean('draw_stick_text'):
         ID = ImageDraw.Draw(output)
-        text = f'({"+" if X>=0 else ''}{X},{"+" if Y>=0 else ''}{Y})'
+        text = f'({"+" if X>0 else (" " if X==0 else '')}{X},{"+" if Y>0 else (" " if Y==0 else '')}{Y})'
         ID.text( (132,198), text, font = font, fill = (255,255,255), stroke_width = 3, stroke_fill = (0,0,0))
 
     scaling = config_id.getfloat('scaling')

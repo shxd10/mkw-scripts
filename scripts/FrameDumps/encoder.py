@@ -22,12 +22,28 @@ time.sleep(1) #waits a bit to make sure the framedump metadata is written
 current_folder = os.path.dirname(sys.argv[0])
 extra_display_folder = os.path.dirname(sys.argv[0])
 
+
 #Initializing input display images
 input_display_folder = os.path.join(current_folder, 'Input_display')
 INPUT_DISPLAY_IMG = {}
 for filename in os.listdir(input_display_folder):
     if filename[-4:] == '.png':
         INPUT_DISPLAY_IMG[filename[:-4]] = Image.open(os.path.join(current_folder, 'Input_display', filename))
+
+
+#Initializing MKW Font images
+mkw_font_folder = os.path.join(current_folder, 'Fonts', 'MKW_Font')
+MKW_FONT_IMG = {}
+for filename in os.listdir(mkw_font_folder):
+    if filename[-4:] == '.png':
+        letter = filename[:-4]
+        if letter == 'SLASH':
+            letter = '/'
+        elif letter == 'COLON':
+            letter = ':'
+        elif letter == 'PERIOD':
+            letter = '.'
+        MKW_FONT_IMG[letter] = Image.open(os.path.join(mkw_font_folder, filename))
 
 
 def make_dict(filetext):
@@ -37,7 +53,6 @@ def make_dict(filetext):
         if len(temp) == 2:
             d[temp[0]] = temp[1]
     return d
-
 
     
 def transform_image(image, i=-1):
@@ -94,7 +109,7 @@ def transform_image(image, i=-1):
                 if config['Speed display'].getboolean('show_speed_display'):
                     speed_display_util.add_speed_display(image, frame_dict, config['Speed display'])
                 if config['Infodisplay'].getboolean('show_infodisplay'):
-                    infodisplay_util.add_infodisplay(image, frame_dict, config['Infodisplay'], font_folder)
+                    infodisplay_util.add_infodisplay(image, frame_dict, config['Infodisplay'], font_folder, MKW_FONT_IMG)
                 if config['Author display'].getboolean('show_author_display'):
                     author_display_util.add_author_display(image, frame_dict, config['Author display'], current_folder, raw_author_list, author_dict)
 
@@ -124,7 +139,14 @@ def main():
 
     global raw_author_list, author_dict
     raw_author_list, author_dict = author_display_util.make_list_author(config['Author display'], extra_display_folder)
-    
+
+
+    scaling = eval(config['Infodisplay'].get('mkw_font_scaling'))/12
+    for key in MKW_FONT_IMG.keys():
+        size = MKW_FONT_IMG[key].size
+        w,h = (round(size[0]*scaling), round(size[1]*scaling))
+        MKW_FONT_IMG[key] = MKW_FONT_IMG[key].resize((w,h) , Image.Resampling.LANCZOS)
+
     #Getting filenames
     with open(os.path.join(extra_display_folder, 'dump_info.txt'), 'r') as f:
         temp = f.read().split('\n')
