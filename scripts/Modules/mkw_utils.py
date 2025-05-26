@@ -171,6 +171,7 @@ def calculate_exact_finish(positions, lap):
     if not (0<= t <= 1):
         #Error detected. We write a default value instead
         address = 0x800002E0 + lap*0x4
+        print('Error in EFT')
         memory.write_f32(address, 999.999999)
     else:
         exact_finish = (frame_of_input()+t-241)/fps_const
@@ -204,7 +205,7 @@ def calculate_extra_finish_data(exact_finish):
     if subframe_rounded_ms > 1 :
         exact_behind = (subframe_rounded_ms-1)/1000*fps_const - t #time in frames needed for losing 1ms
     else:
-        exact_behind = -t - (math.floor((frame_count-1)/fps_const*1000) - frame_rounded_ms + 1/fps_const*1000)/1000*fps_const
+        exact_behind = -t - (math.floor((frame_count-1)/fps_const*1000) - frame_rounded_ms + 17)/1000*fps_const
         
     return (round(exact_ahead/fps_const*1000000), round(exact_behind/fps_const*1000000))
 
