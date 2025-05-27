@@ -3,6 +3,7 @@ EPIK95
 An alternative infodisplay that I made for personal use. The text that gets displayed is created in one large
 formatted string, which makes it very easy to modify or add to the display directly instead of using a config file.
 Setting EXTERNAL_MODE to True will render the display in a separate window (requires Python to be installed).
+Setting GHOST_DISPLAY to True will render a second copy of the display with values for the ghost.
 If "Remove UI Delay" is enabled in Dolphin's graphics settings, set NO_DELAY to True to prevent flickering.
 """
 from dolphin import event, gui, utils, memory # type: ignore
@@ -12,6 +13,7 @@ from external import external_utils as ex
 
 EXTERNAL_MODE = False
 NO_DELAY = True
+GHOST_DISPLAY = False
 
 ROUND_DIGITS = 6
 TEXT_COLOR = 0xFFFFFFFF
@@ -30,12 +32,16 @@ def delta(current, previous):
     return ("+" if res > 0 else "") + round_str(res)
 
 
-def create_infodisplay():
+def create_infodisplay(player_idx: int = 0):
     # Instantiate classes
-    race_mgr_player = mkw.RaceManagerPlayer()
+    race_mgr_player = mkw.RaceManagerPlayer(player_idx)
     race_scenario = mkw.RaceConfigScenario(addr=mkw.RaceConfig.race_scenario())
+
+    if player_idx >= race_scenario.player_count():
+        return "[invalid player index]"
+    
     race_settings = mkw.RaceConfigSettings(race_scenario.settings())
-    kart_object = mkw.KartObject()
+    kart_object = mkw.KartObject(player_idx)
     kart_move = mkw.KartMove(addr=kart_object.kart_move())
     kart_boost = mkw.KartBoost(addr=kart_move.kart_boost())
     kart_jump = mkw.KartJump(addr=kart_move.kart_jump())
@@ -46,16 +52,11 @@ def create_infodisplay():
     vehicle_physics = mkw.VehiclePhysics(addr=vehicle_dynamics.vehicle_physics())
 
     pos = vehicle_physics.position()
-    v = mkw_utils.delta_position()
+    v = mkw_utils.delta_position(player_idx)
     ev = vehicle_physics.external_velocity()
     facing_angle = mkw_utils.get_facing_angle(player=0)
 
-    if race_scenario.player_count() > 1:
-        ev2 = mkw.VehiclePhysics.external_velocity(player_idx=1)
-    else:
-        ev2 = mkw.common.vec3()
-
-    is_bike = mkw.KartSettings.is_bike()
+    is_bike = mkw.KartSettings.is_bike(player_idx)
     surface_properties = kart_collide.surface_properties().value
 
     # Create infodisplay text
@@ -76,9 +77,9 @@ Velocity
   Y:       {round_str(v.y)}
 
 External Velocity
-  XYZ:  {round_str(ev.length())}  ({delta(ev.length(), last_frame_values.get("ev_xyz"))})
-  XZ:   {round_str(ev.length_xz())}  ({delta(ev.length_xz(), last_frame_values.get("ev_xz"))})
-  Y:    {round_str(ev.y)}  ({delta(ev.y, last_frame_values.get("ev_y"))})
+  XYZ:  {round_str(ev.length())}  ({delta(ev.length(), prev_values[player_idx].get("ev_xyz"))})
+  XZ:   {round_str(ev.length_xz())}  ({delta(ev.length_xz(), prev_values[player_idx].get("ev_xz"))})
+  Y:    {round_str(ev.y)}  ({delta(ev.y, prev_values[player_idx].get("ev_y"))})
 
 Lean Rotation
   Angle:  {is_bike and round_(kart_move.lean_rot())}
@@ -100,14 +101,16 @@ Airtime: {kart_move.airtime()}
 Wallhug: {(surface_properties & mkw.SurfaceProperties.WALL) > 0}
 Barrel Roll: {kart_state.bitfield(field_idx=3) & 0x10 > 0}
 
-HWG Timer: {kart_state.hwg_timer()}
-Glitchy corner: {round_(kart_collide.glitchy_corner())}
+Surface properties: {surface_properties}
 """)
 
     #? Other infodisplay sections that can be copy/pasted in if needed
     _unused = (
 
 """
+HWG Timer: {kart_state.hwg_timer()}
+Glitchy corner: {round_(kart_collide.glitchy_corner())}
+
 Cooldowns
   Wheelie: {kart_move.wheelie_cooldown()} | Trick: {kart_jump.cooldown()}
 
@@ -117,24 +120,16 @@ OOB Timer: {kart_collide.solid_oob_timer()}
   Forward:  {round_str(v.forward(facing_angle.yaw))}
   Sideways: {round_str(v.sideway(facing_angle.yaw))}
 
-External Velocity (Ghost)
-  XYZ:  {round_str(ev2.length())}  ({delta(ev2.length(), last_frame_values.get("ev2_xyz"))})
-  XZ:   {round_str(ev2.length_xz())}  ({delta(ev2.length_xz(), last_frame_values.get("ev2_xz"))})
-  Y:    {round_str(ev2.y)}  ({delta(ev2.y, last_frame_values.get("ev2_y"))})
-
 Boost Panel: {kart_boost.mushroom_and_boost_panel_timer() - kart_move.mushroom_timer()}
 
 Airtime: {(kart_move.airtime() + 1) if (surface_properties & 0x1000) == 0 else 0}
 """)
 
     # Store any values that will be needed on the next frame
-    last_frame_values.update({
+    prev_values[player_idx].update({
         "ev_xyz": ev.length(),
         "ev_xz": ev.length_xz(),
         "ev_y": ev.y,
-        "ev2_xyz": ev2.length(),
-        "ev2_xz": ev2.length_xz(),
-        "ev2_y": ev2.y,
     })
 
     return text.strip()
@@ -144,14 +139,16 @@ def update_infodisplay():
     if EXTERNAL_MODE:
         shm_writer.write_text(create_infodisplay())
     else:
-        gui.draw_text((10, 10), TEXT_COLOR, create_infodisplay())
-
+        gui.draw_text((10, 10), TEXT_COLOR, create_infodisplay(player_idx=0))
+        if GHOST_DISPLAY:
+            gui.draw_text((260, 10), TEXT_COLOR, create_infodisplay(player_idx=1))
 
 @event.on_frameadvance
 def on_frame_advance():
     global current_frame
     if current_frame != (mkw_utils.frame_of_input() - 1):
-        last_frame_values.clear()
+        for p in prev_values:
+            p.clear()
     current_frame = mkw_utils.frame_of_input()
 
     if mkw_utils.extended_race_state() >= 0:
@@ -173,8 +170,8 @@ def main():
     global current_frame
     current_frame = 0
 
-    global last_frame_values
-    last_frame_values = {}
+    global prev_values
+    prev_values = [ {}, {} ]
 
     if EXTERNAL_MODE:
         global shm_writer

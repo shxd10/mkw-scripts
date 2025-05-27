@@ -66,6 +66,8 @@ def draw():
         # Control Stick
         display.create_control_stick([LEFT_OFFSET + 210, gui.get_display_size()[1] - 100], 50, 30, 50,
             stick_dict.get(xstick, 0), stick_dict.get(ystick, 0), 0xFFFFFFFF)
+        
+        gui.draw_text((LEFT_OFFSET + 195, gui.get_display_size()[1] - 40), 0xFFFFFFFF, f"{xstick}, {ystick}")
 
 
 @event.on_frameadvance

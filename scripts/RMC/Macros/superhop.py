@@ -53,7 +53,7 @@ def on_frame_advance():
     kart_move = mkw.KartMove(addr=kart_object.kart_move())
 
     kart_collide = mkw.KartCollide(addr=kart_object.kart_collide())
-    surface_properties = kart_collide.surface_properties().value
+    floor_collision = kart_collide.surface_properties().value & 0x1000 > 0
 
     if DEBUG_DISPLAY:
         gui.draw_text((10, gui.get_display_size()[1] - 20), 0xFFFFFFFF, state.__repr__())
@@ -67,13 +67,14 @@ def on_frame_advance():
 
     # Start superhopping on first drift commit
     if state.stage == -1 and kart_move.hop_stick_x() != 0:
-        state.stage = 0
         state.direction = kart_move.hop_stick_x()
+        state.hold_drift = True
+        state.stage = 0
 
     # Default superhopping state
     if state.stage == 0:
         # If vehicle is on ground, start hop sequence
-        if surface_properties != 0:
+        if floor_collision:
             state.stage = 1
         # Otherwise, vehicle is in air so apply spindrift inputs
         else:
@@ -116,10 +117,11 @@ def on_frame_advance():
         })
     # Frame 4: Commit drift
     if state.stage == 4:
+        counterhop = user_inputs["StickX"] * state.direction > 0
         ctrl.set_inputs({
             "A": True,
             "B": True,
-            "StickX": (2 * state.direction) if (user_inputs["StickX"] * state.direction > 0) else (-1 * state.direction),
+            "StickX": (2 * state.direction) if counterhop else (-1 * state.direction),
             "Up": False,
         })
     # Frame 5: Spindrift
