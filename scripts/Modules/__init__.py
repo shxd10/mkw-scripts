@@ -1,3 +1,4 @@
+'''
 import mkw_classes
 import marco_utils
 import settings_utils
@@ -16,3 +17,4 @@ import agc_lib
 import bruteforcer_lib
 import startslide_utils
 import infodisplay_utils
+'''
