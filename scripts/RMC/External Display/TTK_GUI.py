@@ -213,20 +213,25 @@ def reload_inputs():
     ghost_inputs.read_from_file()
     shm_ghost_csv.write_text(ghost_inputs.filename)
 
-    if g_activate_ghost_hard:
-        ttk_lib.write_inputs_to_current_ghost_rkg(ghost_inputs)
+    """if g_activate_ghost_hard:
+        ttk_lib.write_inputs_to_current_ghost_rkg(ghost_inputs)"""
 
         
 @event.on_timertick
 def on_timer_tick():
     #Only do stuff when the game is paused to avoid crashes
 
-    global g_activate_ghost_hard
+    """global g_activate_ghost_hard
+    try:
+        g_activate_ghost_hard
+    except NameError:
+        g_activate_ghost_hard = False"""
+    
     if utils.is_paused() and memory.is_memory_accessible():
-        if not g_activate_ghost_hard:
+        """if not g_activate_ghost_hard:
             if get_activation_state()[2]:
                 ttk_lib.write_inputs_to_current_ghost_rkg(ghost_inputs)
-        g_activate_ghost_hard = get_activation_state()[2]
+        g_activate_ghost_hard = get_activation_state()[2]"""
         listen_for_buttons()
 
         
@@ -240,6 +245,13 @@ def on_state_load(is_slot, slot):
 def on_frame_begin():
     listen_for_buttons()
 
+    global g_activate_ghost_hard
+    activate_player, activate_ghost_soft, activate_ghost_hard = get_activation_state()
+    """if not g_activate_ghost_hard:
+        if get_activation_state()[2]:
+            ttk_lib.write_inputs_to_current_ghost_rkg(ghost_inputs)"""
+    g_activate_ghost_hard = activate_ghost_hard
+    
     global prev_track
     track = course_slot_abbreviation()
     if track != prev_track:
@@ -249,12 +261,6 @@ def on_frame_begin():
     if RaceManager.state() not in (RaceState.COUNTDOWN, RaceState.RACE):
         return
 
-    global g_activate_ghost_hard
-    activate_player, activate_ghost_soft, activate_ghost_hard = get_activation_state()
-    if not g_activate_ghost_hard:
-        if get_activation_state()[2]:
-            ttk_lib.write_inputs_to_current_ghost_rkg(ghost_inputs)
-    g_activate_ghost_hard = activate_ghost_hard
     frame = frame_of_input()
     
     if activate_player and player_inputs[frame]:
@@ -262,6 +268,9 @@ def on_frame_begin():
     
     if activate_ghost_soft and ghost_inputs[frame]:
         ttk_lib.write_ghost_inputs(ghost_inputs[frame])
+
+    if activate_ghost_hard and ghost_inputs[frame]:
+        ttk_lib.write_inputs_to_current_ghost_rkg(ghost_inputs)
 
 
 if __name__ == '__main__':
