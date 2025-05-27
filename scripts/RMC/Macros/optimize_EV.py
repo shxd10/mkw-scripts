@@ -1,8 +1,9 @@
 """
 Usage: When holding left or right, neutral inputs will be added to optimize EV building via
-leaning. While turning, holding a hard direction (+-7) will turn as tight as possible without
+leaning. Holding a hard direction (+-7) will turn as tight as possible without
 sacrificing EV, while holding less than 7 will automatically turn as little as possible.
-Can also be used for optimal neutral gliding.
+Can be used for neutral gliding, supersliding, or any other lean-based EV tech.
+Enable this with the RFH script to perform supergrinding.
 """
 from dolphin import controller, event # type: ignore
 import Modules.mkw_classes as mkw
