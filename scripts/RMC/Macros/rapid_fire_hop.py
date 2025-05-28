@@ -2,7 +2,7 @@
 Usage: Hold B to rapid fire hop. Enable the `optimize_EV` script to supergrind.
 """
 from dolphin import controller, event # type: ignore
-import Modules.mkw_classes as mkw
+from Modules import mkw_classes as mkw
 from Modules.macro_utils import MKWiiGCController
 
 

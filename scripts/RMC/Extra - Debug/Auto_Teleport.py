@@ -16,7 +16,7 @@ filter_attempt : Read the comment of the function to edit it.
 '''
 from dolphin import event, savestate 
 from Modules.mkw_classes import VehiclePhysics
-import Modules.mkw_utils as mkw_utils
+from Modules import mkw_utils as mkw_utils
 from itertools import product
 
 SAVEFILENAME = 'collect_data.csv'

@@ -1,9 +1,9 @@
 from dolphin import event, gui, utils
 import configparser
-import Modules.agc_lib as lib
-import Modules.settings_utils as setting
+from Modules import agc_lib as lib
+from Modules import settings_utils as setting
 from Modules.mkw_classes import RaceManager, RaceState
-import Modules.mkw_utils as mkw_utils
+from Modules import mkw_utils as mkw_utils
 import os
 
 

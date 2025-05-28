@@ -7,8 +7,8 @@ from Modules.mkw_classes.common import SurfaceProperties, eulerAngle
 from Modules.mkw_utils import History 
 
 from external.external_utils import run_external_script
-import Modules.settings_utils as setting
-import Modules.mkw_utils as mkw_utils
+from Modules import settings_utils as setting
+from Modules import mkw_utils as mkw_utils
 from Modules.infodisplay_utils import draw_infodisplay
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, KartObjectManager, VehiclePhysics
 

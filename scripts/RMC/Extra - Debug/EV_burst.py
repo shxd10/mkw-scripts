@@ -1,11 +1,11 @@
 from dolphin import event, savestate, utils
 import os
 from pathlib import Path
-import Modules.mkw_utils as mkw_utils
-import Modules.framesequence as framesequence
-import Modules.ttk_lib as ttk_lib
+from Modules import mkw_utils as mkw_utils
+from Modules import framesequence as framesequence
+from Modules import ttk_lib as ttk_lib
 from Modules.mkw_translations import vehicle_id
-import Modules.mkw_classes as mkw 
+from Modules import mkw_classes as mkw 
 
 import time
 

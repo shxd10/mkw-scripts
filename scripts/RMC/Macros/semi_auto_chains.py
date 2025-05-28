@@ -2,7 +2,7 @@
 Usage: Hold UP while in a wheelie to perform perfect chain wheelies automatically.
 """
 from dolphin import controller, event # type: ignore
-import Modules.mkw_classes as mkw
+from Modules import mkw_classes as mkw
 from Modules.macro_utils import MKWiiGCController
 
 @event.on_frameadvance

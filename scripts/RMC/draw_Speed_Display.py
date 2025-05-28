@@ -4,7 +4,7 @@ import math
 
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState
 from Modules.mkw_classes import VehiclePhysics
-import Modules.mkw_utils as mkw_utils
+from Modules import mkw_utils as mkw_utils
 
 
 @event.on_frameadvance

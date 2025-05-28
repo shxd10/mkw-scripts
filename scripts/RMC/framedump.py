@@ -1,5 +1,5 @@
 from dolphin import event, savestate, utils
-import Modules.mkw_utils as mkw_utils
+from Modules import mkw_utils as mkw_utils
 from Modules.agc_lib import AGCMetaData
 from Modules.framesequence import Frame
 from external import external_utils as ex

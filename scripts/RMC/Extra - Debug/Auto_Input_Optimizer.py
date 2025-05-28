@@ -18,8 +18,8 @@ THIS SCRIPT USES SAVESTATE SLOT 4
 '''
 from dolphin import event, savestate, utils
 from Modules import ttk_lib
-import Modules.mkw_utils as mkw_utils
-import Modules.mkw_classes as mkw
+from Modules import mkw_utils as mkw_utils
+from Modules import mkw_classes as mkw
 from Modules.framesequence import FrameSequence, Frame
 from Modules.bruteforcer_lib import score_racecomp, score_XZ_EV
 from Modules import bruteforcer_lib as lib

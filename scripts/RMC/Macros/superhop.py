@@ -6,7 +6,7 @@ drift even if B is held. Vertical stick inputs will not be overwritten.
 """
 from dolphin import controller, event, gui # type: ignore
 import dataclasses
-import Modules.mkw_classes as mkw
+from Modules import mkw_classes as mkw
 from Modules.macro_utils import MKWiiGCController
 
 DEBUG_DISPLAY = False
