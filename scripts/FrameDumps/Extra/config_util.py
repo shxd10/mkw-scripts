@@ -13,7 +13,7 @@ import configparser
 
 
 def create_config(filename):
-    config = configparser.ConfigParser(allow_no_value=True, allow_unnamed_section=True)
+    config = configparser.ConfigParser(allow_no_value=True)
     config.add_section('README')
     config.set('README', 'Visit : https://docs.google.com/document/d/e/2PACX-1vTXoEveB_1MZ3WizOpEWvZ-oyJMgg-3pRLGiNu-5vo853BMcrr8RY69REcTsheurI9qS2kfqrx1BZkT/pub\n\n' )
     config.add_section('Path')
