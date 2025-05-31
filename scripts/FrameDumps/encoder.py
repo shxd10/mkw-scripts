@@ -75,11 +75,11 @@ def transform_image(image, i=-1):
         if dump_width*9 >= dump_height*16: 
             ratio = target_height/dump_height
             image = image.resize((round(dump_width*ratio), round(dump_height*ratio)), resampler)
-            image = image.crop(((image.width-target_width)//2, 0, target_width, target_height))
+            image = image.crop(((image.width-target_width)//2, 0, target_width+(image.width-target_width)//2, target_height))
         else:
             ratio = target_width/dump_width
             image = image.resize((round(dump_width*ratio), round(dump_height*ratio)), resampler)
-            image = image.crop(((0, image.height-target_height)//2, target_width, target_height))
+            image = image.crop(((0, image.height-target_height)//2, target_width, target_height+image.height-target_height)//2))
     if resize_style in ['fill', 'Fill', 'FILL']:
         dump_width, dump_height = image.size
         if dump_width*9 >= dump_height*16: 
