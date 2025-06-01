@@ -15,6 +15,7 @@ from Extra import input_display_util
 from Extra import infodisplay_util
 from Extra import speed_display_util
 from Extra import author_display_util
+from Extra import extradisplay_util
 from Extra import common
 
 time.sleep(1) #waits a bit to make sure the framedump metadata is written
@@ -79,7 +80,7 @@ def transform_image(image, i=-1):
         else:
             ratio = target_width/dump_width
             image = image.resize((round(dump_width*ratio), round(dump_height*ratio)), resampler)
-            image = image.crop(((0, image.height-target_height)//2, target_width, target_height+image.height-target_height)//2))
+            image = image.crop(((0, (image.height-target_height)//2, target_width, target_height+image.height-target_height)//2))
     if resize_style in ['fill', 'Fill', 'FILL']:
         dump_width, dump_height = image.size
         if dump_width*9 >= dump_height*16: 
@@ -94,15 +95,16 @@ def transform_image(image, i=-1):
             black_background = Image.new('RGB', target_resolution, (0,0,0))
             black_background.paste(image, ((target_width-image.width)//2), 0)
             image = black_background
+
             
+    image = image.convert("RGBA")
+    font_folder = os.path.join(current_folder, 'Fonts')
+    
     if os.path.isfile(os.path.join(extra_display_folder, 'RAM_data', f'{i}.txt')):
         with open(os.path.join(extra_display_folder, 'RAM_data', f'{i}.txt'), 'r') as f:
             t = f.read()
             if len(t)>1:
                 frame_dict = make_dict(t)
-
-                image = image.convert("RGBA")
-                font_folder = os.path.join(current_folder, 'Fonts')
 
                 if config['Input display'].getboolean('show_input_display'):
                     input_display_util.add_input_display(image, frame_dict, config, font_folder, INPUT_DISPLAY_IMG)
@@ -112,6 +114,12 @@ def transform_image(image, i=-1):
                     infodisplay_util.add_infodisplay(image, frame_dict, config['Infodisplay'], font_folder, MKW_FONT_IMG)
                 if config['Author display'].getboolean('show_author_display'):
                     author_display_util.add_author_display(image, frame_dict, config['Author display'], current_folder, raw_author_list, author_dict)
+
+    if os.path.isfile(os.path.join(extra_display_folder, 'RAM_data', f'{i}.rawtxt')):
+        with open(os.path.join(extra_display_folder, 'RAM_data', f'{i}.rawtxt'), 'r') as f:
+            text = f.read()                
+            if config['Extra display'].getboolean('show_extradisplay'):
+                extradisplay_util.add_extradisplay(image, text, config['Extra display'], font_folder, MKW_FONT_IMG)
 
     filters = common.get_filter_list(config['Encoding options'].get('special_effects'))
     for filtre in filters:
