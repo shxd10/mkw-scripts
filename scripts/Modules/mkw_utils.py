@@ -242,6 +242,34 @@ def get_moving_angle(player):
     speed = delta_position(player)
     return speed_to_euler_angle(speed)
 
+def get_unit_vectors_from_angles(angles):
+    sp, cp = math.sin(angles.pitch/180*math.pi) , math.cos(angles.pitch/180*math.pi)
+    sy, cy = math.sin(angles.yaw/180*math.pi) , math.cos(angles.yaw/180*math.pi)
+    sr, cr = math.sin(angles.roll/180*math.pi) , math.cos(angles.roll/180*math.pi)
+
+    #Vec pointing "forward"
+    y1 = sp
+    x1 = - cp * sy
+    z1 = cp * cy 
+
+    #Vec pointing "upward"
+    z2 = - cy * sp * cr -  sy * sr #not sure if it's ++, +-, -+ or --
+    y2 = cp * cr
+    x2 = sy * sp * cr - cy * sr
+    
+    return vec3(x1,y1,z1), vec3(x2,y2,z2)
+
+def get_relative_angles(absolute_angles, up_vector):
+    r_y = up_vector
+    r_x = r_y @ vec3(0,0,1)
+    r_z = r_x @ r_y
+
+    forward_vec, upward_vec = get_unit_vectors_from_angles(absolute_angles)
+
+    pitch = math.asin(forward_vec*r_y)
+
+    return pitch*180/math.pi
+
 
 #The time difference functions.
 """

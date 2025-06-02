@@ -38,6 +38,9 @@ class vec3:
     def __sub__(self, other):
         return vec3(self.x - other.x, self.y - other.y, self.z - other.z)
 
+    def __neg__(self):
+        return vec3(-self.x, -self.y, -self.z)
+    
     def __mul__(self, other):
         """ vec3 * vec3 -> float (dot product)
             vec3 * float -> vec3 (scalar multiplication)"""
@@ -45,6 +48,8 @@ class vec3:
             return self.x * other.x + self.y * other.y + self.z * other.z
         else:
             return vec3(self.x * other, self.y * other, self.z * other)
+
+    __rmul__ = __mul__
 
     def __matmul__(self, other):
         """ vec3 @ vec3 -> vec3 (cross product)
@@ -128,6 +133,54 @@ class quatf:
     z: float = 0.0
     w: float = 0.0
 
+    def vec(self) -> "vec3":
+        ''' Return the vec3 part of a quaternion'''
+        return vec3(self.x, self.y, self.z)
+
+    def __abs__(self):
+        ''' The norm / absolute value of the quaternion '''
+        return math.sqrt(self.x*self.x + self.y*self.y + self.z+self.z + self.w*self.w)
+
+    def normalize(self):
+        ''' Return a normalize version of self. Do not modify self '''
+        try:
+            return self * (1/abs(self))
+        except:
+            return quatf(0,0,0,0)
+
+    def __mul__(self, other) -> "quatf":
+        ''' quatf * quatf -> quatf (quaternion multiplication)
+            quatf * vec3 -> quatf (quaternion multiplication with w = 0 for the vec3)
+            quatf * float/int -> quatf (scalar mutliplication)'''
+        if type(other) == vec3:
+            q2 = quatf(other.x, other.y, other.z, 0)
+        elif type(other) == quatf:
+            q2 = other
+        elif type(other) == int or type(other) == float:
+            return quatf(self.x*other, self.y*other, self.z*other, self.w*other)
+        else:
+            raise TypeError('expected vec3 or quatf')
+        q1 = self
+        w = q1.w*q2.w - q1.x*q2.x - q1.y*q2.y - q1.z*q2.z
+        x = q1.w*q2.x + q1.x*q2.w + q1.y*q2.z - q1.z*q2.y
+        y = q1.w*q2.y - q1.x*q2.z + q1.y*q2.w + q1.z*q2.x
+        z = q1.w*q2.z + q1.x*q2.y - q1.y*q2.x + q1.z*q2.w
+        return quatf(x,y,z,w)
+
+    def conjugate(self):
+        return quatf(-self.x, -self.y, -self.z, self.w)
+    
+    def __matmul__(self, other):
+        ''' quatf @ vec3 -> vec3 (vector rotation by a quaternion)'''
+        if not type(other) == vec3:
+            raise TypeError('expected vec3')
+        conj = self.conjugate()
+        res = self * other
+        x = res.y * conj.z + res.x * conj.w + res.w * conj.x - res.z * conj.y
+        y = res.z * conj.x + res.y * conj.w + res.w * conj.y - res.x * conj.z
+        z = res.x * conj.y + res.z * conj.w + res.w * conj.z - res.y * conj.x
+        return vec3(x, y, z)
+
     @staticmethod
     def read(ptr) -> "quatf":
         bts = memory.read_bytes(ptr, 0x10)
@@ -167,6 +220,13 @@ class quatf:
                      - cr * cp * sy + sr * sp * cy,
                      - cr * cp * cy + sr * sp * sy)
 
+    @staticmethod
+    def from_vectors(vect1, vect2):
+        #args : 2 vec3, get the rotation from vect1 to vect2
+        cross = vect1 @ vect2
+        w = vect1.length() * vect2.length() + vect1 * vect2
+        return quatf(cross.x, cross.y, cross.z, w).normalize()
+
 
 def angle_degree_format(angle):
     return ((angle+180)%360) - 180
@@ -203,7 +263,7 @@ class eulerAngle:
         x1, x2 = 2*q.x*q.w-2*q.y*q.z, 1-2*q.x*q.x-2*q.z*q.z
         y1, y2 = 2*q.y*q.w-2*q.x*q.z, 1-2*q.y*q.y-2*q.z*q.z
         z = 2*q.x*q.y + 2*q.z*q.w
-        roll = 180/math.pi * math.asin(z)
+        roll = 180/math.pi * math.asin(z) if abs(z) <= 1 else 90*z/abs(z)
         pitch = -180/math.pi * math.atan2(x1, x2)
         yaw = -180/math.pi * math.atan2(y1, y2)
         return eulerAngle(pitch, yaw, roll)
