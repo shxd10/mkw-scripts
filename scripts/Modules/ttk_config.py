@@ -1,5 +1,5 @@
 from . import mkw_translations
-import Modules.settings_utils as setting
+from Modules import settings_utils as setting
 
 # when running undo_state_backup.py, creates up to backup_amount
 # backup files for your race inputs while you are TASing

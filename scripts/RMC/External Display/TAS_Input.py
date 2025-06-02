@@ -1,8 +1,8 @@
 from dolphin import event, gui, utils
 from external import external_utils as ex
-import Modules.ttk_lib as lib
+from Modules import ttk_lib as lib
 from Modules.framesequence import Frame
-import Modules.mkw_utils as mkw_utils
+from Modules import mkw_utils as mkw_utils
 import os
 
 def run_input(_ = None):

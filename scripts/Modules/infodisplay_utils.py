@@ -6,9 +6,9 @@ from datetime import datetime
 from Modules.mkw_classes.common import SurfaceProperties, eulerAngle
 from Modules.mkw_utils import History 
 from dolphin import gui, utils
-import Modules.settings_utils as setting
-import Modules.mkw_utils as mkw_utils
-import Modules.ttk_lib as ttk_lib
+from Modules import settings_utils as setting
+from Modules import mkw_utils as mkw_utils
+from Modules import ttk_lib as ttk_lib
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, TimerManager
 from Modules.mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings, RaceConfigPlayer, RaceConfigPlayerType
 from Modules.mkw_classes import KartObject, KartMove, KartSettings, KartBody

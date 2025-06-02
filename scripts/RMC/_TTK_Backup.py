@@ -1,8 +1,8 @@
 from dolphin import event, gui, utils, memory
 
-import Modules.settings_utils as setting
-import Modules.ttk_lib as ttk_lib
-import Modules.mkw_translations as mkw_translations
+from Modules import settings_utils as setting
+from Modules import ttk_lib as ttk_lib
+from Modules import mkw_translations as mkw_translations
 from Modules.mkw_classes import RaceManager, RaceState
 
 def main():
