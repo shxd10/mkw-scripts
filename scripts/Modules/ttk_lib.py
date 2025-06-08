@@ -8,7 +8,6 @@ import zlib
 
 from .framesequence import FrameSequence, Frame
 from .rkg_lib import get_RKG_data_memory, decode_rkg_inputs, encodeRKGInput
-from .rkg_lib import encodeRKGDirectionInput, encodeRKGTrickInput, encodeRKGFaceButtonInput
 from .mkw_utils import chase_pointer
 from . import ttk_config
 
@@ -57,39 +56,8 @@ def encode_direction_input(X, Y):
 def encode_trick_input(input):
     return input * 0x10
 
-def get_rkg_size(player_type: PlayerType, input_type: ControllerInputType) -> int:
 
-    # Determine memory region to access
-    if (player_type == PlayerType.PLAYER):
-        # This assumes player is index 0
-        # For now let's assert this is a player
-        race_config = RaceConfig()
-        race_scenario = RaceConfigScenario(addr=race_config.race_scenario())
-        race_config_player = RaceConfigPlayer(addr=race_scenario.player())
-        assert(race_config_player.type() == RaceConfigPlayerType.REAL_LOCAL)
-
-        ghost_writer = GhostWriter(addr=PlayerInput.ghost_writer())
-        stream_addr = ghost_writer.button_stream(input_type.value)
-        button_stream = GhostButtonsStream(addr=stream_addr)
-        return button_stream.sequence_count()
-    else:
-        # TODO: Ghost is index=1 if you are racing a ghost, but if you watch a replay
-        # for example, the ghost is index 0. We want to support this scenario, so
-        # we'll need to determine how to set controller_idx appropriately.
-        ghost_addr = InputMgr.ghost_controller(1)
-        ghost_controller = GhostController(addr=ghost_addr)
-        stream_addr = ghost_controller.buttons_stream(input_type.value)
-        ghost_button_stream = GhostButtonsStream(addr=stream_addr)
-        return ghost_button_stream.sequence_count()
-
-
-def get_full_rkg_size(player_type: PlayerType) -> int:
-    fb_size = get_rkg_size(player_type, ControllerInputType.FACE)
-    di_size = get_rkg_size(player_type, ControllerInputType.DI)
-    ti_size = get_rkg_size(player_type, ControllerInputType.TRICK)
-    return fb_size + di_size + ti_size
-
-
+    
 # Reads binary data in-memory for the specified section
 def read_raw_rkg_data(player_type: PlayerType, input_type: ControllerInputType) -> list:
     ret_list = []
@@ -130,7 +98,7 @@ def read_raw_rkg_data(player_type: PlayerType, input_type: ControllerInputType) 
         cur_addr += 0x2
         data_tuple = memory.read_u16(cur_addr)
         
-        if (cur_addr >= end_addr):
+        if (data_tuple == 0x0000 or cur_addr >= end_addr):
             break
     
     return ret_list
@@ -267,26 +235,7 @@ def encode_rkg_data(input_list: FrameSequence) -> Tuple[List[int], List[int]]:
     all_tuples = face_tuples+di_tuples+trick_tuples
     tuple_lengths = [len(x) for x in (face_tuples, di_tuples, trick_tuples)]
     return all_tuples, tuple_lengths
-
-
-def setPlayerRKGBuffer(input_list: FrameSequence):
-    race_config = RaceConfig()
-    race_scenario = RaceConfigScenario(addr=race_config.race_scenario())
-    race_config_player = RaceConfigPlayer(addr=race_scenario.player())
-    assert(race_config_player.type() == RaceConfigPlayerType.REAL_LOCAL)
-    ghost_writer = GhostWriter(addr=PlayerInput.ghost_writer())
-
-    for input_type in ControllerInputType:
-        input_data, input_len = [encodeRKGFaceButtonInput, encodeRKGDirectionInput, encodeRKGTrickInput][input_type.value](input_list)
-        stream_addr = ghost_writer.button_stream(input_type.value)
-        button_stream = GhostButtonsStream(addr=stream_addr)
-        address = button_stream.buffer()
-        while len(input_data)<button_stream.size():
-            input_data.append(0)
-        memory.write_bytes(address, input_data)
-        memory.write_u32(stream_addr + 0x8, input_len-1)
-
-
+    
 def createRKGFile(input_data: FrameSequence, track_id: int,
                   vehicle_id: int, character_id: int, drift_id: int) -> bytearray:
     tuples, lengths = encode_rkg_data(input_data)
@@ -373,6 +322,9 @@ def write_to_csv(inputs: FrameSequence, player_type: PlayerType) -> None:
     player_str = "Player" if player_type == PlayerType.PLAYER else "Ghost"
     relative_path = ttk_config.text_file_path(player_str)
     absolute_path = os.path.join(utils.get_script_dir(), relative_path)
+    
+    if not os.path.exists(os.path.dirname(absolute_path)):
+        os.makedirs(os.path.dirname(absolute_path))
     
     # Write to csv, error if cannot write
     if inputs.write_to_file(absolute_path):
