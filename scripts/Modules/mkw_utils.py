@@ -171,7 +171,7 @@ def calculate_exact_finish(positions, lap):
     if not (0<= t <= 1):
         #Error detected. We write a default value instead
         address = 0x800002E0 + lap*0x4
-        print('Error in EFT')
+        print('Error in Exact Finish Time')
         memory.write_f32(address, 999.999999)
     else:
         exact_finish = (frame_of_input()+t-241)/fps_const

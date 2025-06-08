@@ -1,20 +1,20 @@
 '''
-import mkw_classes
-import marco_utils
-import settings_utils
-import input_display
+from Modules import mkw_classes
+#from Modules import marco_utils
+from Modules import settings_utils
+from Modules import input_display
 
-import mkw_translation
-import mkw_utils
-import framesequence
+#from Modules import mkw_translation
+from Modules import mkw_utils
+from Modules import framesequence
 
-import ttk_config
-import rkg_lib
+from Modules import ttk_config
+from Modules import rkg_lib
 
-import ttk_lib
+from Modules import ttk_lib
 
-import agc_lib
-import bruteforcer_lib
-import startslide_utils
-import infodisplay_utils
+from Modules import agc_lib
+from Modules import bruteforcer_lib
+from Modules import startslide_utils
+from Modules import infodisplay_utils
 '''

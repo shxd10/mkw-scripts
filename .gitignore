@@ -13,6 +13,7 @@ scripts/FrameDumps/*.png
 
 scripts/Data Dump/**
 /scripts/Ghost/**/*.rkg
+/scripts/Ghost/**/*.csv
 **/__pycache__
 **/*test*.py
 
