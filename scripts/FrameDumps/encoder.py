@@ -99,7 +99,7 @@ def transform_image(image, i=-1):
             
     image = image.convert("RGBA")
     font_folder = os.path.join(current_folder, 'Fonts')
-    
+
     if os.path.isfile(os.path.join(extra_display_folder, 'RAM_data', f'{i}.txt')):
         with open(os.path.join(extra_display_folder, 'RAM_data', f'{i}.txt'), 'r') as f:
             t = f.read()
@@ -111,7 +111,7 @@ def transform_image(image, i=-1):
                 if config['Speed display'].getboolean('show_speed_display'):
                     speed_display_util.add_speed_display(image, frame_dict, config['Speed display'])
                 if config['Infodisplay'].getboolean('show_infodisplay'):
-                    infodisplay_util.add_infodisplay(image, frame_dict, config['Infodisplay'], font_folder, MKW_FONT_IMG)
+                        infodisplay_util.add_infodisplay(image, frame_dict, config['Infodisplay'], font_folder, MKW_FONT_IMG)
                 if config['Author display'].getboolean('show_author_display'):
                     author_display_util.add_author_display(image, frame_dict, config['Author display'], current_folder, raw_author_list, author_dict)
 
@@ -278,7 +278,7 @@ def main():
                 im.save(f'{counter}.png')
     if not no_vid :           
         print('time : ', time.time() -t)
-        print('frame expected :', -1+len(os.listdir(os.path.join(current_folder, 'RAM_data'))))
-        print('frame dumped :', round(output_video.fps * output_video.duration))
+        print('frames expected :', -1+len(os.listdir(os.path.join(current_folder, 'RAM_data'))))
+        print('frames dumped :', round(output_video.fps * output_video.duration))
         input('Press ENTER to exit')
 main()
