@@ -198,12 +198,12 @@ def create_config(filename):
     config.set('Input display', 'width', '3')#
     config.set('Input display', 'outline_width', '3')#
     config.set('Input display', '\n#coloring options for the input display parts')
-    config.set('Input display', 'color_shoulder_left', '0000FFFF')
-    config.set('Input display', 'color_shoulder_right', '0000FFFF')
-    config.set('Input display', 'color_dpad', '0000FFFF')
-    config.set('Input display', 'color_analog', '0000FFFF')
-    config.set('Input display', 'color_a_button', '0000FFFF')
-    config.set('Input display', 'color_stick_text', '0000FFFF')
+    config.set('Input display', 'color_shoulder_left', 'FFFFFFFF')
+    config.set('Input display', 'color_shoulder_right', 'FFFFFFFF')
+    config.set('Input display', 'color_dpad', 'FFFFFFFF')
+    config.set('Input display', 'color_analog', 'FFFFFFFF')
+    config.set('Input display', 'color_a_button', 'FFFFFFFF')
+    config.set('Input display', 'color_stick_text', 'FFFFFFFF')
     config.set('Input display', '\n#multiplier on the size of input display. Default size is 250x400 in pixel on the output resolution')
     config.set('Input display', 'scaling', '1')#
     config.set('Input display', '\n#Choice "nearest", "box", "bilinear", "hamming", "bicubic", "lanczos"')
