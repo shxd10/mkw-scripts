@@ -146,25 +146,25 @@ def create_config(filename):
     config.add_section('Speed display')
     config.set('Speed display', '\n#draw the speed display')
     config.set('Speed display', 'show_speed_display', 'True')
-    config.set('Speed display', '\n#Top left anchor for speed display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
+    config.set('Speed display', '\n#top left anchor for speed display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Speed display', 'top_left', '0.7, 0.5')#
-    config.set('Speed display', '\n#Activating this will make the circle rotate with your facing yaw, so it always face up')
+    config.set('Speed display', '\n#activating this will make the circle rotate with your facing yaw, so it always face up')
     config.set('Speed display', 'rotate_with_yaw', 'True')#
-    config.set('Speed display', '\n#Radius of the circle in pixel on the final output resolution')
+    config.set('Speed display', '\n#radius of the circle in pixel on the final output resolution')
     config.set('Speed display', 'circle_radius', '200')#
-    config.set('Speed display', '\n#Color of the interior of the circle')
+    config.set('Speed display', '\n#color of the interior of the circle')
     config.set('Speed display', 'circle_color', 'FFFFFF80')#
     config.set('Speed display', '\n#color of the border of the circle')
     config.set('Speed display', 'circle_outline_color', '000000FF')#
     config.set('Speed display', '\n#size of the border of the circle')
     config.set('Speed display', 'circle_outline_width', '4')#
-    config.set('Speed display', '\n#Draw the XZ axis when rotating with yaw. Draw the sideways and forward axis when not rotating with yaw')
+    config.set('Speed display', '\n#draw the XZ axis when rotating with yaw. Draw the sideways and forward axis when not rotating with yaw')
     config.set('Speed display', 'draw_axis', 'True')#
     config.set('Speed display', '\n#color of the axis')
     config.set('Speed display', 'axis_color', '000000FF')#
     config.set('Speed display', '\n#width of the axis in pixel on the final output resolution')
     config.set('Speed display', 'axis_width', '2')#
-    config.set('Speed display', '\n#Draw a pieslice corresponding to the facing yaw') 
+    config.set('Speed display', '\n#draw a pieslice corresponding to the facing yaw') 
     config.set('Speed display', 'draw_pieslice', 'False')#
     config.set('Speed display', '\n#color of that pieslice')
     config.set('Speed display', 'pieslice_color', 'FFFF00FF')
@@ -191,18 +191,29 @@ def create_config(filename):
     config.add_section('Input display')
     config.set('Input display', '\n#draw the input display')
     config.set('Input display', 'show_input_display', 'True')
-    config.set('Input display', '\n#Top left anchor for input display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
+    config.set('Input display', '\n#top left anchor for input display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Input display', 'top_left', '0.03,0.7')#
+    config.set('Input display', '\n#width options equivalent to pyrkg and other input display tools. image quality has also been improved')
+    config.set('Input display', '#all pairs of widths 3-7 and outline widths 2-4 are possible, except (7,4)')
+    config.set('Input display', 'width', '3')#
+    config.set('Input display', 'outline_width', '3')#
+    config.set('Input display', '\n#coloring options for the input display parts')
+    config.set('Input display', 'color_shoulder_left', '0000FFFF')
+    config.set('Input display', 'color_shoulder_right', '0000FFFF')
+    config.set('Input display', 'color_dpad', '0000FFFF')
+    config.set('Input display', 'color_analog', '0000FFFF')
+    config.set('Input display', 'color_a_button', '0000FFFF')
+    config.set('Input display', 'color_stick_text', '0000FFFF')
     config.set('Input display', '\n#multiplier on the size of input display. Default size is 250x400 in pixel on the output resolution')
     config.set('Input display', 'scaling', '1')#
-    config.set('Input display', '\n#Choice "nearest", "box", "bilinear", "hamming", "bicubic", "lanczos"')
+    config.set('Input display', '\n#choice "nearest", "box", "bilinear", "hamming", "bicubic", "lanczos"')
     config.set('Input display', '#visit #https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters')
     config.set('Input display', 'scaling_option', 'lanczos') #https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters
-    config.set('Input display', '\n#Draw the bounding box. The file itself can be modified in the Input_display folder')
+    config.set('Input display', '\n#draw the bounding box. The file itself can be modified in the Input_display folder')
     config.set('Input display', 'draw_box', 'True')#
-    config.set('Input display', '\n#Draw the +7,-7 text corresponding to the stick input')
+    config.set('Input display', '\n#draw the +7,-7 text corresponding to the stick input')
     config.set('Input display', 'draw_stick_text', 'True')#
-    config.set('Input display', '\n#Choice "blur", "contour", "detail", "edge_enhance", "edge_enhance_more", "emboss", "find_edges", "sharpen", "smooth", "smooth_more"')
+    config.set('Input display', '\n#choice "blur", "contour", "detail", "edge_enhance", "edge_enhance_more", "emboss", "find_edges", "sharpen", "smooth", "smooth_more"')
     config.set('Input display', '#You can use several effects by separating them with a ",". DO NOT USE SPACES')
     config.set('Input display', 'special_effects', 'none')#
     config.set('Input display', '\n\n##############################################################################\n')
@@ -210,11 +221,11 @@ def create_config(filename):
     config.add_section('Author display')
     config.set('Author display', '\n#draw the author display')
     config.set('Author display', 'show_author_display', 'False')
-    config.set('Author display', '\n#Top left anchor for author display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
+    config.set('Author display', '\n#top left anchor for author display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Author display', 'top_left', '0.1,0.4')#   
-    config.set('Author display', '\n#Must be a file in the same folder as this config file. Mandatory for the author display to work')
+    config.set('Author display', '\n#must be a file in the same folder as this config file. Mandatory for the author display to work')
     config.set('Author display', 'author_list_filename', 'authors.txt')#
-    config.set('Author display', '\n#Font filename. You must put the font in the Font folder.')
+    config.set('Author display', '\n#font filename. You must put the font in the Font folder.')
     config.set('Author display', 'font', 'CONSOLA.TTF')#
     config.set('Author display', '\n#font size in pixel on the final output resolution')
     config.set('Author display', 'font_size', '48')#
