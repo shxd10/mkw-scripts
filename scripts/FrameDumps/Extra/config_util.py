@@ -158,7 +158,7 @@ def create_config(filename):
     config.set('Speed display', 'circle_outline_color', '000000FF')#
     config.set('Speed display', '\n#size of the border of the circle')
     config.set('Speed display', 'circle_outline_width', '4')#
-    config.set('Speed display', '\n#Draw the XZ axis when rotating with yaw. Draw the sideways and forward axis when not rotating with yaw')
+    config.set('Speed display', '\n#draw the XZ axis when rotating with yaw. Draw the sideways and forward axis when not rotating with yaw')
     config.set('Speed display', 'draw_axis', 'True')#
     config.set('Speed display', '\n#color of the axis')
     config.set('Speed display', 'axis_color', '000000FF')#
@@ -193,12 +193,23 @@ def create_config(filename):
     config.set('Input display', 'show_input_display', 'True')
     config.set('Input display', '\n#Top left anchor for input display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Input display', 'top_left', '0.03,0.7')#
+    config.set('Input display', '\n#width options equivalent to pyrkg and other input display tools. image quality has also been improved')
+    config.set('Input display', '#all pairs of widths 3-7 and outline widths 2-4 are possible, except (7,4)')
+    config.set('Input display', 'width', '3')#
+    config.set('Input display', 'outline_width', '3')#
+    config.set('Input display', '\n#coloring options for the input display parts')
+    config.set('Input display', 'color_shoulder_left', 'FFFFFFFF')
+    config.set('Input display', 'color_shoulder_right', 'FFFFFFFF')
+    config.set('Input display', 'color_dpad', 'FFFFFFFF')
+    config.set('Input display', 'color_analog', 'FFFFFFFF')
+    config.set('Input display', 'color_a_button', 'FFFFFFFF')
+    config.set('Input display', 'color_stick_text', 'FFFFFFFF')
     config.set('Input display', '\n#multiplier on the size of input display. Default size is 250x400 in pixel on the output resolution')
     config.set('Input display', 'scaling', '1')#
     config.set('Input display', '\n#Choice "nearest", "box", "bilinear", "hamming", "bicubic", "lanczos"')
     config.set('Input display', '#visit #https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters')
     config.set('Input display', 'scaling_option', 'lanczos') #https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters
-    config.set('Input display', '\n#Draw the bounding box. The file itself can be modified in the Input_display folder')
+    config.set('Input display', '\n#draw the bounding box. The file itself can be modified in the Input_display folder')
     config.set('Input display', 'draw_box', 'True')#
     config.set('Input display', '\n#Draw the +7,-7 text corresponding to the stick input')
     config.set('Input display', 'draw_stick_text', 'True')#

@@ -278,7 +278,7 @@ def main():
                 im.save(f'{counter}.png')
     if not no_vid :           
         print('time : ', time.time() -t)
-        print('frame expected :', -1+len(os.listdir(os.path.join(current_folder, 'RAM_data'))))
-        print('frame dumped :', round(output_video.fps * output_video.duration))
+        print('frames expected :', -1+len(os.listdir(os.path.join(current_folder, 'RAM_data'))))
+        print('frames dumped :', round(output_video.fps * output_video.duration))
         input('Press ENTER to exit')
 main()
