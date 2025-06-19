@@ -197,7 +197,7 @@ def create_config(filename):
     config.set('Input display', '#all pairs of widths 3-7 and outline widths 2-4 are possible, except (7,4)')
     config.set('Input display', 'width', '3')#
     config.set('Input display', 'outline_width', '3')#
-    config.set('Input display', '\n#coloring options for the input display parts')
+    config.set('Input display', '\n#coloring options for the input display parts. alpha channel has no effect but must use RGBA format')
     config.set('Input display', 'color_shoulder_left', 'FFFFFFFF')
     config.set('Input display', 'color_shoulder_right', 'FFFFFFFF')
     config.set('Input display', 'color_dpad', 'FFFFFFFF')
@@ -213,6 +213,8 @@ def create_config(filename):
     config.set('Input display', 'draw_box', 'True')#
     config.set('Input display', '\n#Draw the +7,-7 text corresponding to the stick input')
     config.set('Input display', 'draw_stick_text', 'True')#
+    config.set('Input display', '\n#size of stick text. the default size is 36')
+    config.set('Input display', 'stick_text_size', '36')#
     config.set('Input display', '\n#Choice "blur", "contour", "detail", "edge_enhance", "edge_enhance_more", "emboss", "find_edges", "sharpen", "smooth", "smooth_more"')
     config.set('Input display', '#You can use several effects by separating them with a ",". DO NOT USE SPACES')
     config.set('Input display', 'special_effects', 'none')#
