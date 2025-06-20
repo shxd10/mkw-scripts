@@ -9,6 +9,23 @@ stick_dict = {-7: 0, -6: 60, -5: 70, -4: 80, -3: 90, -2: 100, -1: 110,
 
 LEFT_OFFSET = 250
 
+def update_input():
+    global ablr
+    global dpad
+    global xstick
+    global ystick
+    race_mgr_player_addr = race_mgr.race_manager_player()
+    race_mgr_player = RaceManagerPlayer(addr=race_mgr_player_addr)
+    kart_input = KartInput(addr=race_mgr_player.kart_input())
+    current_input_state = RaceInputState(addr=kart_input.current_input_state())
+    ablr = current_input_state.buttons()
+    dpad = current_input_state.trick()
+    xstick = current_input_state.raw_stick_x() - 7
+    ystick = current_input_state.raw_stick_y() - 7    
+
+def main():
+    update_input()
+    
 def draw():
     race_mgr = RaceManager()
     if race_mgr.state().value >= RaceState.COUNTDOWN.value:
@@ -72,14 +89,16 @@ def draw():
 
 @event.on_frameadvance
 def on_frame_advance():
-    draw()
+    update_input()
 
-@event.on_savestatesave
-def on_state_load(fromSlot: bool, slot: int):    
-    if memory.is_memory_accessible():
-        draw()
 
 @event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
     if memory.is_memory_accessible():
-        draw()
+        update_input()
+
+@event.on_framepresent
+def on_present():
+    draw()
+
+main()

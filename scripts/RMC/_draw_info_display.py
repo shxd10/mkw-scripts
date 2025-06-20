@@ -9,7 +9,7 @@ from Modules.mkw_utils import History
 from external.external_utils import run_external_script
 from Modules import settings_utils as setting
 from Modules import mkw_utils as mkw_utils
-from Modules.infodisplay_utils import draw_infodisplay
+from Modules.infodisplay_utils import draw_infodisplay, create_infodisplay
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, KartObjectManager, VehiclePhysics
 
 
@@ -33,16 +33,15 @@ def on_state_load(fromSlot: bool, slot: int):
         Angle_History.update()
         RaceComp_History.update()
         maxLap = int(RaceManagerPlayer.race_completion_max(0))
-        draw_infodisplay(c, RaceComp_History, Angle_History)
+        text = create_infodisplay(c, RaceComp_History, Angle_History)
         
 
-@event.on_savestatesave
-def on_state_save(fromSlot: bool, slot: int):
-    if memory.is_memory_accessible():
-        if mkw_utils.extended_race_state() >= 0:
-            draw_infodisplay(c, RaceComp_History, Angle_History)
-    
 
+@event.on_framepresent
+def on_present():
+    gui.draw_text((10, 10), c.color, text)
+    
+    
 def main():
     global c
     c = setting.get_infodisplay_config()
@@ -79,6 +78,9 @@ def main():
     global maxLap
     maxLap = None
 
+    global text
+    text = ''
+
 
 if __name__ == '__main__':
     main()
@@ -91,6 +93,7 @@ def on_frame_advance():
     global RaceComp_History
     global c
     global maxLap
+    global text
 
     race_mgr = RaceManager()
     newframe = Frame_of_input != mkw_utils.frame_of_input()
@@ -105,7 +108,7 @@ def on_frame_advance():
         maxLap = int(RaceManagerPlayer.race_completion_max(0))
 
     if draw:
-        draw_infodisplay(c, RaceComp_History, Angle_History)
+        text = create_infodisplay(c, RaceComp_History, Angle_History)
     else:
         RaceComp_History.clear()
         Angle_History.clear()

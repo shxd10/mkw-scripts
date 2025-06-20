@@ -136,13 +136,24 @@ Airtime: {(kart_move.airtime() + 1) if (surface_properties & 0x1000) == 0 else 0
 
 
 def update_infodisplay():
+    global text_0, text_1
+    
     if EXTERNAL_MODE:
         shm_writer.write_text(create_infodisplay())
     else:
-        gui.draw_text((10, 10), TEXT_COLOR, create_infodisplay(player_idx=0))
+        text_0 = create_infodisplay(player_idx=0)
         if GHOST_DISPLAY:
-            gui.draw_text((260, 10), TEXT_COLOR, create_infodisplay(player_idx=1))
+            text_1 = create_infodisplay(player_idx=1)
 
+
+@event.on_framepresent
+def on_present():
+    if not EXTERNAL_MODE:
+        gui.draw_text((10, 10), TEXT_COLOR, text_0)
+        if GHOST_DISPLAY:
+            gui.draw_text((260, 10), TEXT_COLOR, text_1)
+
+    
 @event.on_frameadvance
 def on_frame_advance():
     global current_frame
@@ -160,18 +171,18 @@ def on_state_load(fromSlot: bool, slot: int):
     if memory.is_memory_accessible() and mkw_utils.extended_race_state() >= 0:
         update_infodisplay()
 
-@event.on_savestatesave
-def on_state_save(fromSlot: bool, slot: int):
-    if NO_DELAY and memory.is_memory_accessible() and mkw_utils.extended_race_state() >= 0:
-        update_infodisplay()
-
-
 def main():
     global current_frame
     current_frame = 0
 
     global prev_values
     prev_values = [ {}, {} ]
+
+    global text_0 #text for player id 0
+    text_0 = ''
+
+    global text_1 #text for player id 1
+    text_1 = ''
 
     if EXTERNAL_MODE:
         global shm_writer
