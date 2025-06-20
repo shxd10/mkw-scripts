@@ -107,7 +107,7 @@ def transform_image(image, i=-1):
                 frame_dict = make_dict(t)
 
                 if config['Input display'].getboolean('show_input_display'):
-                    input_display_util.add_input_display(image, frame_dict, config, font_folder, INPUT_DISPLAY_IMG)
+                    input_display_util.add_input_display(image, frame_dict, config, font_folder, recolored_images)
                 if config['Speed display'].getboolean('show_speed_display'):
                     speed_display_util.add_speed_display(image, frame_dict, config['Speed display'])
                 if config['Infodisplay'].getboolean('show_infodisplay'):
@@ -145,15 +145,50 @@ def main():
     global config
     config = config_util.get_config(config_filename)
 
+
+    w = config['Input display'].getint('width')
+    ow = config['Input display'].getint('outline_width')
+
+    color_dict = {'color_shoulder_left': common.get_color(config['Input display'].get('color_shoulder_left')),
+    'color_shoulder_right': common.get_color(config['Input display'].get('color_shoulder_right')),
+    'color_dpad': common.get_color(config['Input display'].get('color_dpad')),
+    'color_analog': common.get_color(config['Input display'].get('color_analog')),
+    'color_a_button': common.get_color(config['Input display'].get('color_a_button')),
+    'color_stick_text': common.get_color(config['Input display'].get('color_stick_text')),}
+
+    base_keys = {
+    'shoulder': ['color_shoulder_left', 'color_shoulder_right'], 'shoulder_filled': ['color_shoulder_left', 'color_shoulder_right'], 'dpad': ['color_dpad'], 
+    'analog_part1': ['color_analog'], 'analog_part2': ['color_analog'], 'analog_part3': ['color_analog'], 
+    'analog_part4': ['color_analog'], 'analog_part5': ['color_analog'], 'analog_bg_part1': ['color_analog'], 
+    'analog_bg_part2': ['color_analog'], 'analog_bg_part3': ['color_analog'], 'analog_bg_part4': ['color_analog'],
+    'analog_bg_part5': ['color_analog'], 'analog_outer': ['color_analog'], 'analog_base': ['color_analog'],
+    'button': ['color_a_button'], 'button_filled': ['color_a_button']}
+
+    global recolored_images
+    recolored_images = {}
+
+    for base_key, colors in base_keys.items():
+        img_key = f"{base_key}_{w}_{ow}"
+        base_img = INPUT_DISPLAY_IMG[img_key]
+        for color_name in colors:
+            color = color_dict[color_name]
+            recolored_key = f"{img_key}|{color_name}"
+            recolored_images[recolored_key] = common.color_white_part(base_img.copy(), color)
+    
+    recolored_images['background'] = INPUT_DISPLAY_IMG['background']
+    recolored_images['dpad_fill_0'] = INPUT_DISPLAY_IMG['dpad_fill_0']
+    for x in range(1,5):
+        recolored_images[f'dpad_fill_{x}'] = common.color_white_part(INPUT_DISPLAY_IMG[f'dpad_fill_{x}'].copy(), color_dict['color_dpad'])
+
+
     global raw_author_list, author_dict
     raw_author_list, author_dict = author_display_util.make_list_author(config['Author display'], extra_display_folder)
-
 
     scaling = eval(config['Infodisplay'].get('mkw_font_scaling'))/12
     for key in MKW_FONT_IMG.keys():
         size = MKW_FONT_IMG[key].size
-        w,h = (round(size[0]*scaling), round(size[1]*scaling))
-        MKW_FONT_IMG[key] = MKW_FONT_IMG[key].resize((w,h) , Image.Resampling.LANCZOS)
+        w2,h2 = (round(size[0]*scaling), round(size[1]*scaling))
+        MKW_FONT_IMG[key] = MKW_FONT_IMG[key].resize((w2,h2) , Image.Resampling.LANCZOS)
 
     #Getting filenames
     with open(os.path.join(extra_display_folder, 'dump_info.txt'), 'r') as f:
@@ -278,7 +313,7 @@ def main():
                 im.save(f'{counter}.png')
     if not no_vid :           
         print('time : ', time.time() -t)
-        print('frame expected :', -1+len(os.listdir(os.path.join(current_folder, 'RAM_data'))))
-        print('frame dumped :', round(output_video.fps * output_video.duration))
+        print('frames expected :', -1+len(os.listdir(os.path.join(current_folder, 'RAM_data'))))
+        print('frames dumped :', round(output_video.fps * output_video.duration))
         input('Press ENTER to exit')
 main()
