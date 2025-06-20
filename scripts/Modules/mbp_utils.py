@@ -8,31 +8,31 @@ PAL_EV_ADDR = {
                 0x8057dba4 : "Hop Gain",
                 0x8057dbb0 : "Hop Gain",
                 0x8057dbbc : "Hop Gain",
-                0x805880f4 : 'Lean effect', 
+                0x805880f4 : 'Lean effect', #https://github.com/vabold/Kinoko/blob/main/source/game/kart/KartMove.cc#L2323
                 0x80588104 : 'Lean effect', 
                 0x80588114 : 'Lean effect',
-                0x80596be4 : 'Slowfall', 
+                0x80596be4 : 'Slowfall', # Stage 1 typically
                 0x80596bec : 'Slowfall', 
                 0x80596bf4 : 'Slowfall', 
-                0x805b52fc : 'Mult 0.998',
+                0x805b52fc : 'Mult 0.998', # https://github.com/vabold/Kinoko/blob/main/source/game/kart/KartDynamics.cc#L104
                 0x805b5304 : 'Mult 0.998',
                 0x805b5308 : 'Mult 0.998',
-                0x805aec6c : 'EV to IV',
+                0x805aec6c : 'EV to IV', # https://github.com/vabold/Kinoko/blob/main/source/game/kart/KartDynamics.cc#L115
                 0x805aec78 : 'EV to IV',
                 0x805aec84 : 'EV to IV',
                 0x805b4b90 : 'Respawn',
                 0x805b4b94 : 'Respawn',
                 0x805b4b98 : 'Respawn',
-                0x805b5288 : 'Gravity',
-                0x805b528c : 'Gravity',
-                0x805b5290 : 'Gravity',
+                0x805b5288 : '"Forces"', # https://github.com/vabold/Kinoko/blob/main/source/game/kart/KartDynamics.cc#L98
+                0x805b528c : '"Forces"', # Forces comes from gravity, but also this : https://github.com/vabold/Kinoko/blob/main/source/game/kart/KartMove.cc#L1529
+                0x805b5290 : '"Forces"',
                 0x805b76f4 : "FloorCol Y 4",
                 0x805b772c : "FloorCol Y 1",
                 0x805b7734 : "FloorCol X",
                 0x805b7738 : "FloorCol Z",
                 0x805b7754 : "FloorCol Y 2", #seems to reset to 0
-                0x805b52a4 : "FloorCol Y 3", #seems to reset to 0
-                0x805b7de8 : 'Wheel EV decay',
+                0x805b52a4 : "FloorCol Y 3", #seems to reset to 0  https://github.com/vabold/Kinoko/blob/main/source/game/kart/KartDynamics.cc#L101
+                0x805b7de8 : 'Wheel EV decay', #https://github.com/vabold/Kinoko/blob/main/source/game/kart/KartCollide.cc#L744 ?
                 0x805b7df4 : 'Wheel EV decay',
                 0x805b7e00 : 'Wheel EV decay',
                 0x805b4d2c : 'Canon Entry',
@@ -134,7 +134,7 @@ PAL_IV_ADDR = {
     0x8057af04 : "Deceleration", #When not holding A or B(multiply by 0.98 ?)
     0x8057af78 : "Turn Decel", #When turning with handling
     0x8057affc : "Air Decel", #When in the air for 5+ frames (multiply by 0.999 ?)
-    0x8057ac2c : "EV to IV",
+    0x8057ac2c : "EV to IV", #https://github.com/vabold/Kinoko/blob/main/source/game/kart/KartMove.cc#L1198
     0x8057b0e4 : "Slope", #when you get speed from being on a slope. Only works below 30 IV ?
     0x8057bc88 : "SSMT", #Multiply by 0.8 ?
     0x8057bcac : "0 IV lock", #When you hold B, you'll stay at 0IV for a few frame before reversing
