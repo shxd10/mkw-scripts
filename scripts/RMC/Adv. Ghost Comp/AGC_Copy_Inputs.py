@@ -43,5 +43,5 @@ def on_frame_advance():
     
     if racestate >= RaceState.COUNTDOWN.value :            
         if 0 < delayed_frame+1 < len(framedatalist):
-            framedatalist[delayed_frame].load(0, True)
+            framedatalist[delayed_frame+1].load(0, True)
     
