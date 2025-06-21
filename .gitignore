@@ -4,6 +4,7 @@ scripts/AGC_Data/**/*.agc
 scripts/external/**/*.ini
 scripts/Settings/**/*.ini
 scripts/FrameDumps/**/*.txt
+scripts/FrameDumps/**/*.rawtxt
 scripts/FrameDumps/**/*.ini
 scripts/FrameDumps/**/*.mp4
 scripts/FrameDumps/**/*.mp3

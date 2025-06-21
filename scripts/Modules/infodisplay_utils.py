@@ -3,16 +3,16 @@ import math
 import os
 from datetime import datetime
 
-from Modules.mkw_classes.common import SurfaceProperties, eulerAngle
+from Modules.mkw_classes.common import SurfaceProperties, eulerAngle, quatf, vec3
 from Modules.mkw_utils import History 
 from dolphin import gui, utils
-import Modules.settings_utils as setting
-import Modules.mkw_utils as mkw_utils
-import Modules.ttk_lib as ttk_lib
+from Modules import settings_utils as setting
+from Modules import mkw_utils as mkw_utils
+from Modules import ttk_lib as ttk_lib
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, TimerManager
 from Modules.mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings, RaceConfigPlayer, RaceConfigPlayerType
 from Modules.mkw_classes import KartObject, KartMove, KartSettings, KartBody
-from Modules.mkw_classes import VehicleDynamics, VehiclePhysics, KartBoost, KartJump
+from Modules.mkw_classes import VehicleDynamics, VehiclePhysics, KartBoost, KartJump, KartSub
 from Modules.mkw_classes import KartState, KartCollide, KartInput, RaceInputState, KartObjectManager
 
 
@@ -107,8 +107,20 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
     vehicle_physics = VehiclePhysics(addr=vehicle_dynamics.vehicle_physics())
     
     if c.debug :
-        value = 0
-        text += f"Debug : {value:2.3f}%\n"
+        the_quat = VehiclePhysics.main_rotation(0)
+        the_vec = VehiclePhysics.external_velocity(0)
+        
+        up = kart_move.up()
+        floor_quat = quatf.from_vectors(vec3(0,1,0), up)
+        value = the_quat @ the_vec
+        value2 = the_quat.conjugate() @ the_vec
+        angles = eulerAngle.from_quaternion((the_quat*floor_quat).normalize())
+        rpi = mkw_utils.get_relative_angles(eulerAngle.from_quaternion(the_quat), up)
+        #angles = eulerAngle.from_quaternion(floor_quat*the_quat)
+        text += f"""Debug :
+{value.x:.2f}, {value.y:.2f}, {value.z:.2f}
+{value2.x:.2f}, {value2.y:.2f}, {value2.z:.2f}
+{rpi:.4f}, {angles.yaw:.4f}, {angles.roll:.4f}\n"""
         
     newline = False
     if c.frame_count:

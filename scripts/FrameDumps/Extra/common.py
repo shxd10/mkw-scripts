@@ -19,6 +19,28 @@ def get_color(color_text):
     l.reverse()
     return tuple(l)
 
+def color_white_part(image, color):
+
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA') #needed, crashes otherwise if image doesnt have transparency like analog_5_3_part1
+
+    color = tuple(color[:3])
+    pixels = image.load()
+    for y in range(image.height):
+        for x in range(image.width):
+            r, _, _, a = pixels[x, y]
+
+            if r == 255:
+                pixels[x, y] = (color[0], color[1], color[2], a)
+            else: 
+                brightness = r / 255
+                new_r = int(color[0] * brightness)
+                new_g = int(color[1] * brightness)
+                new_b = int(color[2] * brightness)
+                pixels[x, y] = (new_r, new_g, new_b, a)
+            
+    return image
+
 def get_filter_list(config_text):
     raw_list = config_text.split(',')
     filters = []

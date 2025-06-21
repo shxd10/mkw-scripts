@@ -4,8 +4,8 @@ Writes infodisplay text to a shared memory buffer than can be accessed by extern
 import os
 from dolphin import event, utils, memory # type: ignore
 from external import external_utils
-import Modules.settings_utils as setting
-import Modules.mkw_utils as mkw_utils
+from Modules import settings_utils as setting
+from Modules import mkw_utils as mkw_utils
 from Modules.infodisplay_utils import create_infodisplay
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, KartObjectManager, VehiclePhysics
 

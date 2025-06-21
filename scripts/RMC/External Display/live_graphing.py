@@ -1,7 +1,7 @@
 import os
 import struct
 from dolphin import event, utils # type: ignore
-import Modules.mkw_classes as mkw
+from Modules import mkw_classes as mkw
 from Modules import mkw_utils
 from external import external_utils
 

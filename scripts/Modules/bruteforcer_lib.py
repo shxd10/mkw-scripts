@@ -2,7 +2,7 @@ from dolphin import controller, event, savestate
 
 from Modules import ttk_lib
 from Modules.framesequence import FrameSequence, Frame
-import Modules.mkw_utils as mkw_utils
+from Modules import mkw_utils as mkw_utils
 from Modules.mkw_classes import RaceManagerPlayer, VehiclePhysics
 import random
 import os
