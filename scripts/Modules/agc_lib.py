@@ -99,10 +99,11 @@ class AGCFrameData:
             memory.write_f32(kma + 0x9C, self.ODA)
             self.Dir.write(kma + 0x5C)
             memory.write_f32(kma + 0xF4, self.Dive)
-        if write_slot == 0 :
-            write_player_inputs(self.Input)
         else:
-            write_ghost_inputs(self.Input, write_slot)
+            if write_slot == 0 :
+                write_player_inputs(self.Input)
+            else:
+                write_ghost_inputs(self.Input, write_slot)
 
 
 
@@ -271,8 +272,7 @@ def file_to_framedatalist(filename):
         return metadata, datalist
 
 
-def framedatalist_to_file(filename, datalist, rid):
-    metadata = AGCMetaData(rid)
+def framedatalist_to_file(filename, datalist, metadata):
     file = open(filename, 'w')
     if file is None :
         gui.add_osd_message("Error : could not create "+filename)

@@ -12,7 +12,7 @@ import math
 # NOTE (xi): wait for get_game_id() to be put in dolphin.memory before clearing
 #  these commented-out lines:
 
-fps_const = 60000/1001 #Constant for fps in mkw (59.94fps)
+fps_const = 59.94 #Constant for fps in mkw (59.94fps)
 
 
 class History:
@@ -156,7 +156,59 @@ def get_unrounded_time(lap, player):
         t += update_exact_finish(i + 1, player)
     return t
 
-# TODO: Rotation display helper functions
+def calculate_exact_finish(positions, lap):
+    '''
+    Calculate the exact finish time, assuming this
+    function is called the 1st frame you cross the line.
+    Store it to EVA at 0x800002E0 + lap*0x4 as a 4bytes float.
+    '''
+    if len(positions) < 3:
+        return 0
+    prevPos = positions[2]['pos']
+    pos = positions[1]['pos']
+    fl1, fl2 = get_finish_line_coordinate()
+    t = time_to_cross(prevPos, pos-prevPos, fl1, fl2)
+    if not (0<= t <= 1):
+        #Error detected. We write a default value instead
+        address = 0x800002E0 + lap*0x4
+        memory.write_f32(address, 999.999999)
+    else:
+        exact_finish = (frame_of_input()+t-241)/fps_const
+        address = 0x800002E0 + lap*0x4
+        memory.write_f32(address, exact_finish)
+
+def read_exact_finish(lap):
+    #Read exact finish from EVA, stored with above function
+    address = 0x800002E0 + lap*0x4
+    return memory.read_f32(address)
+
+
+def calculate_extra_finish_data(exact_finish):
+    '''
+    This function returns how much exact finish time
+    you need to gain a rounded millisecond, and
+    you need to lose a rounded millisecond
+    Return in MICROSECONDS
+    '''
+    t = (exact_finish*fps_const)%1
+    frame_count = math.floor(exact_finish*fps_const)
+    
+    frame_rounded_ms = math.floor(frame_count/fps_const*1000)
+    subframe_rounded_ms = math.ceil(t/fps_const*1000)
+    
+    if subframe_rounded_ms < 17:
+        exact_ahead = subframe_rounded_ms/1000*fps_const - t #time in frames needed for gaining 1ms
+    else:
+        exact_ahead = 1-t - (math.floor((frame_count+1)/fps_const*1000) - frame_rounded_ms - 17)/1000*fps_const
+        
+    if subframe_rounded_ms > 1 :
+        exact_behind = (subframe_rounded_ms-1)/1000*fps_const - t #time in frames needed for losing 1ms
+    else:
+        exact_behind = -t - (math.floor((frame_count-1)/fps_const*1000) - frame_rounded_ms + 1/fps_const*1000)/1000*fps_const
+        
+    return (round(exact_ahead/fps_const*1000000), round(exact_behind/fps_const*1000000))
+
+#Rotation display helper functions
 def quaternion_to_euler_angle(q):
     """Param : quatf
         Return : eulerAngle """
@@ -168,7 +220,7 @@ def quaternion_to_euler_angle(q):
     yaw = -180/math.pi * math.atan2(y1, y2)
     return eulerAngle(pitch, yaw, roll)
 
-def get_facing_angle(player):
+def get_facing_angle(player = 0):
     """Param : int player_id
         Return : eulerAngle , correspond to facing angles"""
     quaternion = VehiclePhysics(player).main_rotation()
@@ -190,7 +242,8 @@ def get_moving_angle(player):
     return speed_to_euler_angle(speed)
 
 
-"""The time difference functions.
+#The time difference functions.
+"""
 time_difference_[name](P1, S1, P2, S2) is a function that takes as arguments
 P1,S1 : Player1's Position and Speed vec3.
 P2,S2 : Player2's Position and Speed vec3
@@ -275,6 +328,7 @@ def time_to_cross(A, S, B, C):
         return N*(B-A)/ns
     return float('inf')
 
+    
 def time_difference_crosspath(P1, P2, S1, S2):
     t1 = time_to_cross(P1, S1, P2, P2+S2)
     t2 = time_to_cross(P2, S2, P1, P1+S1)
@@ -304,7 +358,15 @@ def get_finish_line_coordinate():
     pointB = vec3(memory.read_f32(kmp_ref+0x4C+offset+0x8+0x8), 0, memory.read_f32(kmp_ref+0x4C+offset+0x8+0xC))
     return pointA, pointB
 
-    
+
+def expected_time_left(player_id=0):
+    """return the expected time left for the
+        player before it crosses the finish line"""
+    prevPos = VehicleDynamics.position(player_id)
+    pos = VehiclePhysics.position(player_id)
+    fl1, fl2 = get_finish_line_coordinate()
+    return time_to_cross(pos, pos-prevPos, fl1, fl2)
+
 def time_difference_tofinish(P1, P2, S1, S2):
     A,B = get_finish_line_coordinate()
     t1 = time_to_cross(P1, S1, A, B)
@@ -398,5 +460,13 @@ def player_teleport(player_id = 0,
     quaternion = quatf.from_angles(angles)
     position.write(addr + 0x68)
     quaternion.write(addr + 0xF0)
+
+def add_angular_ev(player_id = 0, angle = 90, magnitude = 100, y = 0):
+    addr = VehiclePhysics.chain(player_id)
+    yaw = get_facing_angle(player_id).yaw
+    z = math.cos((-yaw+angle)*math.pi/180) * magnitude
+    x = math.sin((-yaw+angle)*math.pi/180) * magnitude
+    ev = vec3(x,y,z)
+    ev.write(addr + 0x74)
 
         

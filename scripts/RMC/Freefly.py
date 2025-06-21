@@ -1,4 +1,4 @@
-from dolphin import event
+from dolphin import event, memory
 from Modules import mkw_utils
 from Modules.framesequence import Frame
 from Modules.mkw_classes import vec3, VehiclePhysics, eulerAngle
@@ -28,8 +28,17 @@ def main():
     pitchAcc = eulerAngle(2,0,0)
     
 
-if __name__ == '__main__':
-    main()
+@event.on_savestateload
+def on_loadstate(*_):
+    if memory.is_memory_accessible():
+        global position
+        position = VehiclePhysics.position(0)
+
+        global speed
+        speed = 80
+
+        global angles
+        angles = mkw_utils.get_facing_angle(0)
 
 @event.on_frameadvance
 def on_frame_advance():
@@ -61,3 +70,5 @@ def on_frame_advance():
     mkw_utils.player_teleport(0, position.x, position.y, position.z,
                                 angles.pitch, angles.yaw, 0)
 
+if __name__ == '__main__':
+    main()

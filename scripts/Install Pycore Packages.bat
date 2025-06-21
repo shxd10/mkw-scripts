@@ -5,5 +5,6 @@ pip install pillow
 pip install pygame
 pip install requests
 pip install PySide6
+pip install moviepy
 python verify_package.py
 pause

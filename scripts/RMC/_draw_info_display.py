@@ -1,4 +1,4 @@
-from dolphin import event, gui, utils
+from dolphin import event, gui, utils, memory
 import configparser
 import math
 import os
@@ -10,7 +10,7 @@ from external.external_utils import run_external_script
 import Modules.settings_utils as setting
 import Modules.mkw_utils as mkw_utils
 from Modules.infodisplay_utils import draw_infodisplay
-from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, KartObjectManager
+from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, KartObjectManager, VehiclePhysics
 
 
 
@@ -24,21 +24,23 @@ def on_state_load(fromSlot: bool, slot: int):
 
     RaceComp_History.clear()
     Angle_History.clear()
+    Pos_History.clear()
+
+    global maxLap
+    maxLap = 0
     
-    if mkw_utils.extended_race_state() >= 0:
+    if memory.is_memory_accessible() and mkw_utils.extended_race_state() >= 0:
         Angle_History.update()
         RaceComp_History.update()
+        maxLap = int(RaceManagerPlayer.race_completion_max(0))
         draw_infodisplay(c, RaceComp_History, Angle_History)
+        
 
 @event.on_savestatesave
 def on_state_save(fromSlot: bool, slot: int):
-    #Checking if the game is paused, since for now
-    #on_state_save can be in an unstable state to read memory
-    if utils.is_paused():
+    if memory.is_memory_accessible():
         if mkw_utils.extended_race_state() >= 0:
             draw_infodisplay(c, RaceComp_History, Angle_History)
-    
-
     
 
 def main():
@@ -60,12 +62,22 @@ def main():
         return mkw_utils.get_facing_angle(0)
     def ma():
         return mkw_utils.get_moving_angle(0)
+    def pos_():
+        if KartObjectManager.player_count() > 0:
+            return VehiclePhysics.position(0)
+        return None
     
     global RaceComp_History
     RaceComp_History = History({'prc':prc, 'grc':grc}, c.history_size)
 
     global Angle_History
     Angle_History = History({'facing' : fa, 'moving' : ma}, 2)
+
+    global Pos_History
+    Pos_History = History({'pos' : pos_}, 3)
+
+    global maxLap
+    maxLap = None
 
 
 if __name__ == '__main__':
@@ -78,7 +90,8 @@ def on_frame_advance():
     global Angle_History
     global RaceComp_History
     global c
-    
+    global maxLap
+
     race_mgr = RaceManager()
     newframe = Frame_of_input != mkw_utils.frame_of_input()
     draw = mkw_utils.extended_race_state() >= 0
@@ -86,7 +99,15 @@ def on_frame_advance():
         Frame_of_input = mkw_utils.frame_of_input()
         Angle_History.update()
         RaceComp_History.update()
+        Pos_History.update()
+        if maxLap == int(RaceManagerPlayer.race_completion_max(0))-1:
+            mkw_utils.calculate_exact_finish(Pos_History, maxLap)
+        maxLap = int(RaceManagerPlayer.race_completion_max(0))
 
     if draw:
         draw_infodisplay(c, RaceComp_History, Angle_History)
+    else:
+        RaceComp_History.clear()
+        Angle_History.clear()
+        Pos_History.clear()
 

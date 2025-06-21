@@ -2,16 +2,26 @@ from multiprocessing import shared_memory
 import atexit
 import subprocess
 import os
+import configparser
 import platform
 
 
-def start_external_script(path: str):
-    process = subprocess.Popen(["python", path], creationflags=subprocess.CREATE_NO_WINDOW)
-    atexit.register(process.terminate)
+def start_external_script(path: str, force_exit = True, create_no_window = True, *args):
+    ''' Start an external script using the user's own python env
+        path (str) : path to the filename of the script to start
+        force_exit (bool) : Can force the external script to stop when the calling script ends.
+        create_no_window (bool) : Can prevent the external script from creating a new window.
+        *agrs : extra args to give to the external script. (access with sys.argv)'''
+    if create_no_window:
+        process = subprocess.Popen(["python", path, *args], creationflags=subprocess.CREATE_NO_WINDOW)
+    else:
+        process = subprocess.Popen(["python", path, *args])
+    if force_exit:
+        atexit.register(process.terminate)
 
 
-def run_external_script(path: str):
-    output = subprocess.check_output(["python", path], text=True, creationflags=subprocess.CREATE_NO_WINDOW)
+def run_external_script(path: str, *args):
+    output = subprocess.check_output(["python", path, *args], text=True, creationflags=subprocess.CREATE_NO_WINDOW)
     return output
 
 #Open a file with the default application
@@ -140,3 +150,39 @@ def save_dialog_box(scriptDir, filetypes = [('All files', '*')], initialdir = ''
     filename = subprocess.check_output(["python", script_path], text=True, creationflags=subprocess.CREATE_NO_WINDOW)
     type_writer.close()
     return filename
+
+#The 2 following functions are used to save and restore
+#various tkinter settings
+def save_external_setting(config_file, setting_name, setting_value):
+    ''' Param : config_file : str, filename of the savefile
+                setting_name : str, unique name of the setting (used as a key in the config file)
+                setting_value : str, value of the setting'''
+    
+    #create an empty file if it doesn't exist
+    if not os.path.exists(config_file):
+        with open(config_file, 'w') as f:
+            pass
+
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    if not config.sections():
+        config["SETTINGS"] = {}
+    config["SETTINGS"][setting_name] = setting_value
+
+    with open(config_file, 'w') as f:
+        config.write(f)
+    
+def load_external_setting(config_file, setting_name):
+    ''' Param : config_file : str, filename of the savefile
+                setting_name : str, unique name of the setting (used as a key in the config file)'''
+    
+    if not os.path.exists(config_file):
+        return None
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    if not config.sections():
+        return None
+    if config["SETTINGS"].get(setting_name):
+        return config["SETTINGS"].get(setting_name)
+    return None
+   

@@ -1,4 +1,4 @@
-from dolphin import gui, event # type: ignore
+from dolphin import gui, event, memory # type: ignore
 from Modules import input_display as display
 
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState
@@ -74,8 +74,10 @@ def on_frame_advance():
 
 @event.on_savestatesave
 def on_state_load(fromSlot: bool, slot: int):    
-    draw()
+    if memory.is_memory_accessible():
+        draw()
 
 @event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
-    draw()
+    if memory.is_memory_accessible():
+        draw()

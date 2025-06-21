@@ -228,16 +228,17 @@ def run_input2(inp):
     ttk_lib.write_player_inputs(f)
 
 
-class Randomizer:
+class Randomizer_Raw_Stick:
     ''' Class for making random modification to a FrameSequence
-        modif_index is the index of the input you want to modify
-            example : 0 is the A button, 1 is the B button etc
+        Only modify 1 stick input at a time
+        
+        direction : either horizontal or vertical
         frame is the frame of input you want to randomize
         probability is the probability of a random modification actually happenning when calling the random method
         modif_range is the max amplitude of the modification.
             example with 2, you can only change a +4 stick input to {+2, +3, +4, +5, +6}'''
-    def __init__(self, modif_index, frame, probability = 0.1, modif_range = 15):
-        self.index = modif_index
+    def __init__(self, direction, frame, probability = 0.1, modif_range = 15):
+        self.direction = direction
         self.proba = probability
         self.range = modif_range
         self.frame = frame
@@ -247,13 +248,63 @@ class Randomizer:
         if self.frame < len(inputList.frames):
             if random.random() < self.proba:
                 baseFrame = inputList.frames[self.frame]
-                if self.index == 5:
+                if self.direction in ["X", "x", "horizontal"]:
                     baseFrame.stick_x = random.randint(max(-7, baseFrame.stick_x - self.range), min(7, baseFrame.stick_x + self.range))
-                elif self.index == 6:
+                elif self.direction in ["Y", "y", "vertical"]:
                     baseFrame.stick_y = random.randint(max(-7, baseFrame.stick_y - self.range), min(7, baseFrame.stick_y + self.range))
                 else:
-                    raise IndexError(f'Index {self.index} is not supported yet')
+                    raise IndexError(f'Index {self.direction} is not supported yet')
 
+class Randomizer_Alternate_Stick:
+    ''' Class for making random modification to a FrameSequence
+        Modify 2 consecutive inputs with +d/-d
+        Example :  +5, -3 -> +4, -2.
+
+        direction : either horizontal or vertical
+        frame is the frame of input you want to randomize
+        probability is the probability of a random modification actually happenning when calling the random method
+        modif_range is the max amplitude of the modification.
+            example with 2, you can only change a +4 stick input to {+2, +3, +4, +5, +6}
+        '''
+    
+    def __init__(self, direction, frame, probability = 0.1, modif_range = 15):
+        self.direction = direction
+        self.proba = probability
+        self.range = modif_range
+        self.frame = frame
+
+    def random(self, inputList : FrameSequence):
+        '''THIS FUNCTION MODIFIES inputList'''
+        if self.frame + 1 < len(inputList.frames):
+            if random.random() < self.proba:
+                baseFrame1 = inputList.frames[self.frame]
+                baseFrame2 = inputList.frames[self.frame+1]
+                shift = random.randint(1, self.range)
+                sign = random.randint(0,1)*2 -1 #either -1 or 1
+                if self.direction in ["X", "x", "horizontal"]:
+                    if sign == 1:
+                        max1 = 7 - baseFrame1.stick_x
+                        max2 = 7 + baseFrame2.stick_x
+                    else:
+                        max1 = 7 + baseFrame1.stick_x
+                        max2 = 7 - baseFrame2.stick_x
+                    max_all = min(max1, max2, shift)
+                    baseFrame1.stick_x = baseFrame1.stick_x + sign * max_all
+                    baseFrame2.stick_x = baseFrame2.stick_x - sign * max_all
+                elif self.direction in ["Y", "y", "vertical"]:
+                    if sign == 1:
+                        max1 = 7 - baseFrame1.stick_y
+                        max2 = 7 + baseFrame2.stick_y
+                    else:
+                        max1 = 7 + baseFrame1.stick_y
+                        max2 = 7 - baseFrame2.stick_y
+                    max_all = min(max1, max2, shift)
+                    baseFrame1.stick_y = baseFrame1.stick_y + sign * max_all
+                    baseFrame2.stick_y = baseFrame2.stick_y - sign * max_all
+                else:
+                    raise IndexError(f'Index {self.direction} is not supported yet')
+
+                
 def score_racecomp(frame_limit):
     def res():
         frame = mkw_utils.frame_of_input()
@@ -268,4 +319,12 @@ def score_XZ_EV(frame_limit):
         if frame < frame_limit :
             return None
         return VehiclePhysics(0).external_velocity().length_xz()
+    return res
+
+def score_Z_position(frame_limit, negative=False):
+    def res():
+        frame = mkw_utils.frame_of_input()
+        if frame < frame_limit :
+            return None
+        return VehiclePhysics(0).position().z * -1 if negative else 1
     return res

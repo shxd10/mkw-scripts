@@ -55,5 +55,6 @@ def on_frame_advance():
                 f2 = framedatalist[delayed_frame+1]
                 f1.interpolate(f2, 1-decimal_delay, decimal_delay)
                 f1.load(1)
+                f2.load(1, True)
     
 

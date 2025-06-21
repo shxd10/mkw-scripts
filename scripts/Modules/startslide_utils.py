@@ -1,5 +1,5 @@
 from enum import Enum
-from dolphin import event, gui, utils # type: ignore
+from dolphin import event, gui, utils, memory # type: ignore
 from Modules import ttk_lib
 from Modules.mkw_utils import frame_of_input
 from Modules import mkw_translations as translate
@@ -24,28 +24,29 @@ def check_vehicle(vehicle: str):
     path = utils.get_script_dir()
 
     if vehicle in flame_slide_bikes:
-        return os.path.join(path, "Startslides", f"flame_{direction.value}.csv")
+        return os.path.join(path, "Startslides", f"flame_left.csv")
 
     elif vehicle in spear_slide_bikes:
-        return os.path.join(path, "Startslides", f"spear_{direction.value}.csv")
+        return os.path.join(path, "Startslides", f"spear_left.csv")
 
     elif vehicle in mach_slide_bikes:
-        return os.path.join(path, "Startslides", f"mach_{direction.value}.csv")
+        return os.path.join(path, "Startslides", f"mach_left.csv")
 
     elif vehicle in wario_slide_bikes:
-        return os.path.join(path, "Startslides", f"wario_{direction.value}.csv")
+        return os.path.join(path, "Startslides", f"wario_left.csv")
     
     elif vehicle in wiggle_slide_bikes:
-        return os.path.join(path, "Startslides", f"wiggle_{direction.value}.csv")
+        return os.path.join(path, "Startslides", f"wiggle_left.csv")
 
     else:  # Karts fall here. We take any slides, just for the startboost
-        return os.path.join(path, "Startslides", f"spear_{direction.value}.csv")
+        return os.path.join(path, "Startslides", f"spear_left.csv")
 
 
 def on_state_load(is_slot, slot):
     global player_inputs
-    player_inputs = FrameSequence(check_vehicle(translate.vehicle_id()))
-    player_inputs.read_from_file()
+    if memory.is_memory_accessible():
+        player_inputs = FrameSequence(check_vehicle(translate.vehicle_id()))
+        player_inputs.read_from_file()
 
 def on_frame_advance():
     frame = frame_of_input()
@@ -53,7 +54,7 @@ def on_frame_advance():
     
     player_input = player_inputs[frame]
     if (player_input and stage.value == RaceState.COUNTDOWN.value):
-        ttk_lib.write_player_inputs(player_input)
+        ttk_lib.write_player_inputs(player_input, mirror = True if direction == Direction.RIGHT else False)
 
 
 def execute_startslide(direction_: Direction):

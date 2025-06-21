@@ -8,8 +8,9 @@ from Modules.mkw_utils import History
 from dolphin import gui, utils
 import Modules.settings_utils as setting
 import Modules.mkw_utils as mkw_utils
+import Modules.ttk_lib as ttk_lib
 from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, TimerManager
-from Modules.mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings
+from Modules.mkw_classes import RaceConfig, RaceConfigScenario, RaceConfigSettings, RaceConfigPlayer, RaceConfigPlayerType
 from Modules.mkw_classes import KartObject, KartMove, KartSettings, KartBody
 from Modules.mkw_classes import VehicleDynamics, VehiclePhysics, KartBoost, KartJump
 from Modules.mkw_classes import KartState, KartCollide, KartInput, RaceInputState, KartObjectManager
@@ -96,6 +97,7 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
     
     race_mgr_player = RaceManagerPlayer()
     race_scenario = RaceConfigScenario(addr=RaceConfig.race_scenario())
+    race_config_player = RaceConfigPlayer(addr=race_scenario.player())
     race_settings = RaceConfigSettings(race_scenario.settings())
     kart_object = KartObject()
     kart_state = KartState(addr=kart_object.kart_state())
@@ -105,28 +107,37 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
     vehicle_physics = VehiclePhysics(addr=vehicle_dynamics.vehicle_physics())
     
     if c.debug :
-        value = KartObjectManager.player_count()
-        text += f"Debug : {value}\n"
-    
+        value = 0
+        text += f"Debug : {value:2.3f}%\n"
+        
+    newline = False
     if c.frame_count:
-        text += f"Frame: {mkw_utils.frame_of_input()}\n\n"
-    
+        newline = True
+        text += f"Frame: {mkw_utils.frame_of_input()}\n"
+
+    if c.rkg_buffer_size and race_config_player.type() == RaceConfigPlayerType.REAL_LOCAL:
+        newline = True
+        value = 100*ttk_lib.get_full_rkg_size(ttk_lib.PlayerType.PLAYER)/0x13b0
+        text += f"RKG Buffer : {value:2.3f}%\n"
+
+    if newline:
+        text += '\n'
+        newline = False    
     if c.lap_splits:
-        # The actual max lap address does not update when crossing the finish line
-        # for the final time to finish the race. However, for whatever reason,
-        # race completion does. We use the "max" version to prevent lap times
-        # from disappearing when crossing the line backwards.
-        player_max_lap = math.floor(race_mgr_player.race_completion_max())
-        lap_count = race_settings.lap_count()
-
-        if player_max_lap >= 2 and lap_count > 1:
-            for lap in range(1, player_max_lap):
-                text += "Lap {}: {}\n".format(lap, mkw_utils.update_exact_finish(lap, 0))
-
-        if player_max_lap > lap_count:
-            text += "Final: {}\n".format(mkw_utils.get_unrounded_time(lap_count, 0))
+        for lap in range(1, math.floor(race_mgr_player.race_completion_max())):
+            exact_finish = mkw_utils.read_exact_finish(lap)                 
+            text += "Lap {}: {}".format(lap, exact_finish- (mkw_utils.read_exact_finish(lap-1) if (lap>1) else 0))
+            needed_diff = mkw_utils.calculate_extra_finish_data(exact_finish)
+            text += f" ({needed_diff[1]} / +{needed_diff[0]})"
+            text += "\n"
+        if RaceManager.state().value > 2:
+            lap = math.floor(race_mgr_player.race_completion_max())-1
+            exact_finish = mkw_utils.read_exact_finish(lap)  
+            text += f"Total: {exact_finish}"
+            needed_diff = mkw_utils.calculate_extra_finish_data(exact_finish)
+            text += f" ({needed_diff[1]} / +{needed_diff[0]})"
+            text += "\n"
         text += "\n"
-    
     if c.speed:
         speed = mkw_utils.delta_position(playerIdx=0)
         engine_speed = kart_move.speed()
