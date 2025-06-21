@@ -4,6 +4,7 @@ scripts/AGC_Data/**/*.agc
 scripts/external/**/*.ini
 scripts/Settings/**/*.ini
 scripts/FrameDumps/**/*.txt
+scripts/FrameDumps/**/*.rawtxt
 scripts/FrameDumps/**/*.ini
 scripts/FrameDumps/**/*.mp4
 scripts/FrameDumps/**/*.mp3
@@ -12,8 +13,10 @@ scripts/FrameDumps/*.png
 
 scripts/Data Dump/**
 /scripts/Ghost/**/*.rkg
+/scripts/Ghost/**/*.csv
 **/__pycache__
-**/*test.py
+**/*test*.py
+
 
 scripts/RMC/test.py
 scripts/RMC/test codecallbacl.py

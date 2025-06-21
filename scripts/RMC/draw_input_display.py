@@ -9,11 +9,14 @@ stick_dict = {-7: 0, -6: 60, -5: 70, -4: 80, -3: 90, -2: 100, -1: 110,
 
 LEFT_OFFSET = 250
 
-def draw():
+def update_input():
+    global is_init
     race_mgr = RaceManager()
     if race_mgr.state().value >= RaceState.COUNTDOWN.value:
-
-        # TODO: use masks instead of the values for buttons
+        global ablr
+        global dpad
+        global xstick
+        global ystick
         race_mgr_player_addr = race_mgr.race_manager_player()
         race_mgr_player = RaceManagerPlayer(addr=race_mgr_player_addr)
         kart_input = KartInput(addr=race_mgr_player.kart_input())
@@ -22,62 +25,75 @@ def draw():
         dpad = current_input_state.trick()
         xstick = current_input_state.raw_stick_x() - 7
         ystick = current_input_state.raw_stick_y() - 7
+        is_init = True
 
-        # A Button
-        if ablr.value & ButtonActions.A:
-            func = display.fill_pressed_button
-        else:
-            func = display.create_unpressed_button
-        func([LEFT_OFFSET + 330, gui.get_display_size()[1] - 95], 35, 0xFFFFFFFF)
+def main():
+    global is_init
+    is_init = False
+    update_input()
+    
+def draw():
 
-        # L Button
-        if ablr.value & ButtonActions.L:
-            func = display.fill_pressed_bumper
-        else:
-            func = display.create_unpressed_bumper
-        func([LEFT_OFFSET + 30, gui.get_display_size()[1] - 200], 100, 50, 0xFFFFFFFF)
-            
-        # R Button
-        if ablr.value & ButtonActions.B:
-            func = display.fill_pressed_bumper
-        else:
-            func = display.create_unpressed_bumper
-        func([LEFT_OFFSET + 280, gui.get_display_size()[1] - 200], 100, 50, 0xFFFFFFFF)
+    # A Button
+    if ablr.value & ButtonActions.A:
+        func = display.fill_pressed_button
+    else:
+        func = display.create_unpressed_button
+    func([LEFT_OFFSET + 330, gui.get_display_size()[1] - 95], 35, 0xFFFFFFFF)
 
-        # D-Pad
-        # TODO: fix the module so that -35 does not have to be used here
-        display.create_dpad(
-            [LEFT_OFFSET + 30, gui.get_display_size()[1] - 32.5], 30, -35, 0xFFFFFFFF)
+    # L Button
+    if ablr.value & ButtonActions.L:
+        func = display.fill_pressed_bumper
+    else:
+        func = display.create_unpressed_bumper
+    func([LEFT_OFFSET + 30, gui.get_display_size()[1] - 200], 100, 50, 0xFFFFFFFF)
         
-        direction = None
-        if dpad == 1:
-            direction = ["Up"]
-        elif dpad == 2:
-            direction = ["Down"]
-        elif dpad == 3:
-            direction = ["Left"]
-        elif dpad == 4:
-            direction = ["Right"]
-        
-        if direction:
-            display.fill_dpad([LEFT_OFFSET + 30, gui.get_display_size()[1] - 32.5],
-                              30, -35, 0xFFFFFFFF, direction)
+    # R Button
+    if ablr.value & ButtonActions.B:
+        func = display.fill_pressed_bumper
+    else:
+        func = display.create_unpressed_bumper
+    func([LEFT_OFFSET + 280, gui.get_display_size()[1] - 200], 100, 50, 0xFFFFFFFF)
 
-        # Control Stick
-        display.create_control_stick([LEFT_OFFSET + 210, gui.get_display_size()[1] - 100], 50, 30, 50,
-            stick_dict.get(xstick, 0), stick_dict.get(ystick, 0), 0xFFFFFFFF)
+    # D-Pad
+    # TODO: fix the module so that -35 does not have to be used here
+    display.create_dpad(
+        [LEFT_OFFSET + 30, gui.get_display_size()[1] - 32.5], 30, -35, 0xFFFFFFFF)
+    
+    direction = None
+    if dpad == 1:
+        direction = ["Up"]
+    elif dpad == 2:
+        direction = ["Down"]
+    elif dpad == 3:
+        direction = ["Left"]
+    elif dpad == 4:
+        direction = ["Right"]
+    
+    if direction:
+        display.fill_dpad([LEFT_OFFSET + 30, gui.get_display_size()[1] - 32.5],
+                          30, -35, 0xFFFFFFFF, direction)
+
+    # Control Stick
+    display.create_control_stick([LEFT_OFFSET + 210, gui.get_display_size()[1] - 100], 50, 30, 50,
+        stick_dict.get(xstick, 0), stick_dict.get(ystick, 0), 0xFFFFFFFF)
+    
+    gui.draw_text((LEFT_OFFSET + 195, gui.get_display_size()[1] - 40), 0xFFFFFFFF, f"{xstick}, {ystick}")
 
 
 @event.on_frameadvance
 def on_frame_advance():
-    draw()
+    update_input()
 
-@event.on_savestatesave
-def on_state_load(fromSlot: bool, slot: int):    
-    if memory.is_memory_accessible():
-        draw()
 
 @event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
     if memory.is_memory_accessible():
+        update_input()
+
+@event.on_framepresent
+def on_present():
+    if is_init:
         draw()
+
+main()

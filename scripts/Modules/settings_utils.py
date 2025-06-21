@@ -1,6 +1,4 @@
 from dolphin import utils
-from .mkw_classes import KartInput
-from .mkw_classes import RaceManagerPlayer, RaceInputState
 import configparser
 import os
 

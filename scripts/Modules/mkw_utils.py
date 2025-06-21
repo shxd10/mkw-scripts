@@ -171,6 +171,7 @@ def calculate_exact_finish(positions, lap):
     if not (0<= t <= 1):
         #Error detected. We write a default value instead
         address = 0x800002E0 + lap*0x4
+        print('Error in Exact Finish Time')
         memory.write_f32(address, 999.999999)
     else:
         exact_finish = (frame_of_input()+t-241)/fps_const
@@ -204,7 +205,7 @@ def calculate_extra_finish_data(exact_finish):
     if subframe_rounded_ms > 1 :
         exact_behind = (subframe_rounded_ms-1)/1000*fps_const - t #time in frames needed for losing 1ms
     else:
-        exact_behind = -t - (math.floor((frame_count-1)/fps_const*1000) - frame_rounded_ms + 1/fps_const*1000)/1000*fps_const
+        exact_behind = -t - (math.floor((frame_count-1)/fps_const*1000) - frame_rounded_ms + 17)/1000*fps_const
         
     return (round(exact_ahead/fps_const*1000000), round(exact_behind/fps_const*1000000))
 
@@ -240,6 +241,34 @@ def get_moving_angle(player):
         Return : eulerAngle , correspond to moving angles"""
     speed = delta_position(player)
     return speed_to_euler_angle(speed)
+
+def get_unit_vectors_from_angles(angles):
+    sp, cp = math.sin(angles.pitch/180*math.pi) , math.cos(angles.pitch/180*math.pi)
+    sy, cy = math.sin(angles.yaw/180*math.pi) , math.cos(angles.yaw/180*math.pi)
+    sr, cr = math.sin(angles.roll/180*math.pi) , math.cos(angles.roll/180*math.pi)
+
+    #Vec pointing "forward"
+    y1 = sp
+    x1 = - cp * sy
+    z1 = cp * cy 
+
+    #Vec pointing "upward"
+    z2 = - cy * sp * cr -  sy * sr #not sure if it's ++, +-, -+ or --
+    y2 = cp * cr
+    x2 = sy * sp * cr - cy * sr
+    
+    return vec3(x1,y1,z1), vec3(x2,y2,z2)
+
+def get_relative_angles(absolute_angles, up_vector):
+    r_y = up_vector
+    r_x = r_y @ vec3(0,0,1)
+    r_z = r_x @ r_y
+
+    forward_vec, upward_vec = get_unit_vectors_from_angles(absolute_angles)
+
+    pitch = math.asin(forward_vec*r_y)
+
+    return pitch*180/math.pi
 
 
 #The time difference functions.

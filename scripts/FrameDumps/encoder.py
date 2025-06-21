@@ -15,12 +15,14 @@ from Extra import input_display_util
 from Extra import infodisplay_util
 from Extra import speed_display_util
 from Extra import author_display_util
+from Extra import extradisplay_util
 from Extra import common
 
 time.sleep(1) #waits a bit to make sure the framedump metadata is written
 
 current_folder = os.path.dirname(sys.argv[0])
 extra_display_folder = os.path.dirname(sys.argv[0])
+
 
 #Initializing input display images
 input_display_folder = os.path.join(current_folder, 'Input_display')
@@ -30,6 +32,21 @@ for filename in os.listdir(input_display_folder):
         INPUT_DISPLAY_IMG[filename[:-4]] = Image.open(os.path.join(current_folder, 'Input_display', filename))
 
 
+#Initializing MKW Font images
+mkw_font_folder = os.path.join(current_folder, 'Fonts', 'MKW_Font')
+MKW_FONT_IMG = {}
+for filename in os.listdir(mkw_font_folder):
+    if filename[-4:] == '.png':
+        letter = filename[:-4]
+        if letter == 'SLASH':
+            letter = '/'
+        elif letter == 'COLON':
+            letter = ':'
+        elif letter == 'PERIOD':
+            letter = '.'
+        MKW_FONT_IMG[letter] = Image.open(os.path.join(mkw_font_folder, filename))
+
+
 def make_dict(filetext):
     d = {}
     for line in filetext.split('\n'):
@@ -37,7 +54,6 @@ def make_dict(filetext):
         if len(temp) == 2:
             d[temp[0]] = temp[1]
     return d
-
 
     
 def transform_image(image, i=-1):
@@ -60,11 +76,11 @@ def transform_image(image, i=-1):
         if dump_width*9 >= dump_height*16: 
             ratio = target_height/dump_height
             image = image.resize((round(dump_width*ratio), round(dump_height*ratio)), resampler)
-            image = image.crop(((image.width-target_width)//2, 0, target_width, target_height))
+            image = image.crop(((image.width-target_width)//2, 0, target_width+(image.width-target_width)//2, target_height))
         else:
             ratio = target_width/dump_width
             image = image.resize((round(dump_width*ratio), round(dump_height*ratio)), resampler)
-            image = image.crop(((0, image.height-target_height)//2, target_width, target_height))
+            image = image.crop(((0, (image.height-target_height)//2, target_width, target_height+image.height-target_height)//2))
     if resize_style in ['fill', 'Fill', 'FILL']:
         dump_width, dump_height = image.size
         if dump_width*9 >= dump_height*16: 
@@ -79,24 +95,31 @@ def transform_image(image, i=-1):
             black_background = Image.new('RGB', target_resolution, (0,0,0))
             black_background.paste(image, ((target_width-image.width)//2), 0)
             image = black_background
+
             
+    image = image.convert("RGBA")
+    font_folder = os.path.join(current_folder, 'Fonts')
+    
     if os.path.isfile(os.path.join(extra_display_folder, 'RAM_data', f'{i}.txt')):
         with open(os.path.join(extra_display_folder, 'RAM_data', f'{i}.txt'), 'r') as f:
             t = f.read()
             if len(t)>1:
                 frame_dict = make_dict(t)
 
-                image = image.convert("RGBA")
-                font_folder = os.path.join(current_folder, 'Fonts')
-
                 if config['Input display'].getboolean('show_input_display'):
-                    input_display_util.add_input_display(image, frame_dict, config, font_folder, INPUT_DISPLAY_IMG)
+                    input_display_util.add_input_display(image, frame_dict, config, font_folder, recolored_images)
                 if config['Speed display'].getboolean('show_speed_display'):
                     speed_display_util.add_speed_display(image, frame_dict, config['Speed display'])
                 if config['Infodisplay'].getboolean('show_infodisplay'):
-                    infodisplay_util.add_infodisplay(image, frame_dict, config['Infodisplay'], font_folder)
+                    infodisplay_util.add_infodisplay(image, frame_dict, config['Infodisplay'], font_folder, MKW_FONT_IMG)
                 if config['Author display'].getboolean('show_author_display'):
                     author_display_util.add_author_display(image, frame_dict, config['Author display'], current_folder, raw_author_list, author_dict)
+
+    if os.path.isfile(os.path.join(extra_display_folder, 'RAM_data', f'{i}.rawtxt')):
+        with open(os.path.join(extra_display_folder, 'RAM_data', f'{i}.rawtxt'), 'r') as f:
+            text = f.read()                
+            if config['Extra display'].getboolean('show_extradisplay'):
+                extradisplay_util.add_extradisplay(image, text, config['Extra display'], font_folder, MKW_FONT_IMG)
 
     filters = common.get_filter_list(config['Encoding options'].get('special_effects'))
     for filtre in filters:
@@ -122,9 +145,51 @@ def main():
     global config
     config = config_util.get_config(config_filename)
 
+
+    w = config['Input display'].getint('width')
+    ow = config['Input display'].getint('outline_width')
+
+    color_dict = {'color_shoulder_left': common.get_color(config['Input display'].get('color_shoulder_left')),
+    'color_shoulder_right': common.get_color(config['Input display'].get('color_shoulder_right')),
+    'color_dpad': common.get_color(config['Input display'].get('color_dpad')),
+    'color_analog': common.get_color(config['Input display'].get('color_analog')),
+    'color_a_button': common.get_color(config['Input display'].get('color_a_button')),
+    'color_stick_text': common.get_color(config['Input display'].get('color_stick_text')),}
+
+    base_keys = {
+    'shoulder': ['color_shoulder_left', 'color_shoulder_right'], 'shoulder_filled': ['color_shoulder_left', 'color_shoulder_right'], 'dpad': ['color_dpad'], 
+    'analog_part1': ['color_analog'], 'analog_part2': ['color_analog'], 'analog_part3': ['color_analog'], 
+    'analog_part4': ['color_analog'], 'analog_part5': ['color_analog'], 'analog_bg_part1': ['color_analog'], 
+    'analog_bg_part2': ['color_analog'], 'analog_bg_part3': ['color_analog'], 'analog_bg_part4': ['color_analog'],
+    'analog_bg_part5': ['color_analog'], 'analog_outer': ['color_analog'], 'analog_base': ['color_analog'],
+    'button': ['color_a_button'], 'button_filled': ['color_a_button']}
+
+    global recolored_images
+    recolored_images = {}
+
+    for base_key, colors in base_keys.items():
+        img_key = f"{base_key}_{w}_{ow}"
+        base_img = INPUT_DISPLAY_IMG[img_key]
+        for color_name in colors:
+            color = color_dict[color_name]
+            recolored_key = f"{img_key}|{color_name}"
+            recolored_images[recolored_key] = common.color_white_part(base_img.copy(), color)
+    
+    recolored_images['background'] = INPUT_DISPLAY_IMG['background']
+    recolored_images['dpad_fill_0'] = INPUT_DISPLAY_IMG['dpad_fill_0']
+    for x in range(1,5):
+        recolored_images[f'dpad_fill_{x}'] = common.color_white_part(INPUT_DISPLAY_IMG[f'dpad_fill_{x}'].copy(), color_dict['color_dpad'])
+
+
     global raw_author_list, author_dict
     raw_author_list, author_dict = author_display_util.make_list_author(config['Author display'], extra_display_folder)
-    
+
+    scaling = eval(config['Infodisplay'].get('mkw_font_scaling'))/12
+    for key in MKW_FONT_IMG.keys():
+        size = MKW_FONT_IMG[key].size
+        w2,h2 = (round(size[0]*scaling), round(size[1]*scaling))
+        MKW_FONT_IMG[key] = MKW_FONT_IMG[key].resize((w2,h2) , Image.Resampling.LANCZOS)
+
     #Getting filenames
     with open(os.path.join(extra_display_folder, 'dump_info.txt'), 'r') as f:
         temp = f.read().split('\n')
@@ -248,7 +313,7 @@ def main():
                 im.save(f'{counter}.png')
     if not no_vid :           
         print('time : ', time.time() -t)
-        print('frame expected :', -1+len(os.listdir(os.path.join(current_folder, 'RAM_data'))))
-        print('frame dumped :', round(output_video.fps * output_video.duration))
+        print('frames expected :', -1+len(os.listdir(os.path.join(current_folder, 'RAM_data'))))
+        print('frames dumped :', round(output_video.fps * output_video.duration))
         input('Press ENTER to exit')
 main()

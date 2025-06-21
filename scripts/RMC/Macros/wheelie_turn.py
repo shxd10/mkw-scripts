@@ -4,7 +4,7 @@ does not account for boosts.
 """
 from dolphin import controller, event # type: ignore
 import math
-import Modules.mkw_classes as mkw
+from Modules import mkw_classes as mkw
 from Modules.macro_utils import MKWiiGCController
 
 def clamp(x: int, l: int, u: int):

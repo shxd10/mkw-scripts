@@ -1,6 +1,6 @@
 from dolphin import memory
 import time
-import Modules.agc_lib as lib
+from Modules import agc_lib as lib
 
 
 

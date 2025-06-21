@@ -13,7 +13,7 @@ import configparser
 
 
 def create_config(filename):
-    config = configparser.ConfigParser(allow_no_value=True, allow_unnamed_section=True)
+    config = configparser.ConfigParser(allow_no_value=True)
     config.add_section('README')
     config.set('README', 'Visit : https://docs.google.com/document/d/e/2PACX-1vTXoEveB_1MZ3WizOpEWvZ-oyJMgg-3pRLGiNu-5vo853BMcrr8RY69REcTsheurI9qS2kfqrx1BZkT/pub\n\n' )
     config.add_section('Path')
@@ -77,11 +77,19 @@ def create_config(filename):
     config.set('Infodisplay', '\n#draw the infodisplay')
     config.set('Infodisplay', 'show_infodisplay', 'True')#
     config.set('Infodisplay', '\n#Font filename. You must put the font in the Font folder.')
-    config.set('Infodisplay', 'font', 'CONSOLA.TTF')#
+    config.set('Infodisplay', 'font', 'MKW_Font')#
     config.set('Infodisplay', '\n#font size in pixel on the final output resolution.')
     config.set('Infodisplay', 'font_size', '48')#
-    config.set('Infodisplay', '\n#Top left anchor for infodisplay text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
-    config.set('Infodisplay', 'top_left', '0.1,0.1')#
+    config.set('Infodisplay', '\n#Scaling factor for MKW Font if used')
+    config.set('Infodisplay', 'mkw_font_scaling', '3')#
+    config.set('Infodisplay', '\n#vertical spacing in pixel between lines')
+    config.set('Infodisplay', 'spacing', '4')#
+    config.set('Infodisplay', '\n#Anchor for infodisplay text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
+    config.set('Infodisplay', 'anchor', '0.2,0.1')#
+    config.set('Infodisplay', '\n#Choice "left", "middle", "right"')
+    config.set('Infodisplay', 'anchor_style', 'middle')#
+    config.set('Infodisplay', '\n# True for having the value, then the text, False for having the text, then the value')
+    config.set('Infodisplay', 'invert_text', 'True')#
     config.set('Infodisplay', '\n#size of the outline of the font in pixel')
     config.set('Infodisplay', 'outline_width', '3')#
     config.set('Infodisplay', '\n#color of the outline of the font')
@@ -89,48 +97,48 @@ def create_config(filename):
     
     config.set('Infodisplay', '\n#parameters for the XYZ speed (delta position)')
     config.set('Infodisplay', 'show_speed_xyz', 'True')
-    config.set('Infodisplay', 'text_speed_xyz', 'Speed : ')
+    config.set('Infodisplay', 'text_speed_xyz', '. Speed')
     config.set('Infodisplay', 'color_speed_xyz', 'FF0000FF')
 
     
     config.set('Infodisplay', '\n#parameters for the XZ speed (delta position)')   
     config.set('Infodisplay', 'show_speed_xz', 'False')
-    config.set('Infodisplay', 'text_speed_xz', 'XZ Speed : ')
+    config.set('Infodisplay', 'text_speed_xz', '. Speed XZ')
     config.set('Infodisplay', 'color_speed_xz', 'FF0000FF')
 
     config.set('Infodisplay', '\n#parameters for the Y speed (delta position)')
     config.set('Infodisplay', 'show_speed_y', 'False')
-    config.set('Infodisplay', 'text_speed_y', 'Y Speed : ')
+    config.set('Infodisplay', 'text_speed_y', '. Speed Y')
     config.set('Infodisplay', 'color_speed_y', 'FF0000FF')
 
     config.set('Infodisplay', '\n#parameters for the XYZ internal velocity')
     config.set('Infodisplay', 'show_iv_xyz', 'True')
-    config.set('Infodisplay', 'text_iv_xyz', 'Internal Velocity : ')
+    config.set('Infodisplay', 'text_iv_xyz', '. IV')
     config.set('Infodisplay', 'color_iv_xyz', '00FF00FF')
 
     config.set('Infodisplay', '\n#parameters for the XZ internal velocity')
     config.set('Infodisplay', 'show_iv_xz', 'False')
-    config.set('Infodisplay', 'text_iv_xz', 'XZ Internal Velocity : ')
+    config.set('Infodisplay', 'text_iv_xz', '. IV XZ')
     config.set('Infodisplay', 'color_iv_xz', '00FF00FF')
 
     config.set('Infodisplay', '\n#parameters for the Y internal velocity')
     config.set('Infodisplay', 'show_iv_y', 'False')
-    config.set('Infodisplay', 'text_iv_y', 'Y Internal Velocity : ')
+    config.set('Infodisplay', 'text_iv_y', '. IV Y')
     config.set('Infodisplay', 'color_iv_y', '00FF00FF')
 
     config.set('Infodisplay', '\n#parameters for the XYZ external velocity')
     config.set('Infodisplay', 'show_ev_xyz', 'True')
-    config.set('Infodisplay', 'text_ev_xyz', 'External Velocity : ')
+    config.set('Infodisplay', 'text_ev_xyz', '. EV')
     config.set('Infodisplay', 'color_ev_xyz', '0000FFFF')
 
     config.set('Infodisplay', '\n#parameters for the XZ external velocity')
     config.set('Infodisplay', 'show_ev_xz', 'False')
-    config.set('Infodisplay', 'text_ev_xz', 'XZ External Velocity : ')
+    config.set('Infodisplay', 'text_ev_xz', '. EV XZ ')
     config.set('Infodisplay', 'color_ev_xz', '0000FFFF')
 
     config.set('Infodisplay', '\n#parameters for the Y external velocity')
     config.set('Infodisplay', 'show_ev_y', 'False')
-    config.set('Infodisplay', 'text_ev_y', 'Y External Velocity : ')
+    config.set('Infodisplay', 'text_ev_y', '. EV Y')
     config.set('Infodisplay', 'color_ev_y', '0000FFFF')
     
     config.set('Infodisplay', '\n\n##############################################################################\n')
@@ -150,7 +158,7 @@ def create_config(filename):
     config.set('Speed display', 'circle_outline_color', '000000FF')#
     config.set('Speed display', '\n#size of the border of the circle')
     config.set('Speed display', 'circle_outline_width', '4')#
-    config.set('Speed display', '\n#Draw the XZ axis when rotating with yaw. Draw the sideways and forward axis when not rotating with yaw')
+    config.set('Speed display', '\n#draw the XZ axis when rotating with yaw. Draw the sideways and forward axis when not rotating with yaw')
     config.set('Speed display', 'draw_axis', 'True')#
     config.set('Speed display', '\n#color of the axis')
     config.set('Speed display', 'axis_color', '000000FF')#
@@ -185,15 +193,28 @@ def create_config(filename):
     config.set('Input display', 'show_input_display', 'True')
     config.set('Input display', '\n#Top left anchor for input display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Input display', 'top_left', '0.03,0.7')#
+    config.set('Input display', '\n#width options equivalent to pyrkg and other input display tools. image quality has also been improved')
+    config.set('Input display', '#all pairs of widths 3-7 and outline widths 2-4 are possible, except (7,4)')
+    config.set('Input display', 'width', '3')#
+    config.set('Input display', 'outline_width', '3')#
+    config.set('Input display', '\n#coloring options for the input display parts. alpha channel has no effect but must use RGBA format')
+    config.set('Input display', 'color_shoulder_left', 'FFFFFFFF')
+    config.set('Input display', 'color_shoulder_right', 'FFFFFFFF')
+    config.set('Input display', 'color_dpad', 'FFFFFFFF')
+    config.set('Input display', 'color_analog', 'FFFFFFFF')
+    config.set('Input display', 'color_a_button', 'FFFFFFFF')
+    config.set('Input display', 'color_stick_text', 'FFFFFFFF')
     config.set('Input display', '\n#multiplier on the size of input display. Default size is 250x400 in pixel on the output resolution')
     config.set('Input display', 'scaling', '1')#
     config.set('Input display', '\n#Choice "nearest", "box", "bilinear", "hamming", "bicubic", "lanczos"')
     config.set('Input display', '#visit #https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters')
     config.set('Input display', 'scaling_option', 'lanczos') #https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters
-    config.set('Input display', '\n#Draw the bounding box. The file itself can be modified in the Input_display folder')
+    config.set('Input display', '\n#draw the bounding box. The file itself can be modified in the Input_display folder')
     config.set('Input display', 'draw_box', 'True')#
     config.set('Input display', '\n#Draw the +7,-7 text corresponding to the stick input')
     config.set('Input display', 'draw_stick_text', 'True')#
+    config.set('Input display', '\n#size of stick text. the default size is 36')
+    config.set('Input display', 'stick_text_size', '36')#
     config.set('Input display', '\n#Choice "blur", "contour", "detail", "edge_enhance", "edge_enhance_more", "emboss", "find_edges", "sharpen", "smooth", "smooth_more"')
     config.set('Input display', '#You can use several effects by separating them with a ",". DO NOT USE SPACES')
     config.set('Input display', 'special_effects', 'none')#
