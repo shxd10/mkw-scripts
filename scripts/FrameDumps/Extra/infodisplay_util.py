@@ -57,7 +57,6 @@ def make_text_key(d, c, font, key):
     return f'{prefix_text}',f'{val:.2f}'
 
 
-
 def add_mkw_text(line_layer, x, text, mkw_font_dict, color, mkw_scaling):
     for letter in text:
         if letter in mkw_font_dict.keys():
@@ -79,9 +78,15 @@ def add_mkw_text(line_layer, x, text, mkw_font_dict, color, mkw_scaling):
 
 def add_mkw_font_line(id_layer, prefix, value, color, mkw_font_dict, anchor, mkw_scaling, anchor_style, invert_design):
     w,h = anchor
+    if value == None:
+        custom_text_layer = Image.new('RGBA', (id_layer.size[0], round(mkw_scaling*336)+1), (0,0,0,0))
+        x = add_mkw_text(custom_text_layer, 0, prefix, mkw_font_dict, color, mkw_scaling)
+        id_layer.alpha_composite(custom_text_layer, (w-x//2,h))
+        return None
+    
     line_layer = Image.new('RGBA', (id_layer.size[0], round(mkw_scaling*336)+1), (0,0,0,0))
 
-    if invert_design:
+    if invert_design and not prefix == '<>':
         text = value,prefix
     else:
         text = prefix,value
@@ -90,6 +95,10 @@ def add_mkw_font_line(id_layer, prefix, value, color, mkw_font_dict, anchor, mkw
     middle_x = add_mkw_text(line_layer, left_x, text[0], mkw_font_dict, color, mkw_scaling)
     right_x = add_mkw_text(line_layer, middle_x, text[1], mkw_font_dict, color, mkw_scaling)
 
+    if prefix == '<>':
+        id_layer.alpha_composite(line_layer, (w-(middle_x+right_x)//2,h))
+        return None
+    
     if anchor_style == 'left':
         offset = left_x
     elif anchor_style == 'middle':
@@ -120,6 +129,17 @@ def add_infodisplay(image, id_dict, id_config, font_folder, mkw_font_dict):
     outline_color = common.get_color(id_config.get('outline_color'))
     anchor_style = id_config.get('anchor_style')
     invert = id_config.getboolean('invert_text')
+
+    i = 1
+    if id_config.getboolean('enable_custom_text'):
+        while f'custom_text_{i}' in id_config:
+            custom_text_anchor = id_config.get(f'custom_text_anchor_{i}').split(',')
+            custom_anchor = round(float(custom_text_anchor[0])*image.width), round(float(custom_text_anchor[1])*image.height)
+            custom_scaling = eval(id_config.get(f'custom_text_scaling_{i}'))/12
+            custom_text = id_config.get(f'custom_text_{i}')
+            custom_color = common.get_color(id_config.get(f'custom_text_color_{i}'))
+            add_mkw_font_line(infodisplay_layer, custom_text.upper(), None, custom_color, mkw_font_dict[custom_scaling], (custom_anchor[0], custom_anchor[1]), custom_scaling, 'right', False)
+            i += 1
     
     for key in id_config.keys():
         if len(key) > 4 and key[:4] == 'show' and key != 'show_infodisplay' and id_config.getboolean(key):
@@ -128,7 +148,7 @@ def add_infodisplay(image, id_dict, id_config, font_folder, mkw_font_dict):
             color = common.get_color(color_text)
 
             if font is None:                
-                add_mkw_font_line(infodisplay_layer, prefix_text.upper(), value_text.upper(), color, mkw_font_dict, (top_left[0], current_h), mkw_scaling, anchor_style, invert)
+                add_mkw_font_line(infodisplay_layer, prefix_text.upper(), value_text.upper(), color, mkw_font_dict[mkw_scaling], (top_left[0], current_h), mkw_scaling, anchor_style, invert)
                 current_h += round(336*mkw_scaling) + spacing
             else:
                 if invert:

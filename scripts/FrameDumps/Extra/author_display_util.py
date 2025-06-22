@@ -18,7 +18,7 @@ def make_list_author(c, main_folder):
     raw_author_list = []
     author_file = os.path.join(main_folder, c.get('author_list_filename'))
     if os.path.isfile(author_file):
-        with open(author_file, 'r') as f:
+        with open(author_file, 'r', encoding='utf-8') as f:
             entry_list = f.read().split('\n')
             for entry in entry_list:
                 temp = entry.split(':')

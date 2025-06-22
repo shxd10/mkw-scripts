@@ -54,6 +54,7 @@ def create_config(filename):
     config.set('Encoding options', '\n#Choice "blur", "contour", "detail", "edge_enhance", "edge_enhance_more", "emboss", "find_edges", "sharpen", "smooth", "smooth_more"')
     config.set('Encoding options', '#You can use several effects by separating them with a ",". DO NOT USE SPACES')
     config.set('Encoding options', 'special_effects', 'none') #https://pillow.readthedocs.io/en/stable/reference/ImageFilter.html#module-PIL.ImageFilter
+    
     config.set('Encoding options', '\n\n##############################################################################\n')
 
     config.add_section('Audio options')
@@ -71,14 +72,15 @@ def create_config(filename):
     config.set('Audio options', 'fade_in', '0')#
     config.set('Audio options', '\n#time in second for the audio fade out')
     config.set('Audio options', 'fade_out', '0')#
+
     config.set('Audio options', '\n\n##############################################################################\n')
     
     config.add_section('Infodisplay')
     config.set('Infodisplay', '\n#draw the infodisplay')
     config.set('Infodisplay', 'show_infodisplay', 'True')#
-    config.set('Infodisplay', '\n#Font filename. You must put the font in the Font folder.')
+    config.set('Infodisplay', '\n#Font filename. You must put the font in the FontS folder.')
     config.set('Infodisplay', 'font', 'MKW_Font')#
-    config.set('Infodisplay', '\n#font size in pixel on the final output resolution.')
+    config.set('Infodisplay', '\n#font size in pixel on the final output resolution for fonts other than the mkw font.')
     config.set('Infodisplay', 'font_size', '48')#
     config.set('Infodisplay', '\n#Scaling factor for MKW Font if used')
     config.set('Infodisplay', 'mkw_font_scaling', '3')#
@@ -99,7 +101,6 @@ def create_config(filename):
     config.set('Infodisplay', 'show_speed_xyz', 'True')
     config.set('Infodisplay', 'text_speed_xyz', '. Speed')
     config.set('Infodisplay', 'color_speed_xyz', 'FF0000FF')
-
     
     config.set('Infodisplay', '\n#parameters for the XZ speed (delta position)')   
     config.set('Infodisplay', 'show_speed_xz', 'False')
@@ -140,6 +141,15 @@ def create_config(filename):
     config.set('Infodisplay', 'show_ev_y', 'False')
     config.set('Infodisplay', 'text_ev_y', '. EV Y')
     config.set('Infodisplay', 'color_ev_y', '0000FFFF')
+
+    config.set('Infodisplay', '\n#display custom text using the mkw font. the anchors x axis will be the center of the text, the y axis will be the top')
+    config.set('Infodisplay', 'enable_custom_text', 'False')
+    config.set('Infodisplay', '\n#to add multiple texts, copy these lines below and increment the number at the end of the parameters')
+
+    config.set('Infodisplay', 'custom_text_anchor_1', '0.2.01')
+    config.set('Infodisplay', 'custom_text_scaling_1', '2.5')
+    config.set('Infodisplay', 'custom_text_1', 'your text here')
+    config.set('Infodisplay', 'custom_text_color_1', 'False')
     
     config.set('Infodisplay', '\n\n##############################################################################\n')
 
@@ -185,9 +195,9 @@ def create_config(filename):
     config.set('Speed display', '\n#arrow corresponding to external velocity')
     config.set('Speed display', 'show_ev', 'True')
     config.set('Speed display', 'color_ev', '0000FFFF')
+
     config.set('Speed display', '\n\n##############################################################################\n')
     
-
     config.add_section('Input display')
     config.set('Input display', '\n#draw the input display')
     config.set('Input display', 'show_input_display', 'True')
@@ -228,7 +238,7 @@ def create_config(filename):
     config.set('Author display', '\n#Must be a file in the same folder as this config file. Mandatory for the author display to work')
     config.set('Author display', 'author_list_filename', 'authors.txt')#
     config.set('Author display', '\n#Font filename. You must put the font in the Font folder.')
-    config.set('Author display', 'font', 'CONSOLA.TTF')#
+    config.set('Author display', 'font', 'FOT-Rodin Pro EB.otf')#
     config.set('Author display', '\n#font size in pixel on the final output resolution')
     config.set('Author display', 'font_size', '48')#
     config.set('Author display', '\n#color used for the text when the author has input on this frame')
@@ -236,7 +246,7 @@ def create_config(filename):
     config.set('Author display', '\n#color used for the text when the author does not have input on this frame')
     config.set('Author display', 'unactive_text_color', 'FFFFFF80')#
     config.set('Author display', '\n#outline width for the font used')
-    config.set('Author display', 'outline_width', '3')#
+    config.set('Author display', 'outline_width', '4')#
     config.set('Author display', '\n#color of the outline width')
     config.set('Author display', 'outline_color', '000000FF')#
     
