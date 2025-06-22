@@ -38,8 +38,10 @@ MKW_FONT_IMG = {}
 for filename in os.listdir(mkw_font_folder):
     if filename[-4:] == '.png':
         letter = filename[:-4]
-        if letter == 'SLASH':
+        if letter == 'SLASH_':
             letter = '/'
+        if letter == 'SLASH':
+            letter = '&'
         elif letter == 'COLON':
             letter = ':'
         elif letter == 'PERIOD':
@@ -111,7 +113,7 @@ def transform_image(image, i=-1):
                 if config['Speed display'].getboolean('show_speed_display'):
                     speed_display_util.add_speed_display(image, frame_dict, config['Speed display'])
                 if config['Infodisplay'].getboolean('show_infodisplay'):
-                    infodisplay_util.add_infodisplay(image, frame_dict, config['Infodisplay'], font_folder, MKW_FONT_IMG)
+                    infodisplay_util.add_infodisplay(image, frame_dict, config['Infodisplay'], font_folder, scaled_fonts_dict)
                 if config['Author display'].getboolean('show_author_display'):
                     author_display_util.add_author_display(image, frame_dict, config['Author display'], current_folder, raw_author_list, author_dict)
 
@@ -184,11 +186,22 @@ def main():
     global raw_author_list, author_dict
     raw_author_list, author_dict = author_display_util.make_list_author(config['Author display'], extra_display_folder)
 
-    scaling = eval(config['Infodisplay'].get('mkw_font_scaling'))/12
-    for key in MKW_FONT_IMG.keys():
-        size = MKW_FONT_IMG[key].size
-        w2,h2 = (round(size[0]*scaling), round(size[1]*scaling))
-        MKW_FONT_IMG[key] = MKW_FONT_IMG[key].resize((w2,h2) , Image.Resampling.LANCZOS)
+
+    i = 1
+    scaling_set = {eval(config['Infodisplay'].get('mkw_font_scaling'))/12}
+    while f'custom_text_{i}' in config['Infodisplay']:
+        scaling_set.add(eval(config['Infodisplay'].get(f'custom_text_scaling_{i}'))/12)
+        i += 1
+
+    global scaled_fonts_dict
+    scaled_fonts_dict = {}
+    for scale in scaling_set:
+        tmp_dict = {}
+        for key in MKW_FONT_IMG.keys():
+            size = MKW_FONT_IMG[key].size
+            w2,h2 = (round(size[0]*scale), round(size[1]*scale))
+            tmp_dict[key] = MKW_FONT_IMG[key].resize((w2,h2) , Image.Resampling.LANCZOS)
+        scaled_fonts_dict[scale] = tmp_dict 
 
     #Getting filenames
     with open(os.path.join(extra_display_folder, 'dump_info.txt'), 'r') as f:
