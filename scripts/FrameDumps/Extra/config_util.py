@@ -78,7 +78,7 @@ def create_config(filename):
     config.add_section('Infodisplay')
     config.set('Infodisplay', '\n#draw the infodisplay')
     config.set('Infodisplay', 'show_infodisplay', 'True')#
-    config.set('Infodisplay', '\n#Font filename. You must put the font in the FontS folder.')
+    config.set('Infodisplay', '\n#Font filename. You must put the font in the Fonts folder.')
     config.set('Infodisplay', 'font', 'MKW_Font')#
     config.set('Infodisplay', '\n#font size in pixel on the final output resolution for fonts other than the mkw font.')
     config.set('Infodisplay', 'font_size', '48')#
