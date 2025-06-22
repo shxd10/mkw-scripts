@@ -24,14 +24,6 @@ current_folder = os.path.dirname(sys.argv[0])
 extra_display_folder = os.path.dirname(sys.argv[0])
 
 
-#Initializing input display images
-input_display_folder = os.path.join(current_folder, 'Input_display')
-INPUT_DISPLAY_IMG = {}
-for filename in os.listdir(input_display_folder):
-    if filename[-4:] == '.png':
-        INPUT_DISPLAY_IMG[filename[:-4]] = Image.open(os.path.join(current_folder, 'Input_display', filename))
-
-
 #Initializing MKW Font images
 mkw_font_folder = os.path.join(current_folder, 'Fonts', 'MKW_Font')
 MKW_FONT_IMG = {}
@@ -109,7 +101,7 @@ def transform_image(image, i=-1):
                 frame_dict = make_dict(t)
 
                 if config['Input display'].getboolean('show_input_display'):
-                    input_display_util.add_input_display(image, frame_dict, config, font_folder, recolored_images)
+                    input_display_util.add_input_display(image, frame_dict, config, font_folder, recolored_images, w, ow)
                 if config['Speed display'].getboolean('show_speed_display'):
                     speed_display_util.add_speed_display(image, frame_dict, config['Speed display'])
                 if config['Infodisplay'].getboolean('show_infodisplay'):
@@ -136,6 +128,7 @@ def transform_video(get_frame, t):
 
 def main():
     extra_display_folder = os.path.dirname(sys.argv[0])
+    current_folder = os.path.dirname(sys.argv[0])
 
     if len(sys.argv) > 1:
         config_filename = sys.argv[1]
@@ -144,12 +137,23 @@ def main():
     if not os.path.isfile(config_filename):
         config_util.create_config(config_filename)
 
+    
     global config
     config = config_util.get_config(config_filename)
 
 
+    global w
+    global ow
     w = config['Input display'].getint('width')
     ow = config['Input display'].getint('outline_width')
+
+    #Initializing input display images
+    input_display_folder = os.path.join(current_folder, 'Input_display')
+    INPUT_DISPLAY_IMG = {}
+    for filename in os.listdir(input_display_folder):
+        if filename[-7:] == f'{w}_{ow}.png' or filename == 'background.png' or filename[:9] == 'dpad_fill':
+            INPUT_DISPLAY_IMG[filename[:-4]] = Image.open(os.path.join(current_folder, 'Input_display', filename))
+
 
     color_dict = {'color_shoulder_left': common.get_color(config['Input display'].get('color_shoulder_left')),
     'color_shoulder_right': common.get_color(config['Input display'].get('color_shoulder_right')),
