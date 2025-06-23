@@ -146,12 +146,15 @@ def main():
     global ow
     w = config['Input display'].getint('width')
     ow = config['Input display'].getint('outline_width')
-
+    bg = config['Input display'].getboolean('draw_box')
     #Initializing input display images
     input_display_folder = os.path.join(current_folder, 'Input_display')
     INPUT_DISPLAY_IMG = {}
+
     for filename in os.listdir(input_display_folder):
-        if filename[-7:] == f'{w}_{ow}.png' or filename == 'background.png' or filename[:9] == 'dpad_fill':
+        is_w_ow = (filename[-7:] == f'{w}_{ow}.png')
+        aligns_with_bg = ('bg' in filename) == bg
+        if is_w_ow and (not 'part' in filename) or is_w_ow and aligns_with_bg or filename == 'background.png' or filename[:9] == 'dpad_fill':
             INPUT_DISPLAY_IMG[filename[:-4]] = Image.open(os.path.join(current_folder, 'Input_display', filename))
 
 
@@ -163,12 +166,20 @@ def main():
     'color_stick_text': common.get_color(config['Input display'].get('color_stick_text')),}
 
     base_keys = {
-    'shoulder': ['color_shoulder_left', 'color_shoulder_right'], 'shoulder_filled': ['color_shoulder_left', 'color_shoulder_right'], 'dpad': ['color_dpad'], 
-    'analog_part1': ['color_analog'], 'analog_part2': ['color_analog'], 'analog_part3': ['color_analog'], 
-    'analog_part4': ['color_analog'], 'analog_part5': ['color_analog'], 'analog_bg_part1': ['color_analog'], 
-    'analog_bg_part2': ['color_analog'], 'analog_bg_part3': ['color_analog'], 'analog_bg_part4': ['color_analog'],
-    'analog_bg_part5': ['color_analog'], 'analog_outer': ['color_analog'], 'analog_base': ['color_analog'],
-    'button': ['color_a_button'], 'button_filled': ['color_a_button']}
+    'shoulder': ['color_shoulder_left', 'color_shoulder_right'], 'shoulder_filled': ['color_shoulder_left',
+    'color_shoulder_right'], 'dpad': ['color_dpad'], 'analog_outer': ['color_analog'],
+    'analog_base': ['color_analog'], 'button': ['color_a_button'], 'button_filled': ['color_a_button']}
+
+    analog_keys = {'analog_part1': ['color_analog'], 'analog_part2': ['color_analog'],
+    'analog_part3': ['color_analog'], 'analog_part4': ['color_analog'], 'analog_part5': ['color_analog']}
+
+    analog_bg_keys = {'analog_bg_part1': ['color_analog'], 'analog_bg_part2': ['color_analog'], 
+    'analog_bg_part3': ['color_analog'], 'analog_bg_part4': ['color_analog'], 'analog_bg_part5': ['color_analog']}
+
+    if bg:
+        base_keys.update(analog_bg_keys)
+    else:
+        base_keys.update(analog_keys)
 
     global recolored_images
     recolored_images = {}
