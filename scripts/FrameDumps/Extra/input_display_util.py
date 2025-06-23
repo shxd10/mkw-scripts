@@ -11,7 +11,7 @@ import subprocess
 import math
 from Extra import common
 
-def make_input_display(raw_input_text, config_id, font, recolored_images):
+def make_input_display(raw_input_text, config_id, font, recolored_images, w, ow):
     args = raw_input_text.split(',')
     A = int(args[0])
     B = int(args[1])
@@ -20,8 +20,6 @@ def make_input_display(raw_input_text, config_id, font, recolored_images):
     Y = int(args[6])
     T = int(args[7])
 
-    w = config_id.getint('width')
-    ow = config_id.getint('outline_width')
     color_stick_text_tmp = common.get_color(config_id.get('color_stick_text'))
     color_stick_text = tuple(color_stick_text_tmp[:3])
 
@@ -105,10 +103,10 @@ def make_input_display(raw_input_text, config_id, font, recolored_images):
 
     return output
 
-def add_input_display(image, frame_dict, config, font_folder, recolored_images):
+def add_input_display(image, frame_dict, config, font_folder, recolored_images, w, ow):
     stick_text_size = config['Input display'].getint('stick_text_size')
     font = ImageFont.truetype(os.path.join(font_folder, 'CONSOLA.TTF'), stick_text_size)
-    input_display = make_input_display(frame_dict['input'], config['Input display'], font, recolored_images)
+    input_display = make_input_display(frame_dict['input'], config['Input display'], font, recolored_images, w, ow)
     top_left_text = config['Input display'].get('top_left').split(',')
     top_left = round(float(top_left_text[0])*image.width), round(float(top_left_text[1])*image.height)
 
