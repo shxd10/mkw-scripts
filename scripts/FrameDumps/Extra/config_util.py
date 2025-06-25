@@ -47,6 +47,8 @@ def create_config(filename):
     config.set('Encoding options', 'scaling_option', 'lanczos') #https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters
     config.set('Encoding options', '\n#filename for the output file. .mp4 extension required')
     config.set('Encoding options', 'output_filename', 'output.mp4')#
+    config.set('Encoding options', '\n#choose how the OSD elements will enter the screen. pick between "fade" or "fly_in"')
+    config.set('Encoding options', 'animation_style', 'fade')#
     config.set('Encoding options', '\n#time in seconds for the video fade in')
     config.set('Encoding options', 'video_fade_in', '0')#
     config.set('Encoding options', '\n#time in seconds for the video fade out')
@@ -86,6 +88,8 @@ def create_config(filename):
     config.set('Infodisplay', 'mkw_font_scaling', '3')#
     config.set('Infodisplay', '\n#vertical spacing in pixel between lines')
     config.set('Infodisplay', 'spacing', '4')#
+    config.set('Infodisplay', '\n#if animation_style is fly_in: choose to have the Info Display fly in from the top or bottom.')
+    config.set('Infodisplay', 'fly_in_direction', 'bottom')#
     config.set('Infodisplay', '\n#Anchor for infodisplay text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Infodisplay', 'anchor', '0.2,0.1')#
     config.set('Infodisplay', '\n#Choice "left", "middle", "right"')
@@ -156,6 +160,8 @@ def create_config(filename):
     config.add_section('Speed display')
     config.set('Speed display', '\n#draw the speed display')
     config.set('Speed display', 'show_speed_display', 'True')
+    config.set('Speed display', '\n#if animation_style is fly_in: choose to have the Speed Display fly in from the top or bottom.')
+    config.set('Speed display', 'fly_in_direction', 'bottom')#
     config.set('Speed display', '\n#Top left anchor for speed display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Speed display', 'top_left', '0.7, 0.5')#
     config.set('Speed display', '\n#Activating this will make the circle rotate with your facing yaw, so it always face up')
@@ -201,6 +207,8 @@ def create_config(filename):
     config.add_section('Input display')
     config.set('Input display', '\n#draw the input display')
     config.set('Input display', 'show_input_display', 'True')
+    config.set('Input display', '\n#if animation_style is fly_in: choose to have the Input Display fly in from the top or bottom.')
+    config.set('Input display', 'fly_in_direction', 'bottom')#
     config.set('Input display', '\n#Top left anchor for input display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Input display', 'top_left', '0.03,0.7')#
     config.set('Input display', '\n#width options equivalent to pyrkg and other input display tools. image quality has also been improved')
@@ -233,6 +241,8 @@ def create_config(filename):
     config.add_section('Author display')
     config.set('Author display', '\n#draw the author display')
     config.set('Author display', 'show_author_display', 'False')
+    config.set('Author display', '\n#if animation_style is fly_in: choose to have the Author Display fly in from the top or bottom.')
+    config.set('Author display', 'fly_in_direction', 'top')#
     config.set('Author display', '\n#Top left anchor for author display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Author display', 'top_left', '0.1,0.4')#   
     config.set('Author display', '\n#Must be a file in the same folder as this config file. Mandatory for the author display to work')

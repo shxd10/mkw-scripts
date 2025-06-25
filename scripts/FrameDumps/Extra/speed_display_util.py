@@ -57,7 +57,9 @@ def normalize_speed(vec, cap, ratio):
     else:
         return vec[0]*ratio, vec[1]*ratio
     
-def add_speed_display(im, d, c):
+def add_speed_display(im, d, config):
+    c = config['Speed display']
+    state, state_counter = int(d['state']), int(d['state_counter'])
     radius = c.getint('circle_radius')
     circle_color = get_color(c.get('circle_color'))
     circle_width = c.getint('circle_outline_width')
@@ -122,7 +124,24 @@ def add_speed_display(im, d, c):
     top_left_text = c.get('top_left').split(',')
     top_left = round(float(top_left_text[0])*im.width), round(float(top_left_text[1])*im.height)
 
-    speed_display_image = common.fade_image_manually(speed_display_image, d)    
-    im.alpha_composite(speed_display_image, top_left)
+    if config['Encoding options'].get('animation_style') == 'fly_in':
+        fly_in_mode = c.get('fly_in_')
+        ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
+        SPEED_DISPLAY_POSITION = (1 - float(top_left_text[1]))
+        height_correction =  round((SPEED_DISPLAY_POSITION - ITEM_POSITION)*im.height)
+        
+        if state == 4 and state_counter >= 192 or state == 1 and state_counter <= 10:
+            return Image.new('RGBA', (im.width, im.height), (0, 0, 0, 0))
+        
+        y_offset = common.fly_in(d, im.height)
+        if y_offset is not None:
+            if c.get('fly_in_direction') == 'bottom':
+                im.alpha_composite(speed_display_image, (top_left[0], im.height - height_correction - y_offset))
+            else:
+                im.alpha_composite(speed_display_image, (top_left[0], top_left[1] - round(ITEM_POSITION*im.height) + y_offset))
+        else:
+            im.alpha_composite(speed_display_image, top_left)
+    else:
+        speed_display_image = common.fade_image_manually(speed_display_image, d)
+        im.alpha_composite(speed_display_image, top_left)
     
-

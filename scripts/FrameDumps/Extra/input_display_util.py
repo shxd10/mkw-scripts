@@ -30,10 +30,10 @@ def make_input_display(raw_input_text, config_id, font, recolored_images, w, ow)
 
     if A == 0:
         recolored_key = f'button_{w}_{ow}|color_a_button'
-        output.alpha_composite(recolored_images[recolored_key], (267,115))
+        output.alpha_composite(recolored_images[recolored_key], (267,114))
     elif A ==1 :
         recolored_key = f'button_filled_{w}_{ow}|color_a_button'
-        output.alpha_composite(recolored_images[recolored_key], (267,115))
+        output.alpha_composite(recolored_images[recolored_key], (267,114))
 
     if B == 0:
         recolored_key = f'shoulder_{w}_{ow}|color_shoulder_right'
@@ -45,7 +45,6 @@ def make_input_display(raw_input_text, config_id, font, recolored_images, w, ow)
     if L == 0:
         recolored_key = f'shoulder_{w}_{ow}|color_shoulder_left'
         output.alpha_composite(recolored_images[recolored_key], (56,46))
-        
     elif L ==1 :
         recolored_key = f'shoulder_filled_{w}_{ow}|color_shoulder_left'
         output.alpha_composite(recolored_images[recolored_key], (56,46))
@@ -65,27 +64,27 @@ def make_input_display(raw_input_text, config_id, font, recolored_images, w, ow)
 
     if config_id.getboolean('draw_box'):
         recolored_key = f'analog_bg_part1_{w}_{ow}|color_analog'
-        output.paste(recolored_images[recolored_key], (155+34 + X * 3,97+20 - Y * 3))
+        output.paste(recolored_images[recolored_key], (155 + 34 + X * 3,97 + 20 - Y * 3))
         recolored_key = f'analog_bg_part2_{w}_{ow}|color_analog'
-        output.paste(recolored_images[recolored_key], (155+27 + X * 3,97+25 - Y * 3))
+        output.paste(recolored_images[recolored_key], (155 + 27 + X * 3,97 + 25 - Y * 3))
         recolored_key = f'analog_bg_part3_{w}_{ow}|color_analog'
-        output.paste(recolored_images[recolored_key], (155+21 + X * 3,97+31 - Y * 3))
+        output.paste(recolored_images[recolored_key], (155 + 21 + X * 3,97 + 31 - Y * 3))
         recolored_key = f'analog_bg_part4_{w}_{ow}|color_analog'
-        output.paste(recolored_images[recolored_key], (155+27 + X * 3,97+64 - Y * 3))
+        output.paste(recolored_images[recolored_key], (155 + 27 + X * 3,97 + 64 - Y * 3))
         recolored_key = f'analog_bg_part5_{w}_{ow}|color_analog'
-        output.paste(recolored_images[recolored_key], (155+34 + X * 3,97+70 - Y * 3))
+        output.paste(recolored_images[recolored_key], (155 + 34 + X * 3,97 + 70 - Y * 3))
 
     else:
         recolored_key = f'analog_part1_{w}_{ow}|color_analog'
-        output.paste(recolored_images[recolored_key], (155+34 + X * 3,97+20 - Y * 3))
+        output.paste(recolored_images[recolored_key], (155 + 34 + X * 3,97 + 20 - Y * 3))
         recolored_key = f'analog_part2_{w}_{ow}|color_analog'
-        output.paste(recolored_images[recolored_key], (155+27 + X * 3,97+25 - Y * 3))
+        output.paste(recolored_images[recolored_key], (155 + 27 + X * 3,97 + 25 - Y * 3))
         recolored_key = f'analog_part3_{w}_{ow}|color_analog'
-        output.paste(recolored_images[recolored_key], (155+21 + X * 3,97+31 - Y * 3))
+        output.paste(recolored_images[recolored_key], (155 + 21 + X * 3,97 + 31 - Y * 3))
         recolored_key = f'analog_part4_{w}_{ow}|color_analog'
-        output.paste(recolored_images[recolored_key], (155+27 + X * 3,97+64 - Y * 3))
+        output.paste(recolored_images[recolored_key], (155 + 27 + X * 3,97 + 64 - Y * 3))
         recolored_key = f'analog_part5_{w}_{ow}|color_analog'
-        output.paste(recolored_images[recolored_key], (155+34 + X * 3,97+70 - Y * 3))
+        output.paste(recolored_images[recolored_key], (155 + 34 + X * 3,97 + 70 - Y * 3))
 
     if config_id.getboolean('draw_stick_text'):
         stick_text_size = config_id.getint('stick_text_size')
@@ -104,12 +103,30 @@ def make_input_display(raw_input_text, config_id, font, recolored_images, w, ow)
     return output
 
 def add_input_display(image, frame_dict, config, font_folder, recolored_images, w, ow):
+    state, state_counter = int(frame_dict['state']), int(frame_dict['state_counter'])
     stick_text_size = config['Input display'].getint('stick_text_size')
     font = ImageFont.truetype(os.path.join(font_folder, 'CONSOLA.TTF'), stick_text_size)
     input_display = make_input_display(frame_dict['input'], config['Input display'], font, recolored_images, w, ow)
     top_left_text = config['Input display'].get('top_left').split(',')
     top_left = round(float(top_left_text[0])*image.width), round(float(top_left_text[1])*image.height)
 
-    input_display = common.fade_image_manually(input_display, frame_dict)
-    image.alpha_composite(input_display, top_left)
-    
+    if config['Encoding options'].get('animation_style') == 'fly_in':
+        ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
+        INPUT_DISPLAY_POSITION = (1 - float(top_left_text[1]))
+        height_correction =  round((INPUT_DISPLAY_POSITION - ITEM_POSITION)*image.height)
+        
+        if state == 4 and state_counter >= 192 or state == 1 and state_counter <= 10:
+            return Image.new('RGBA', (image.width, image.height), (0, 0, 0, 0))
+        
+        y_offset = common.fly_in(frame_dict, image.height)
+        if y_offset is not None:
+            if config['Input display'].get('fly_in_direction') == 'bottom':
+                image.alpha_composite(input_display, (top_left[0], image.height - height_correction - y_offset))
+            else: 
+                image.alpha_composite(input_display, (top_left[0], top_left[1] - round(ITEM_POSITION*image.height) + y_offset))
+        else:
+            image.alpha_composite(input_display, top_left)
+    else:
+        input_display = common.fade_image_manually(input_display, frame_dict)
+        image.alpha_composite(input_display, top_left)
+        

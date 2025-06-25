@@ -110,8 +110,9 @@ def add_mkw_font_line(id_layer, prefix, value, color, mkw_font_dict, anchor, mkw
     id_layer.alpha_composite(line_layer, (w,h))
 
 
-def add_infodisplay(image, id_dict, id_config, font_folder, mkw_font_dict):
-
+def add_infodisplay(image, id_dict, config, font_folder, mkw_font_dict):
+    id_config = config['Infodisplay']
+    state, state_counter = int(id_dict['state']), int(id_dict['state_counter'])
     infodisplay_layer = Image.new('RGBA', image.size, (0,0,0,0))
     ID = ImageDraw.Draw(infodisplay_layer)
     mkw_scaling = eval(id_config.get('mkw_font_scaling'))/12
@@ -130,8 +131,8 @@ def add_infodisplay(image, id_dict, id_config, font_folder, mkw_font_dict):
     anchor_style = id_config.get('anchor_style')
     invert = id_config.getboolean('invert_text')
 
-    i = 1
     if id_config.getboolean('enable_custom_text'):
+        i = 1
         while f'custom_text_{i}' in id_config:
             custom_text_anchor = id_config.get(f'custom_text_anchor_{i}').split(',')
             custom_anchor = round(float(custom_text_anchor[0])*image.width), round(float(custom_text_anchor[1])*image.height)
@@ -170,7 +171,24 @@ def add_infodisplay(image, id_dict, id_config, font_folder, mkw_font_dict):
                 
                 ID.text( (top_left[0]+offset, current_h), text, fill = color, font = font, stroke_width = outline_width, stroke_fill = outline_color)
                 current_h += spacing + font_size
-            
-    infodisplay_layer = common.fade_image_manually(infodisplay_layer, id_dict)
-    image.alpha_composite(infodisplay_layer, (0,0))
+    
+    if config['Encoding options'].get('animation_style') == 'fly_in':
+        ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
+        INFODISPLAY_POSITION = (1 - float(top_left_text[1]))
+        height_correction =  round((INFODISPLAY_POSITION - ITEM_POSITION)*image.height)
+        
+        if state == 4 and state_counter >= 192 or state == 1 and state_counter <= 10:
+            return Image.new('RGBA', (image.width, image.height), (0, 0, 0, 0))
+    
+        y_offset = common.fly_in(id_dict, image.height)
+        if y_offset is not None:
+            if id_config.get('fly_in_direction') == 'bottom':
+                image.alpha_composite(infodisplay_layer, (0, image.height - top_left[1] - height_correction - y_offset))
+            else:
+                image.alpha_composite(infodisplay_layer, (0, y_offset - round(ITEM_POSITION*image.height)))
+        else:
+            image.alpha_composite(infodisplay_layer, (0,0))
+    else:
+        infodisplay_layer = common.fade_image_manually(infodisplay_layer, id_dict)
+        image.alpha_composite(infodisplay_layer, (0,0))
     

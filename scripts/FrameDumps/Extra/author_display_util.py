@@ -34,7 +34,9 @@ def make_list_author(c, main_folder):
     return raw_author_list, result
                         
 
-def add_author_display(image, frame_dict, ad_config, main_folder, raw_author_list, author_dict):
+def add_author_display(image, frame_dict, config, main_folder, raw_author_list, author_dict):
+    ad_config = config['Author display']
+    state, state_counter = int(frame_dict['state']), int(frame_dict['state_counter'])
     author_display_layer = Image.new('RGBA', image.size, (0,0,0,0))
     ID = ImageDraw.Draw(author_display_layer)
     font_folder = os.path.join(main_folder, 'Fonts')
@@ -57,6 +59,22 @@ def add_author_display(image, frame_dict, ad_config, main_folder, raw_author_lis
             ID.text( (top_left[0], current_h), author_name, fill = unactive_text_color , font = font, stroke_width = outline_width, stroke_fill = outline_color)
         current_h += spacing + font_size
 
+    if config['Encoding options'].get('animation_style') == 'fly_in':
+        ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
+        AUTHOR_DISPLAY_POSITION = (1 - float(top_left_text[1]))
+        height_correction =  round((AUTHOR_DISPLAY_POSITION - ITEM_POSITION)*image.height)
         
-    author_display_layer = common.fade_image_manually(author_display_layer, frame_dict)
-    image.alpha_composite(author_display_layer, (0,0))
+        if state == 4 and state_counter >= 192 or state == 1 and state_counter <= 10:
+            return Image.new('RGBA', (image.width, image.height), (0, 0, 0, 0))
+    
+        y_offset = common.fly_in(frame_dict, image.height)
+        if y_offset is not None:
+            if ad_config.get('fly_in_direction') == 'bottom':
+                image.alpha_composite(author_display_layer, (0, image.height - top_left[1] - height_correction - y_offset))
+            else:
+                image.alpha_composite(author_display_layer, (0, y_offset - round(ITEM_POSITION*image.height)))
+        else:
+            image.alpha_composite(author_display_layer, (0,0))
+    else:
+        author_display_layer = common.fade_image_manually(author_display_layer, frame_dict)
+        image.alpha_composite(author_display_layer, (0,0))
