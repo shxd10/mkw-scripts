@@ -269,8 +269,10 @@ class CSVEditor(QMainWindow):
 
     def load_settings(self):
         settings = QSettings("ttk", "csv_editor")
-        self.move(settings.value("position"))
-        self.restoreGeometry(settings.value("geometry"))
+        pos = settings.value("position")
+        geom = settings.value("geometry")
+        self.move(pos) if pos is not None else self.move(100, 100)
+        self.restoreGeometry(geom) if geom is not None else self.resize(600, 600)
         
 
 if __name__ == "__main__":
