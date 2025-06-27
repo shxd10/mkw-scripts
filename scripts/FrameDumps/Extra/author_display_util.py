@@ -43,18 +43,19 @@ def add_author_display(image, frame_dict, ad_config, main_folder, raw_author_lis
     font_size =  ad_config.getint('font_size')
     font = ImageFont.truetype(os.path.join(font_folder, ad_config.get('font')), font_size)
     active_text_color = common.get_color(ad_config.get('active_text_color'))
-    unactive_text_color = common.get_color(ad_config.get('unactive_text_color'))
+    inactive_text_color = common.get_color(ad_config.get('inactive_text_color'))
     outline_width = ad_config.getint('outline_width')
-    outline_color = common.get_color(ad_config.get('outline_color'))
+    active_outline_color = common.get_color(ad_config.get('active_outline_color'))
+    inactive_outline_color = common.get_color(ad_config.get('inactive_outline_color'))
     curframe = int(frame_dict['frame_of_input'])
     spacing = 4
     current_h = top_left[1]
     
     for author_name in raw_author_list:
         if curframe in author_dict.keys() and author_name in author_dict[curframe]:
-            ID.text( (top_left[0], current_h), author_name, fill = active_text_color, font = font, stroke_width = outline_width, stroke_fill = outline_color)
+            ID.text( (top_left[0], current_h), author_name, fill = active_text_color, font = font, stroke_width = outline_width, stroke_fill = active_outline_color)
         else:
-            ID.text( (top_left[0], current_h), author_name, fill = unactive_text_color , font = font, stroke_width = outline_width, stroke_fill = outline_color)
+            ID.text( (top_left[0], current_h), author_name, fill = inactive_text_color , font = font, stroke_width = outline_width, stroke_fill = inactive_outline_color)
         current_h += spacing + font_size
 
         

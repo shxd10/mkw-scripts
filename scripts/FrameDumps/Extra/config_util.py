@@ -101,6 +101,7 @@ def create_config(filename):
     config.set('Infodisplay', 'show_speed_xyz', 'True')
     config.set('Infodisplay', 'text_speed_xyz', '. Speed')
     config.set('Infodisplay', 'color_speed_xyz', 'FF0000FF')
+
     
     config.set('Infodisplay', '\n#parameters for the XZ speed (delta position)')   
     config.set('Infodisplay', 'show_speed_xz', 'False')
@@ -244,11 +245,13 @@ def create_config(filename):
     config.set('Author display', '\n#color used for the text when the author has input on this frame')
     config.set('Author display', 'active_text_color', 'FFFFFFFF')#
     config.set('Author display', '\n#color used for the text when the author does not have input on this frame')
-    config.set('Author display', 'unactive_text_color', 'FFFFFF80')#
+    config.set('Author display', 'inactive_text_color', 'FFFFFF55')#
     config.set('Author display', '\n#outline width for the font used')
-    config.set('Author display', 'outline_width', '4')#
-    config.set('Author display', '\n#color of the outline width')
-    config.set('Author display', 'outline_color', '000000FF')#
+    config.set('Author display', 'outline_width', '3')#
+    config.set('Author display', '\n#color of the outline when the author has input on this frame')
+    config.set('Author display', 'active_outline_color', '000000FF')#
+    config.set('Author display', '\n#color of the outline when the author has input on this frame')
+    config.set('Author display', 'inactive_outline_color', '00000055')#
     
     with open(filename, 'w') as f:
         config.write(f)
