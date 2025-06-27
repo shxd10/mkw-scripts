@@ -90,9 +90,19 @@ def fade_image_manually(image, frame_dict):
         r,g,b,a = image.split()
         a = a.point(lambda x:x*alpha)
         image = Image.merge("RGBA", (r,g,b,a))
-    elif state ==4:
+    elif state == 4:
         alpha = 1 - min(state_counter/fade_out_len, 1)
         r,g,b,a = image.split()
         a = a.point(lambda x:x*alpha)
         image = Image.merge("RGBA", (r,g,b,a))
     return image
+
+def fly_in(frame_dict, height):
+    state, state_counter = int(frame_dict['state']), int(frame_dict['state_counter'])
+    if state == 1 and 10 < state_counter < 21:
+        DISPLACEMENT_RATIOS = [0.0757, 0.1549, 0.225, 0.4333, 0.382, 0.3402, 0.308, 0.284, 0.269, 0.265]
+        idx = state_counter - 11
+        return round(DISPLACEMENT_RATIOS[idx]*height)
+    return None
+    # OFFSETS = [109, 114, 101, 300, -74, -60, -46, -35, -21, -7]
+    # looks like 190f after state 4 it disappears

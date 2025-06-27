@@ -103,11 +103,11 @@ def transform_image(image, i=-1):
                 if config['Input display'].getboolean('show_input_display'):
                     input_display_util.add_input_display(image, frame_dict, config, font_folder, recolored_images, w, ow)
                 if config['Speed display'].getboolean('show_speed_display'):
-                    speed_display_util.add_speed_display(image, frame_dict, config['Speed display'])
+                    speed_display_util.add_speed_display(image, frame_dict, config)
                 if config['Infodisplay'].getboolean('show_infodisplay'):
-                    infodisplay_util.add_infodisplay(image, frame_dict, config['Infodisplay'], font_folder, scaled_fonts_dict)
+                    infodisplay_util.add_infodisplay(image, frame_dict, config, font_folder, scaled_fonts_dict)
                 if config['Author display'].getboolean('show_author_display'):
-                    author_display_util.add_author_display(image, frame_dict, config['Author display'], current_folder, raw_author_list, author_dict)
+                    author_display_util.add_author_display(image, frame_dict, config, current_folder, raw_author_list, author_dict)
 
     if os.path.isfile(os.path.join(extra_display_folder, 'RAM_data', f'{i}.rawtxt')):
         with open(os.path.join(extra_display_folder, 'RAM_data', f'{i}.rawtxt'), 'r') as f:
