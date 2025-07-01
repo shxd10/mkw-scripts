@@ -191,7 +191,7 @@ def main():
             color = color_dict[color_name]
             recolored_key = f"{img_key}|{color_name}"
             recolored_images[recolored_key] = common.color_white_part(base_img.copy(), color)
-    
+
     recolored_images['background'] = INPUT_DISPLAY_IMG['background']
     recolored_images['dpad_fill_0'] = INPUT_DISPLAY_IMG['dpad_fill_0']
     for x in range(1,5):
@@ -204,6 +204,7 @@ def main():
 
     i = 1
     scaling_set = {eval(config['Infodisplay'].get('mkw_font_scaling'))/12}
+    scaling_set.add(0.2375) # 2.85 / 12, this is for the pretty speedometer.
     while f'custom_text_{i}' in config['Infodisplay']:
         scaling_set.add(eval(config['Infodisplay'].get(f'custom_text_scaling_{i}'))/12)
         i += 1
