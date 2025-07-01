@@ -19,10 +19,10 @@ width_offset_table = {"A" : -8, "B" :-16, "C" :-21, "D" :-16,
                       "Q" :-12, "R" :-12, "S" :-16, "T" :-15,
                       "U" :-16, "V" :-12, "W" :-22, "X" :-22,
                       "Y" :-24, "Z" :-12, "+" :-32, "-" :-32,
-                      "/" :-32, ":" : -1, "." : -1, "0" : -1,
+                      "/" :-28, ":" : -1, "." : -1, "0" : -1,
                       "1" : -1, "2" : -1, "3" : -1, "4" : -1,
                       "5" : -1, "6" : -1, "7" : -1, "8" : -1,
-                      "9" : -1}
+                      "9" : -1, "&" :-32}
 
 
 def make_text_key(d, c, font, key):
@@ -78,10 +78,13 @@ def add_mkw_text(line_layer, x, text, mkw_font_dict, color, mkw_scaling):
 
 def add_mkw_font_line(id_layer, prefix, value, color, mkw_font_dict, anchor, mkw_scaling, anchor_style, invert_design):
     w,h = anchor
-    if value == None:
+    if value == None or prefix == None:
         custom_text_layer = Image.new('RGBA', (id_layer.size[0], round(mkw_scaling*336)+1), (0,0,0,0))
-        x = add_mkw_text(custom_text_layer, 0, prefix, mkw_font_dict, color, mkw_scaling)
-        id_layer.alpha_composite(custom_text_layer, (w-x//2,h))
+        x = add_mkw_text(custom_text_layer, 0, prefix or value, mkw_font_dict, color, mkw_scaling)
+        if anchor_style == 'right':
+            id_layer.alpha_composite(custom_text_layer, (w-x,h))  # for pretty speedometer
+        else:
+            id_layer.alpha_composite(custom_text_layer, (w-x//2,h)) # for custom text
         return None
     
     line_layer = Image.new('RGBA', (id_layer.size[0], round(mkw_scaling*336)+1), (0,0,0,0))
@@ -131,6 +134,19 @@ def add_infodisplay(image, id_dict, config, font_folder, mkw_font_dict):
     anchor_style = id_config.get('anchor_style')
     invert = id_config.getboolean('invert_text')
 
+
+    if id_config.get('pretty_speedometer_type') in ('xyz', 'xz', 'iv'):
+        custom_color = common.get_color(id_config.get('pretty_speedometer_color'))
+        if id_config.get('pretty_speedometer_type') == 'xyz':
+            val = (float(id_dict['spd_x']) ** 2 + float(id_dict['spd_y']) ** 2 + float(id_dict['spd_z']) ** 2)**0.5
+        elif id_config.get('pretty_speedometer_type') == 'xz': 
+            val = (float(id_dict['spd_x']) ** 2 + float(id_dict['spd_z']) ** 2)**0.5
+        else: 
+            val = (float(id_dict['iv_x']) ** 2 + float(id_dict['iv_y']) ** 2 + float(id_dict['iv_z']) ** 2)**0.5
+        value_text = f'{val:.2f}'
+        add_mkw_font_line(infodisplay_layer, None, value_text.upper(), custom_color, mkw_font_dict[0.2375], (round(0.933*image.width), round(0.86*image.height)), 0.2375, 'right', False)
+
+
     if id_config.getboolean('enable_custom_text'):
         i = 1
         while f'custom_text_{i}' in id_config:
@@ -139,8 +155,9 @@ def add_infodisplay(image, id_dict, config, font_folder, mkw_font_dict):
             custom_scaling = eval(id_config.get(f'custom_text_scaling_{i}'))/12
             custom_text = id_config.get(f'custom_text_{i}')
             custom_color = common.get_color(id_config.get(f'custom_text_color_{i}'))
-            add_mkw_font_line(infodisplay_layer, custom_text.upper(), None, custom_color, mkw_font_dict[custom_scaling], (custom_anchor[0], custom_anchor[1]), custom_scaling, 'right', False)
+            add_mkw_font_line(infodisplay_layer, custom_text.upper(), None, custom_color, mkw_font_dict[custom_scaling], (custom_anchor[0], custom_anchor[1]), custom_scaling, 'centered', False)
             i += 1
+    
     
     for key in id_config.keys():
         if len(key) > 4 and key[:4] == 'show' and key != 'show_infodisplay' and id_config.getboolean(key):
