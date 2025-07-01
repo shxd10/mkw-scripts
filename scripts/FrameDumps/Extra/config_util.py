@@ -101,12 +101,15 @@ def create_config(filename):
     config.set('Infodisplay', '\n#color of the outline of the font')
     config.set('Infodisplay', 'outline_color', '000000FF')#
     
+    config.set('Infodisplay', '\n#reimplements pretty speedometer using fade/fly in animations. set it to "xyz", "xz","iv"; or "off" to disable it.')
+    config.set('Infodisplay', 'pretty_speedometer_type', 'xyz')#
+    config.set('Infodisplay', 'pretty_speedometer_color', 'F2E622FF')#
+
     config.set('Infodisplay', '\n#parameters for the XYZ speed (delta position)')
     config.set('Infodisplay', 'show_speed_xyz', 'True')
     config.set('Infodisplay', 'text_speed_xyz', '. Speed')
     config.set('Infodisplay', 'color_speed_xyz', 'FF0000FF')
 
-    
     config.set('Infodisplay', '\n#parameters for the XZ speed (delta position)')   
     config.set('Infodisplay', 'show_speed_xz', 'False')
     config.set('Infodisplay', 'text_speed_xz', '. Speed XZ')
@@ -149,12 +152,12 @@ def create_config(filename):
 
     config.set('Infodisplay', '\n#display custom text using the mkw font. the anchors x axis will be the center of the text, the y axis will be the top')
     config.set('Infodisplay', 'enable_custom_text', 'False')
-    config.set('Infodisplay', '\n#to add multiple texts, copy these lines below and increment the number at the end of the parameters')
 
+    config.set('Infodisplay', '\n#to add multiple texts, copy these lines below and increment the number at the end of the parameters')
     config.set('Infodisplay', 'custom_text_anchor_1', '0.2.01')
     config.set('Infodisplay', 'custom_text_scaling_1', '2.5')
     config.set('Infodisplay', 'custom_text_1', 'your text here')
-    config.set('Infodisplay', 'custom_text_color_1', 'False')
+    config.set('Infodisplay', 'custom_text_color_1', 'F2E622FF')
     
     config.set('Infodisplay', '\n\n##############################################################################\n')
 
