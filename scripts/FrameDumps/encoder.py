@@ -221,22 +221,16 @@ def main():
 
     #Getting filenames
     with open(os.path.join(extra_display_folder, 'dump_info.txt'), 'r') as f:
-        temp = f.read().split('\n')
-        framedump_prefix = temp[0]
-        dump_folder = config['Path'].get('dump_folder')
-        if not os.path.isdir(dump_folder):
-            print('No framedump found')
-            print('Did you configure your dump path correctly in the config file ?')
-            input('Press ENTER to exit')
-            return False
+        ignore_list = f.read().split('\n')
+        dump_folder = ignore_list[0]
         framedump_folder = os.path.join(dump_folder, 'Frames')
         audiodump_folder = os.path.join(dump_folder, 'Audio')
 
     framedump_filenames = []
     for filename in os.listdir(framedump_folder):
-        if len(filename) > len(framedump_prefix) :
-            if filename[:len(framedump_prefix)] == framedump_prefix:
-                framedump_filenames.append(os.path.join(framedump_folder,filename))
+        filepath = os.path.join(framedump_folder, filename)
+        if not filepath in ignore_list:
+            framedump_filenames.append(filepath)
 
         
     framedump_clip = [moviepy.VideoFileClip(filename) for filename in framedump_filenames]
@@ -255,12 +249,20 @@ def main():
     #Add audio dump
     audio_dumper = config['Audio options'].get('audiodump_target')
     audio_source = []
-    if audio_dumper in ['dsp', 'DSP', 'Dsp']:        
-        audiodump_filename = os.path.join(audiodump_folder, framedump_prefix+'_dspdump.wav')        
+    audiodump_filename = None
+    
+    if audio_dumper in ['dsp', 'DSP', 'Dsp']:
+        for filename in os.listdir(audiodump_folder):
+            filepath = os.path.join(audiodump_folder, filename)
+            if not filepath in ignore_list and filepath[-len('_dspdump.wav'):] == '_dspdump.wav':
+                audiodump_filename = filepath
+                
     elif audio_dumper in ['dtk', 'DTK', 'Dtk']:
-        audiodump_filename = os.path.join(audiodump_folder, framedump_prefix+'_dtkdump.wav')
-    else:
-        audiodump_filename = None
+        for filename in os.listdir(audiodump_folder):
+            filepath = os.path.join(audiodump_folder, filename)
+            if not filepath in ignore_list and filepath[-len('_dtkdump.wav'):] == '_dtkdump.wav':
+                audiodump_filename = filepath  
+
     if audiodump_filename:        
         audio_source.append(moviepy.AudioFileClip(audiodump_filename))
         volume = config['Audio options'].getfloat('audiodump_volume')

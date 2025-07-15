@@ -12,14 +12,23 @@ import time
 
 def main():
 
-    #TODO : Save XFB setting
-
     global folder_path
     folder_path = os.path.join(utils.get_script_dir(), 'FrameDumps')
     #Create folders if needed
     Path(os.path.join(folder_path, 'RAM_data', 'nul.nul')).parent.mkdir(exist_ok=True, parents=True)
     for filename in os.listdir(os.path.join(folder_path, 'RAM_data')):
         os.remove(os.path.join(folder_path, 'RAM_data', filename))
+
+    #Create a list of every file in dumps
+    frame_dump_path = os.path.join(utils.get_dump_dir(), 'Frames')
+    audio_dump_path = os.path.join(utils.get_dump_dir(), 'Audio')
+
+    global ignore_file_list
+    ignore_file_list = []
+    for filename in os.listdir(frame_dump_path):
+        ignore_file_list.append(os.path.join(frame_dump_path, filename)+'\n')
+    for filename in os.listdir(audio_dump_path):
+        ignore_file_list.append(os.path.join(audio_dump_path, filename)+'\n')
     
     if not (utils.is_framedumping() or utils.is_audiodumping()):
         utils.start_framedump()
@@ -41,8 +50,6 @@ def main():
 @event.on_scriptend
 def scriptend(id_):
 
-    #TODO : Resotre XFB setting
-
     print(framedump_prefix)
     if utils.get_script_id() == id_:
         if (utils.is_framedumping() and utils.is_audiodumping()):
@@ -53,7 +60,7 @@ def scriptend(id_):
             ex_script_path = os.path.join(folder_path, 'encoder.py')
             ex_info_path = os.path.join(folder_path, 'dump_info.txt')
             with open(ex_info_path, 'w') as f:
-                f.write(f'{framedump_prefix}\n')
+                f.writelines([utils.get_dump_dir()+'\n'] + ignore_file_list)
             ex.start_external_script(ex_script_path, False, False)
 
 def frame_text():
