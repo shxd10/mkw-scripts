@@ -112,9 +112,9 @@ PAL_POS_ADDR = {
     0x80597098 : "Collision 2", #Corner ?
     0x805970a4 : "Collision 2",
     0x805970b0 : "Collision 2",
-    0x80597490 : "RFH ?",
-    0x805974a0 : "RFH ?",
-    0x805974b0 : "RFH ?",
+    0x80597490 : "Vehicle compensation",
+    0x805974a0 : "Vehicle compensation",
+    0x805974b0 : "Vehicle compensation",
     0x80596e2c : "Collision Object",  #tree in rPB for example, or wigglers, or pipes
     0x80596e3c : "Collision Object",
     0x80596e4c : "Collision Object",
