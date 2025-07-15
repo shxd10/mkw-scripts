@@ -28,12 +28,15 @@ def on_state_load(fromSlot: bool, slot: int):
 
     global maxLap
     maxLap = 0
-    
+
+    global text
     if memory.is_memory_accessible() and mkw_utils.extended_race_state() >= 0:
         Angle_History.update()
         RaceComp_History.update()
         maxLap = int(RaceManagerPlayer.race_completion_max(0))
         text = create_infodisplay(c, RaceComp_History, Angle_History)
+    else:
+        text = ''
         
 
 
@@ -113,4 +116,5 @@ def on_frame_advance():
         RaceComp_History.clear()
         Angle_History.clear()
         Pos_History.clear()
+        text = ''
 
