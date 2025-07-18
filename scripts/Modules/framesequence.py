@@ -1,3 +1,5 @@
+from dolphin import gui
+
 from pathlib import Path
 from typing import List, Optional
 from .mkw_classes import KartInput
@@ -230,6 +232,7 @@ def decompressInputList(compressedInputList):
     prevInputRaw = Frame(["0"]*8)
     prevInputCompressed = [0,0,0,0,0,0,-1]
     rawInputList = []
+    line = 1
     for compressedInput in compressedInputList:
         accel = compressedInput[0]
         brake = int(compressedInput[1]>0)
@@ -252,9 +255,14 @@ def decompressInputList(compressedInputList):
             drift = compressedInput[6]
 
         rawInput = Frame(list(map(str, (accel, brake, item, drift, brakedrift, X, Y, dpad))))
+        if not rawInput.valid:
+            print(f'Error in the csv file at line {line}')
+            gui.add_osd_message(f'Error in the csv file at line {line}')
+            return rawInputList
         prevInputRaw = rawInput
         prevInputCompressed = compressedInput
         rawInputList.append(rawInput)
+        line += 1
     return rawInputList
 
 
@@ -337,10 +345,21 @@ class FrameSequence:
         self.frames.clear()
         try:
             with open(self.filename, 'r') as f:
-                reader = csv.reader(f)
                 compressedInputList = []
-                for row in reader:
-                    compressedInputList.append(list(map(int,row)))
+                line = 1
+                for row in f.readlines():
+                    args = row.strip('\n').split(',')
+                    if len(args) not in [6, 7]:
+                        print(f'Error in the csv file at line {line}')
+                        gui.add_osd_message(f'Error in the csv file at line {line}')
+                        return
+                    try:
+                        compressedInputList.append(list(map(int,args)))
+                    except ValueError:
+                        print(f'Error in the csv file at line {line}')
+                        gui.add_osd_message(f'Error in the csv file at line {line}')
+                        return
+                    line += 1
             for frame in decompressInputList(compressedInputList):
                 self.frames.append(frame)
         except IOError:
