@@ -104,10 +104,10 @@ def transform_image(image, i=-1):
                     input_display_util.add_input_display(image, frame_dict, config, font_folder, recolored_images, w, ow)
                 if config['Speed display'].getboolean('show_speed_display'):
                     speed_display_util.add_speed_display(image, frame_dict, config)
-                if config['Infodisplay'].getboolean('show_infodisplay'):
-                    infodisplay_util.add_infodisplay(image, frame_dict, config, font_folder, scaled_fonts_dict)
                 if config['Author display'].getboolean('show_author_display'):
                     author_display_util.add_author_display(image, frame_dict, config, current_folder, raw_author_list, author_dict)
+                for infodisplay_name in infodisplay_layers:
+                    infodisplay_util.add_infodisplay(image, frame_dict, config[infodisplay_name], font_folder, scaled_fonts_dict)
 
     if os.path.isfile(os.path.join(extra_display_folder, 'RAM_data', f'{i}.rawtxt')):
         with open(os.path.join(extra_display_folder, 'RAM_data', f'{i}.rawtxt'), 'r') as f:
@@ -201,13 +201,23 @@ def main():
     global raw_author_list, author_dict
     raw_author_list, author_dict = author_display_util.make_list_author(config['Author display'], extra_display_folder)
 
+    #Parse config to see all needed infodisplay layers
+    global infodisplay_layers
+    infodisplay_layers = []
+    for section in config.sections():
+        if len(section) >= len('Infodisplay') and section[:len('Infodisplay')] == 'Infodisplay':
+            if config[section].getboolean("show_infodisplay"):
+                infodisplay_layers.append(section)
+
 
     i = 1
-    scaling_set = {eval(config['Infodisplay'].get('mkw_font_scaling'))/12}
-    scaling_set.add(0.2375) # 2.85 / 12, this is for the pretty speedometer.
+    scaling_set = []
+    scaling_set.append(0.2375) # 2.85 / 12, this is for the pretty speedometer.
     while f'custom_text_{i}' in config['Infodisplay']:
-        scaling_set.add(eval(config['Infodisplay'].get(f'custom_text_scaling_{i}'))/12)
+        scaling_set.append(eval(config['Infodisplay'].get(f'custom_text_scaling_{i}'))/12)
         i += 1
+    for id_name in infodisplay_layers:
+        scaling_set.append(eval(config[id_name].get('mkw_font_scaling'))/12)
 
     global scaled_fonts_dict
     scaled_fonts_dict = {}
