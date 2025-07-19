@@ -110,7 +110,10 @@ def add_input_display(image, frame_dict, config, font_folder, recolored_images, 
     top_left_text = config['Input display'].get('top_left').split(',')
     top_left = round(float(top_left_text[0])*image.width), round(float(top_left_text[1])*image.height)
 
-    if config['Encoding options'].get('animation_style') == 'fly_in':
+    if config['Input display'].getboolean('fade_animation'):
+        input_display = common.fade_image_manually(input_display, frame_dict)
+        
+    if config['Input display'].getboolean('fly_animation'):
         ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
         INPUT_DISPLAY_POSITION = (1 - float(top_left_text[1]))
         height_correction =  round((INPUT_DISPLAY_POSITION - ITEM_POSITION)*image.height)
@@ -127,6 +130,5 @@ def add_input_display(image, frame_dict, config, font_folder, recolored_images, 
         else:
             image.alpha_composite(input_display, top_left)
     else:
-        input_display = common.fade_image_manually(input_display, frame_dict)
         image.alpha_composite(input_display, top_left)
         

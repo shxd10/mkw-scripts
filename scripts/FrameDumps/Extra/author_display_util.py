@@ -60,7 +60,11 @@ def add_author_display(image, frame_dict, config, main_folder, raw_author_list, 
             ID.text( (top_left[0], current_h), author_name, fill = inactive_text_color , font = font, stroke_width = outline_width, stroke_fill = inactive_outline_color)
         current_h += spacing + font_size
 
-    if config['Encoding options'].get('animation_style') == 'fly_in':
+
+    if ad_config.getboolean('fade_animation'):
+        author_display_layer = common.fade_image_manually(author_display_layer, frame_dict)
+        
+    if ad_config.getboolean('fly_animation'):
         ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
         AUTHOR_DISPLAY_POSITION = (1 - float(top_left_text[1]))
         height_correction =  round((AUTHOR_DISPLAY_POSITION - ITEM_POSITION)*image.height)
@@ -77,5 +81,4 @@ def add_author_display(image, frame_dict, config, main_folder, raw_author_list, 
         else:
             image.alpha_composite(author_display_layer, (0,0))
     else:
-        author_display_layer = common.fade_image_manually(author_display_layer, frame_dict)
         image.alpha_composite(author_display_layer, (0,0))

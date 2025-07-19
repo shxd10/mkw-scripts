@@ -124,7 +124,10 @@ def add_speed_display(im, d, config):
     top_left_text = c.get('top_left').split(',')
     top_left = round(float(top_left_text[0])*im.width), round(float(top_left_text[1])*im.height)
 
-    if config['Encoding options'].get('animation_style') == 'fly_in':
+    if c.getboolean('fade_animation'):
+        speed_display_image = common.fade_image_manually(speed_display_image, d)
+        
+    if c.getboolean('fly_animation'):
         fly_in_mode = c.get('fly_in_')
         ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
         SPEED_DISPLAY_POSITION = (1 - float(top_left_text[1]))
@@ -142,6 +145,5 @@ def add_speed_display(im, d, config):
         else:
             im.alpha_composite(speed_display_image, top_left)
     else:
-        speed_display_image = common.fade_image_manually(speed_display_image, d)
         im.alpha_composite(speed_display_image, top_left)
     

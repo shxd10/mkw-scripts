@@ -113,8 +113,7 @@ def add_mkw_font_line(id_layer, prefix, value, color, mkw_font_dict, anchor, mkw
     id_layer.alpha_composite(line_layer, (w,h))
 
 
-def add_infodisplay(image, id_dict, config, font_folder, mkw_font_dict):
-    id_config = config['Infodisplay']
+def add_infodisplay(image, id_dict, id_config, font_folder, mkw_font_dict):
     state, state_counter = int(id_dict['state']), int(id_dict['state_counter'])
     infodisplay_layer = Image.new('RGBA', image.size, (0,0,0,0))
     ID = ImageDraw.Draw(infodisplay_layer)
@@ -188,8 +187,11 @@ def add_infodisplay(image, id_dict, config, font_folder, mkw_font_dict):
                 
                 ID.text( (top_left[0]+offset, current_h), text, fill = color, font = font, stroke_width = outline_width, stroke_fill = outline_color)
                 current_h += spacing + font_size
+                
+    if id_config.getboolean('fade_animation'):
+        infodisplay_layer = common.fade_image_manually(infodisplay_layer, id_dict)
     
-    if config['Encoding options'].get('animation_style') == 'fly_in':
+    if id_config.getboolean('fly_animation'):
         ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
         INFODISPLAY_POSITION = (1 - float(top_left_text[1]))
         height_correction =  round((INFODISPLAY_POSITION - ITEM_POSITION)*image.height)
@@ -206,6 +208,5 @@ def add_infodisplay(image, id_dict, config, font_folder, mkw_font_dict):
         else:
             image.alpha_composite(infodisplay_layer, (0,0))
     else:
-        infodisplay_layer = common.fade_image_manually(infodisplay_layer, id_dict)
         image.alpha_composite(infodisplay_layer, (0,0))
     
