@@ -277,6 +277,28 @@ def create_config(filename):
     config.set('Author display', 'active_outline_color', '000000FF')#
     config.set('Author display', '\n#color of the outline when the author has input on this frame')
     config.set('Author display', 'inactive_outline_color', '00000055')#
+    config.set('Author display', '\n\n##############################################################################\n')
+
+    config.add_section('Extra display')
+    config.set('Extra display', '\n#this is a debug feature, ignore it\n')
+    config.set('Extra display', '\n#draw the Extra display')
+    config.set('Extra display', 'show_extra_display', 'True')#
+    config.set('Extra display', '\n#Font filename. You must put the font in the Fonts folder.')
+    config.set('Extra display', 'font', 'CONSOLA.TTF')#
+    config.set('Extra display', '\n#font size in pixel on the final output resolution for fonts other than the mkw font.')
+    config.set('Extra display', 'font_size', '48')#
+    config.set('Extra display', '\n#Scaling factor for MKW Font if used')
+    config.set('Extra display', 'mkw_font_scaling', '3')#
+    config.set('Extra display', '\n#vertical spacing in pixel between lines')
+    config.set('Extra display', 'spacing', '4')#
+    config.set('Extra display', '\n#Anchor for Extra display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
+    config.set('Extra display', 'anchor', '0.05,0.05')#
+    config.set('Extra display', '\n#Choice "left", "middle", "right"')
+    config.set('Extra display', 'anchor_style', 'middle')#
+    config.set('Extra display', '\n#size of the outline of the font in pixel')
+    config.set('Extra display', 'outline_width', '3')#
+    config.set('Extra display', '\n#color of the outline of the font')
+    config.set('Extra display', 'outline_color', '000000FF')#
     
     with open(filename, 'w') as f:
         config.write(f)
