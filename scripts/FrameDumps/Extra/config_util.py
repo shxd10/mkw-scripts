@@ -14,11 +14,9 @@ import configparser
 
 def create_config(filename):
     config = configparser.ConfigParser(allow_no_value=True)
+    config.optionxform = str
     config.add_section('README')
     config.set('README', 'Visit : https://docs.google.com/document/d/e/2PACX-1vTXoEveB_1MZ3WizOpEWvZ-oyJMgg-3pRLGiNu-5vo853BMcrr8RY69REcTsheurI9qS2kfqrx1BZkT/pub\n\n' )
-    config.add_section('Path')
-    config.set('Path', '#Enter the full path of your Dump folder.\n#Usually something like "C://path_to//Dolphin/User/Dump"')
-    config.set('Path', 'dump_folder', r'C://path_to//Dolphin/User/Dump') 
     
     config.add_section('Encoding options')
     config.set('Encoding options', '\n#Valid options are "normal", "discord", "youtube"')
@@ -86,6 +84,12 @@ def create_config(filename):
     config.set('Infodisplay', 'mkw_font_scaling', '3')#
     config.set('Infodisplay', '\n#vertical spacing in pixel between lines')
     config.set('Infodisplay', 'spacing', '4')#
+    config.set('Infodisplay', '\n#put a fade in and fade out animation to the infodisplay')
+    config.set('Infodisplay', 'fade_animation', 'True')#
+    config.set('Infodisplay', '\n#put a fly in and fly out animation to the infodisplay')
+    config.set('Infodisplay', 'fly_animation', 'False')#
+    config.set('Infodisplay', '\n#Choose to have the Info Display fly in from the top or bottom. (when fly_animation is enabled)')
+    config.set('Infodisplay', 'fly_in_direction', 'bottom')#
     config.set('Infodisplay', '\n#Anchor for infodisplay text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Infodisplay', 'anchor', '0.2,0.1')#
     config.set('Infodisplay', '\n#Choice "left", "middle", "right"')
@@ -97,11 +101,15 @@ def create_config(filename):
     config.set('Infodisplay', '\n#color of the outline of the font')
     config.set('Infodisplay', 'outline_color', '000000FF')#
     
+    config.set('Infodisplay', '\n#reimplements pretty speedometer using fade/fly in animations. set it to "xyz", "xz","iv"; or "off" to disable it.')
+    config.set('Infodisplay', 'pretty_speedometer_type', 'off')#Might be deleted later, since we can have several infodisplay, which gives more options
+    config.set('Infodisplay', 'pretty_speedometer_color', 'F2E622FF')#
+
     config.set('Infodisplay', '\n#parameters for the XYZ speed (delta position)')
     config.set('Infodisplay', 'show_speed_xyz', 'True')
     config.set('Infodisplay', 'text_speed_xyz', '. Speed')
     config.set('Infodisplay', 'color_speed_xyz', 'FF0000FF')
-    
+
     config.set('Infodisplay', '\n#parameters for the XZ speed (delta position)')   
     config.set('Infodisplay', 'show_speed_xz', 'False')
     config.set('Infodisplay', 'text_speed_xz', '. Speed XZ')
@@ -144,18 +152,24 @@ def create_config(filename):
 
     config.set('Infodisplay', '\n#display custom text using the mkw font. the anchors x axis will be the center of the text, the y axis will be the top')
     config.set('Infodisplay', 'enable_custom_text', 'False')
-    config.set('Infodisplay', '\n#to add multiple texts, copy these lines below and increment the number at the end of the parameters')
 
+    config.set('Infodisplay', '\n#to add multiple texts, copy these lines below and increment the number at the end of the parameters')
     config.set('Infodisplay', 'custom_text_anchor_1', '0.2.01')
     config.set('Infodisplay', 'custom_text_scaling_1', '2.5')
     config.set('Infodisplay', 'custom_text_1', 'your text here')
-    config.set('Infodisplay', 'custom_text_color_1', 'False')
+    config.set('Infodisplay', 'custom_text_color_1', 'F2E622FF')
     
     config.set('Infodisplay', '\n\n##############################################################################\n')
 
     config.add_section('Speed display')
     config.set('Speed display', '\n#draw the speed display')
     config.set('Speed display', 'show_speed_display', 'True')
+    config.set('Speed display', '\n#put a fade in and fade out animation to the speed display')
+    config.set('Speed display', 'fade_animation', 'True')#
+    config.set('Speed display', '\n#put a fly in and fly out animation to the speed display')
+    config.set('Speed display', 'fly_animation', 'False')#
+    config.set('Speed display', '\n#Choose to have the Speed Display fly in from the top or bottom. (when fly_animation is enabled)')
+    config.set('Speed display', 'fly_in_direction', 'bottom')#
     config.set('Speed display', '\n#Top left anchor for speed display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Speed display', 'top_left', '0.7, 0.5')#
     config.set('Speed display', '\n#Activating this will make the circle rotate with your facing yaw, so it always face up')
@@ -201,6 +215,12 @@ def create_config(filename):
     config.add_section('Input display')
     config.set('Input display', '\n#draw the input display')
     config.set('Input display', 'show_input_display', 'True')
+    config.set('Input display', '\n#put a fade in and fade out animation to the input display')
+    config.set('Input display', 'fade_animation', 'True')#
+    config.set('Input display', '\n#put a fly in and fly out animation to the input display')
+    config.set('Input display', 'fly_animation', 'False')#
+    config.set('Input display', '\n#Choose to have the Input Display fly in from the top or bottom. (when fly_animation is enabled)')
+    config.set('Input display', 'fly_in_direction', 'bottom')#
     config.set('Input display', '\n#Top left anchor for input display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Input display', 'top_left', '0.03,0.7')#
     config.set('Input display', '\n#width options equivalent to pyrkg and other input display tools. image quality has also been improved')
@@ -233,6 +253,12 @@ def create_config(filename):
     config.add_section('Author display')
     config.set('Author display', '\n#draw the author display')
     config.set('Author display', 'show_author_display', 'False')
+    config.set('Author display', '\n#put a fade in and fade out animation to the author display')
+    config.set('Author display', 'fade_animation', 'True')#
+    config.set('Author display', '\n#put a fly in and fly out animation to the author display')
+    config.set('Author display', 'fly_animation', 'False')#
+    config.set('Author display', '\n#Choose to have the Author Display fly in from the top or bottom. (when fly_animation is enabled)')
+    config.set('Author display', 'fly_in_direction', 'top')#
     config.set('Author display', '\n#Top left anchor for author display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
     config.set('Author display', 'top_left', '0.1,0.4')#   
     config.set('Author display', '\n#Must be a file in the same folder as this config file. Mandatory for the author display to work')
@@ -244,11 +270,35 @@ def create_config(filename):
     config.set('Author display', '\n#color used for the text when the author has input on this frame')
     config.set('Author display', 'active_text_color', 'FFFFFFFF')#
     config.set('Author display', '\n#color used for the text when the author does not have input on this frame')
-    config.set('Author display', 'unactive_text_color', 'FFFFFF80')#
+    config.set('Author display', 'inactive_text_color', 'FFFFFF55')#
     config.set('Author display', '\n#outline width for the font used')
-    config.set('Author display', 'outline_width', '4')#
-    config.set('Author display', '\n#color of the outline width')
-    config.set('Author display', 'outline_color', '000000FF')#
+    config.set('Author display', 'outline_width', '3')#
+    config.set('Author display', '\n#color of the outline when the author has input on this frame')
+    config.set('Author display', 'active_outline_color', '000000FF')#
+    config.set('Author display', '\n#color of the outline when the author has input on this frame')
+    config.set('Author display', 'inactive_outline_color', '00000055')#
+    config.set('Author display', '\n\n##############################################################################\n')
+
+    config.add_section('Extra display')
+    config.set('Extra display', '\n#this is a debug feature, ignore it\n')
+    config.set('Extra display', '\n#draw the Extra display')
+    config.set('Extra display', 'show_extra_display', 'True')#
+    config.set('Extra display', '\n#Font filename. You must put the font in the Fonts folder.')
+    config.set('Extra display', 'font', 'CONSOLA.TTF')#
+    config.set('Extra display', '\n#font size in pixel on the final output resolution for fonts other than the mkw font.')
+    config.set('Extra display', 'font_size', '48')#
+    config.set('Extra display', '\n#Scaling factor for MKW Font if used')
+    config.set('Extra display', 'mkw_font_scaling', '3')#
+    config.set('Extra display', '\n#vertical spacing in pixel between lines')
+    config.set('Extra display', 'spacing', '4')#
+    config.set('Extra display', '\n#Anchor for Extra display text. 0,0 is top left, 1,1 is bottom right, 0.5,0.5 is middle of the screen')
+    config.set('Extra display', 'anchor', '0.05,0.05')#
+    config.set('Extra display', '\n#Choice "left", "middle", "right"')
+    config.set('Extra display', 'anchor_style', 'middle')#
+    config.set('Extra display', '\n#size of the outline of the font in pixel')
+    config.set('Extra display', 'outline_width', '3')#
+    config.set('Extra display', '\n#color of the outline of the font')
+    config.set('Extra display', 'outline_color', '000000FF')#
     
     with open(filename, 'w') as f:
         config.write(f)

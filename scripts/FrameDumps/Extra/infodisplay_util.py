@@ -19,10 +19,10 @@ width_offset_table = {"A" : -8, "B" :-16, "C" :-21, "D" :-16,
                       "Q" :-12, "R" :-12, "S" :-16, "T" :-15,
                       "U" :-16, "V" :-12, "W" :-22, "X" :-22,
                       "Y" :-24, "Z" :-12, "+" :-32, "-" :-32,
-                      "/" :-32, ":" : -1, "." : -1, "0" : -1,
+                      "/" :-28, ":" : -1, "." : -1, "0" : -1,
                       "1" : -1, "2" : -1, "3" : -1, "4" : -1,
                       "5" : -1, "6" : -1, "7" : -1, "8" : -1,
-                      "9" : -1}
+                      "9" : -1, "&" :-32}
 
 
 def make_text_key(d, c, font, key):
@@ -78,10 +78,13 @@ def add_mkw_text(line_layer, x, text, mkw_font_dict, color, mkw_scaling):
 
 def add_mkw_font_line(id_layer, prefix, value, color, mkw_font_dict, anchor, mkw_scaling, anchor_style, invert_design):
     w,h = anchor
-    if value == None:
+    if value == None or prefix == None:
         custom_text_layer = Image.new('RGBA', (id_layer.size[0], round(mkw_scaling*336)+1), (0,0,0,0))
-        x = add_mkw_text(custom_text_layer, 0, prefix, mkw_font_dict, color, mkw_scaling)
-        id_layer.alpha_composite(custom_text_layer, (w-x//2,h))
+        x = add_mkw_text(custom_text_layer, 0, prefix or value, mkw_font_dict, color, mkw_scaling)
+        if anchor_style == 'right':
+            id_layer.alpha_composite(custom_text_layer, (w-x,h))  # for pretty speedometer
+        else:
+            id_layer.alpha_composite(custom_text_layer, (w-x//2,h)) # for custom text
         return None
     
     line_layer = Image.new('RGBA', (id_layer.size[0], round(mkw_scaling*336)+1), (0,0,0,0))
@@ -111,7 +114,7 @@ def add_mkw_font_line(id_layer, prefix, value, color, mkw_font_dict, anchor, mkw
 
 
 def add_infodisplay(image, id_dict, id_config, font_folder, mkw_font_dict):
-
+    state, state_counter = int(id_dict['state']), int(id_dict['state_counter'])
     infodisplay_layer = Image.new('RGBA', image.size, (0,0,0,0))
     ID = ImageDraw.Draw(infodisplay_layer)
     mkw_scaling = eval(id_config.get('mkw_font_scaling'))/12
@@ -130,16 +133,30 @@ def add_infodisplay(image, id_dict, id_config, font_folder, mkw_font_dict):
     anchor_style = id_config.get('anchor_style')
     invert = id_config.getboolean('invert_text')
 
-    i = 1
+
+    if id_config.get('pretty_speedometer_type') in ('xyz', 'xz', 'iv'):
+        custom_color = common.get_color(id_config.get('pretty_speedometer_color'))
+        if id_config.get('pretty_speedometer_type') == 'xyz':
+            val = (float(id_dict['spd_x']) ** 2 + float(id_dict['spd_y']) ** 2 + float(id_dict['spd_z']) ** 2)**0.5
+        elif id_config.get('pretty_speedometer_type') == 'xz': 
+            val = (float(id_dict['spd_x']) ** 2 + float(id_dict['spd_z']) ** 2)**0.5
+        else: 
+            val = (float(id_dict['iv_x']) ** 2 + float(id_dict['iv_y']) ** 2 + float(id_dict['iv_z']) ** 2)**0.5
+        value_text = f'{val:.2f}'
+        add_mkw_font_line(infodisplay_layer, None, value_text.upper(), custom_color, mkw_font_dict[0.2375], (round(0.933*image.width), round(0.86*image.height)), 0.2375, 'right', False)
+
+
     if id_config.getboolean('enable_custom_text'):
+        i = 1
         while f'custom_text_{i}' in id_config:
             custom_text_anchor = id_config.get(f'custom_text_anchor_{i}').split(',')
             custom_anchor = round(float(custom_text_anchor[0])*image.width), round(float(custom_text_anchor[1])*image.height)
             custom_scaling = eval(id_config.get(f'custom_text_scaling_{i}'))/12
             custom_text = id_config.get(f'custom_text_{i}')
             custom_color = common.get_color(id_config.get(f'custom_text_color_{i}'))
-            add_mkw_font_line(infodisplay_layer, custom_text.upper(), None, custom_color, mkw_font_dict[custom_scaling], (custom_anchor[0], custom_anchor[1]), custom_scaling, 'right', False)
+            add_mkw_font_line(infodisplay_layer, custom_text.upper(), None, custom_color, mkw_font_dict[custom_scaling], (custom_anchor[0], custom_anchor[1]), custom_scaling, 'centered', False)
             i += 1
+    
     
     for key in id_config.keys():
         if len(key) > 4 and key[:4] == 'show' and key != 'show_infodisplay' and id_config.getboolean(key):
@@ -170,7 +187,26 @@ def add_infodisplay(image, id_dict, id_config, font_folder, mkw_font_dict):
                 
                 ID.text( (top_left[0]+offset, current_h), text, fill = color, font = font, stroke_width = outline_width, stroke_fill = outline_color)
                 current_h += spacing + font_size
-            
-    infodisplay_layer = common.fade_image_manually(infodisplay_layer, id_dict)
-    image.alpha_composite(infodisplay_layer, (0,0))
+                
+    if id_config.getboolean('fade_animation'):
+        infodisplay_layer = common.fade_image_manually(infodisplay_layer, id_dict)
+    
+    if id_config.getboolean('fly_animation'):
+        ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
+        INFODISPLAY_POSITION = (1 - float(top_left_text[1]))
+        height_correction =  round((INFODISPLAY_POSITION - ITEM_POSITION)*image.height)
+        
+        if state == 4 and state_counter >= 192 or state == 1 and state_counter <= 10:
+            return Image.new('RGBA', (image.width, image.height), (0, 0, 0, 0))
+    
+        y_offset = common.fly_in(id_dict, image.height)
+        if y_offset is not None:
+            if id_config.get('fly_in_direction') == 'bottom':
+                image.alpha_composite(infodisplay_layer, (0, image.height - top_left[1] - height_correction - y_offset))
+            else:
+                image.alpha_composite(infodisplay_layer, (0, y_offset - round(ITEM_POSITION*image.height)))
+        else:
+            image.alpha_composite(infodisplay_layer, (0,0))
+    else:
+        image.alpha_composite(infodisplay_layer, (0,0))
     
