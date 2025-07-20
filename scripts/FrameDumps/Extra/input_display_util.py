@@ -90,8 +90,8 @@ def make_input_display(raw_input_text, config_id, font, recolored_images, w, ow)
     if config_id.getboolean('draw_stick_text'):
         stick_text_size = config_id.getint('stick_text_size')
         ID = ImageDraw.Draw(output)
-        text = f'({"+" if X>0 else ("  " if X==0 else '')}{X},{"+" if Y>0 else ("  " if Y==0 else '')}{Y})'
-        ID.text((133 + round(36 - stick_text_size)*scaling, 198 + (36 - stick_text_size)//scaling), text, font = font, fill = color_stick_text, stroke_width = 3 if ow >= 3 else 2, stroke_fill = (0,0,0))
+        text = f'({"+" if X>0 else (" " if X==0 else '')}{X},{"+" if Y>0 else (" " if Y==0 else '')}{Y})'
+        ID.text((132 + round(36 - stick_text_size)*scaling, 198 + (36 - stick_text_size)//scaling), text, font = font, fill = color_stick_text, stroke_width = 3 if ow >= 3 else 2, stroke_fill = (0,0,0))
 
     if scaling != 1.0:
         resample_filter = common.get_resampler(config_id.get('scaling_option'))
