@@ -124,24 +124,31 @@ def add_speed_display(im, d, config):
     top_left_text = c.get('top_left').split(',')
     top_left = round(float(top_left_text[0])*im.width), round(float(top_left_text[1])*im.height)
 
+
     if c.getboolean('fade_animation'):
         speed_display_image = common.fade_image_manually(speed_display_image, d)
         
+        
     if c.getboolean('fly_animation'):
-        fly_in_mode = c.get('fly_in_')
-        ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
+
+        if state == 1 and state_counter <= 10:
+            return None
+        
+        offset = common.fly_in(d, im.height)
+        
+        if state == 4 and 192 < state_counter < 202:
+            im.alpha_composite(speed_display_image, (round(top_left[0] - im.width*offset), top_left[1]))
+            return None
+        
+        ITEM_POSITION = 381/1440
         SPEED_DISPLAY_POSITION = (1 - float(top_left_text[1]))
         height_correction =  round((SPEED_DISPLAY_POSITION - ITEM_POSITION)*im.height)
-        
-        if state == 4 and state_counter >= 192 or state == 1 and state_counter <= 10:
-            return Image.new('RGBA', (im.width, im.height), (0, 0, 0, 0))
-        
-        y_offset = common.fly_in(d, im.height)
-        if y_offset is not None:
+
+        if offset is not None:
             if c.get('fly_in_direction') == 'bottom':
-                im.alpha_composite(speed_display_image, (top_left[0], im.height - height_correction - y_offset))
+                im.alpha_composite(speed_display_image, (top_left[0], im.height - height_correction - offset))
             else:
-                im.alpha_composite(speed_display_image, (top_left[0], top_left[1] - round(ITEM_POSITION*im.height) + y_offset))
+                im.alpha_composite(speed_display_image, (top_left[0], top_left[1] - round(ITEM_POSITION*im.height) + offset))
         else:
             im.alpha_composite(speed_display_image, top_left)
     else:

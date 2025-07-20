@@ -91,7 +91,7 @@ def make_input_display(raw_input_text, config_id, font, recolored_images, w, ow)
         stick_text_size = config_id.getint('stick_text_size')
         ID = ImageDraw.Draw(output)
         text = f'({"+" if X>0 else (" " if X==0 else '')}{X},{"+" if Y>0 else (" " if Y==0 else '')}{Y})'
-        ID.text((146 + round(36 - stick_text_size)*scaling, 198 + (36 - stick_text_size)//scaling), text, font = font, fill = color_stick_text, stroke_width = 3 if ow >= 3 else 2, stroke_fill = (0,0,0))
+        ID.text((132 + round(36 - stick_text_size)*scaling, 198 + (36 - stick_text_size)//scaling), text, font = font, fill = color_stick_text, stroke_width = 3 if ow >= 3 else 2, stroke_fill = (0,0,0))
 
     if scaling != 1.0:
         resample_filter = common.get_resampler(config_id.get('scaling_option'))
@@ -105,28 +105,36 @@ def make_input_display(raw_input_text, config_id, font, recolored_images, w, ow)
 def add_input_display(image, frame_dict, config, font_folder, recolored_images, w, ow):
     state, state_counter = int(frame_dict['state']), int(frame_dict['state_counter'])
     stick_text_size = config['Input display'].getint('stick_text_size')
-    font = ImageFont.truetype(os.path.join(font_folder, 'CONSOLA.TTF'), stick_text_size)
+    font = ImageFont.truetype(os.path.join(font_folder, 'FOT-Rodin Pro EB.otf'), stick_text_size)
     input_display = make_input_display(frame_dict['input'], config['Input display'], font, recolored_images, w, ow)
     top_left_text = config['Input display'].get('top_left').split(',')
     top_left = round(float(top_left_text[0])*image.width), round(float(top_left_text[1])*image.height)
 
+
     if config['Input display'].getboolean('fade_animation'):
         input_display = common.fade_image_manually(input_display, frame_dict)
         
+
     if config['Input display'].getboolean('fly_animation'):
-        ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
+
+        if state == 1 and state_counter <= 10:
+            return None
+        
+        offset = common.fly_in(frame_dict, image.height)
+
+        if state == 4 and 192 < state_counter < 202:
+            image.alpha_composite(input_display, (round(top_left[0] - image.width*offset), top_left[1]))
+            return None
+
+        ITEM_POSITION = 381/1440
         INPUT_DISPLAY_POSITION = (1 - float(top_left_text[1]))
         height_correction =  round((INPUT_DISPLAY_POSITION - ITEM_POSITION)*image.height)
         
-        if state == 4 and state_counter >= 192 or state == 1 and state_counter <= 10:
-            return Image.new('RGBA', (image.width, image.height), (0, 0, 0, 0))
-        
-        y_offset = common.fly_in(frame_dict, image.height)
-        if y_offset is not None:
+        if offset is not None:
             if config['Input display'].get('fly_in_direction') == 'bottom':
-                image.alpha_composite(input_display, (top_left[0], image.height - height_correction - y_offset))
+                image.alpha_composite(input_display, (top_left[0], image.height - height_correction - offset))
             else: 
-                image.alpha_composite(input_display, (top_left[0], top_left[1] - round(ITEM_POSITION*image.height) + y_offset))
+                image.alpha_composite(input_display, (top_left[0], top_left[1] - round(ITEM_POSITION*image.height) + offset))
         else:
             image.alpha_composite(input_display, top_left)
     else:
