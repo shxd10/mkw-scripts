@@ -99,10 +99,13 @@ def fade_image_manually(image, frame_dict):
 
 def fly_in(frame_dict, height):
     state, state_counter = int(frame_dict['state']), int(frame_dict['state_counter'])
+
     if state == 1 and 10 < state_counter < 21:
         DISPLACEMENT_RATIOS = [0.0757, 0.1549, 0.225, 0.4333, 0.382, 0.3402, 0.308, 0.284, 0.269, 0.265]
         idx = state_counter - 11
         return round(DISPLACEMENT_RATIOS[idx]*height)
+    if state == 4 and 192 < state_counter < 202:
+        FLY_OUT_RATE = 1/10
+        idx = state_counter - 192
+        return FLY_OUT_RATE * idx
     return None
-    # OFFSETS = [109, 114, 101, 300, -74, -60, -46, -35, -21, -7]
-    # looks like 190f after state 4 it disappears

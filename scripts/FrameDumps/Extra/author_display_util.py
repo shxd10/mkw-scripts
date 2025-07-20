@@ -63,21 +63,30 @@ def add_author_display(image, frame_dict, config, main_folder, raw_author_list, 
 
     if ad_config.getboolean('fade_animation'):
         author_display_layer = common.fade_image_manually(author_display_layer, frame_dict)
-        
+
+    # TODO
+    # if you change the delay to 0f (encoder line 97&98) the anim starts 1f early
+    # once shad's GUI is done, this can be parameterized easily. It's hard to notice so I didn't bother.
+
     if ad_config.getboolean('fly_animation'):
-        ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
+        
+        if state == 1 and state_counter <= 10:
+            return None
+    
+        offset = common.fly_in(frame_dict, image.height)
+        if state == 4 and 192 < state_counter <= 201:
+            image.alpha_composite(author_display_layer,  (round(0 - image.width*offset), 0))
+            return None
+        
+        ITEM_POSITION = 381/1440
         AUTHOR_DISPLAY_POSITION = (1 - float(top_left_text[1]))
         height_correction =  round((AUTHOR_DISPLAY_POSITION - ITEM_POSITION)*image.height)
-        
-        if state == 4 and state_counter >= 192 or state == 1 and state_counter <= 10:
-            return Image.new('RGBA', (image.width, image.height), (0, 0, 0, 0))
-    
-        y_offset = common.fly_in(frame_dict, image.height)
-        if y_offset is not None:
+
+        if offset is not None:
             if ad_config.get('fly_in_direction') == 'bottom':
-                image.alpha_composite(author_display_layer, (0, image.height - top_left[1] - height_correction - y_offset))
+                image.alpha_composite(author_display_layer, (0, image.height - top_left[1] - height_correction - offset))
             else:
-                image.alpha_composite(author_display_layer, (0, y_offset - round(ITEM_POSITION*image.height)))
+                image.alpha_composite(author_display_layer, (0, offset - round(ITEM_POSITION*image.height)))
         else:
             image.alpha_composite(author_display_layer, (0,0))
     else:

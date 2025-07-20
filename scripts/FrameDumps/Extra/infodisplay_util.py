@@ -143,7 +143,7 @@ def add_infodisplay(image, id_dict, id_config, font_folder, mkw_font_dict):
         else: 
             val = (float(id_dict['iv_x']) ** 2 + float(id_dict['iv_y']) ** 2 + float(id_dict['iv_z']) ** 2)**0.5
         value_text = f'{val:.2f}'
-        add_mkw_font_line(infodisplay_layer, None, value_text.upper(), custom_color, mkw_font_dict[0.2375], (round(0.933*image.width), round(0.86*image.height)), 0.2375, 'right', False)
+        add_mkw_font_line(infodisplay_layer, None, value_text.upper(), custom_color, mkw_font_dict[0.2375], (round(0.932*image.width), round(0.862*image.height)), 0.2375, 'right', False)
 
 
     if id_config.getboolean('enable_custom_text'):
@@ -188,23 +188,31 @@ def add_infodisplay(image, id_dict, id_config, font_folder, mkw_font_dict):
                 ID.text( (top_left[0]+offset, current_h), text, fill = color, font = font, stroke_width = outline_width, stroke_fill = outline_color)
                 current_h += spacing + font_size
                 
+
     if id_config.getboolean('fade_animation'):
         infodisplay_layer = common.fade_image_manually(infodisplay_layer, id_dict)
     
+    
     if id_config.getboolean('fly_animation'):
-        ITEM_POSITION = 381/1440    # the box where you see the item, idk how else to call it. Its what I used to measure the fly in animations. the distance to the top was this ratio
+
+        if state == 1 and state_counter <= 10:
+            return None
+        
+        offset = common.fly_in(id_dict, image.height)
+        
+        if state == 4 and 192 < state_counter < 202:
+            image.alpha_composite(infodisplay_layer, (round(0 - image.width*offset), 0))
+            return None
+        
+        ITEM_POSITION = 381/1440
         INFODISPLAY_POSITION = (1 - float(top_left_text[1]))
         height_correction =  round((INFODISPLAY_POSITION - ITEM_POSITION)*image.height)
-        
-        if state == 4 and state_counter >= 192 or state == 1 and state_counter <= 10:
-            return Image.new('RGBA', (image.width, image.height), (0, 0, 0, 0))
     
-        y_offset = common.fly_in(id_dict, image.height)
-        if y_offset is not None:
+        if offset is not None:
             if id_config.get('fly_in_direction') == 'bottom':
-                image.alpha_composite(infodisplay_layer, (0, image.height - top_left[1] - height_correction - y_offset))
+                image.alpha_composite(infodisplay_layer, (0, image.height - top_left[1] - height_correction - offset))
             else:
-                image.alpha_composite(infodisplay_layer, (0, y_offset - round(ITEM_POSITION*image.height)))
+                image.alpha_composite(infodisplay_layer, (0, offset - round(ITEM_POSITION*image.height)))
         else:
             image.alpha_composite(infodisplay_layer, (0,0))
     else:
