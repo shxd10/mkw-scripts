@@ -105,7 +105,7 @@ def make_input_display(raw_input_text, config_id, font, recolored_images, w, ow)
 def add_input_display(image, frame_dict, config, font_folder, recolored_images, w, ow):
     state, state_counter = int(frame_dict['state']), int(frame_dict['state_counter'])
     stick_text_size = config['Input display'].getint('stick_text_size')
-    font = ImageFont.truetype(os.path.join(font_folder, 'FOT-Rodin Pro EB.otf'), stick_text_size)
+    font = ImageFont.truetype(os.path.join(font_folder, 'CONSOLA.TTF'), stick_text_size)
     input_display = make_input_display(frame_dict['input'], config['Input display'], font, recolored_images, w, ow)
     top_left_text = config['Input display'].get('top_left').split(',')
     top_left = round(float(top_left_text[0])*image.width), round(float(top_left_text[1])*image.height)
