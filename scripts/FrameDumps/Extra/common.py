@@ -81,17 +81,53 @@ def get_resampler(resample_filter):
     else:
         return Image.Resampling.LANCZOS
 
-def fade_image_manually(image, frame_dict):
-    fade_in_len = 20
-    fade_out_len = 120
+
+def is_layer_active(frame_dict, config):
+    #Return a boolean if the layer should be visible on screen    
+    fade_in_len = config.getint('fade_in_duration', 20)
+    fade_out_len = config.getint('fade_out_duration', 120)
+    start = config.getint('start_frame', 0)
+    try:
+        end = config.getint('end_frame')
+    except:
+        end = None
     state, state_counter = int(frame_dict['state']), int(frame_dict['state_counter'])
-    if state == 1:
-        alpha = min(state_counter/fade_in_len, 1)
+    curframe = int(frame_dict['frame_of_input'])
+
+    if state < 1 or curframe <= start:
+        return False
+    if end and curframe >= end + fade_out_len:
+        return False
+    if end is None and state >= 4 and state_counter >= fade_out_len:
+        return False
+    return True
+
+def fade_image_manually(image, frame_dict, config):
+    fade_in_len = max(1,config.getint('fade_in_duration', 20))
+    fade_out_len = max(1,config.getint('fade_out_duration', 120))
+    start = config.getint('start_frame', 0)
+    try:
+        end = config.getint('end_frame')
+    except:
+        end = None
+    state, state_counter = int(frame_dict['state']), int(frame_dict['state_counter'])
+    curframe = int(frame_dict['frame_of_input'])
+
+    if state >= 1 and start <= curframe < fade_in_len + start :
+        #fade in
+        alpha = (curframe - start)/fade_in_len
         r,g,b,a = image.split()
         a = a.point(lambda x:x*alpha)
         image = Image.merge("RGBA", (r,g,b,a))
-    elif state == 4:
-        alpha = 1 - min(state_counter/fade_out_len, 1)
+    if end is None and state >= 4 and state_counter < fade_out_len:
+        #fade out on stage 4
+        alpha = 1 - state_counter/fade_out_len
+        r,g,b,a = image.split()
+        a = a.point(lambda x:x*alpha)
+        image = Image.merge("RGBA", (r,g,b,a))
+    if end and end < curframe <= fade_out_len + end :
+        #fade out on frame > end 
+        alpha = 1 - (curframe - end)/fade_out_len
         r,g,b,a = image.split()
         a = a.point(lambda x:x*alpha)
         image = Image.merge("RGBA", (r,g,b,a))

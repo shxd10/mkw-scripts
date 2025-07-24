@@ -190,7 +190,7 @@ def add_infodisplay(image, id_dict, id_config, font_folder, mkw_font_dict):
                 
 
     if id_config.getboolean('fade_animation'):
-        infodisplay_layer = common.fade_image_manually(infodisplay_layer, id_dict)
+        infodisplay_layer = common.fade_image_manually(infodisplay_layer, id_dict, id_config)
     
     
     if id_config.getboolean('fly_animation'):

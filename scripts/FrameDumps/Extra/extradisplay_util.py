@@ -82,7 +82,7 @@ def add_extradisplay(image, extra_text, ex_config, font_folder, mkw_font_dict):
         font = None
     outline_width = ex_config.getint('outline_width')
     outline_color = common.get_color(ex_config.get('outline_color'))
-    color = common.get_color(ex_config.get('color'))
+    color = common.get_color(ex_config.get('color', 'FFFF00FF'))
     
     for text in extra_text.split('\n'):
         if font is None:                

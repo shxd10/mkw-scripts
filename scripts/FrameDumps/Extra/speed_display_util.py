@@ -126,7 +126,7 @@ def add_speed_display(im, d, config):
 
 
     if c.getboolean('fade_animation'):
-        speed_display_image = common.fade_image_manually(speed_display_image, d)
+        speed_display_image = common.fade_image_manually(speed_display_image, d, c)
         
         
     if c.getboolean('fly_animation'):

@@ -84,8 +84,16 @@ def create_config(filename):
     config.set('Infodisplay', 'mkw_font_scaling', '3')#
     config.set('Infodisplay', '\n#vertical spacing in pixel between lines')
     config.set('Infodisplay', 'spacing', '4')#
+    config.set('Infodisplay', '\n#frame OF INPUT this section will appear on')
+    config.set('Infodisplay', 'start_frame', '0')#
+    config.set('Infodisplay', '\n#frame OF INPUT this section will disappear on. Leave empty for race end')
+    config.set('Infodisplay', 'end_frame', '' )#
     config.set('Infodisplay', '\n#put a fade in and fade out animation to the infodisplay')
     config.set('Infodisplay', 'fade_animation', 'True')#
+    config.set('Infodisplay', '\n#duration of the fade in animation in the infodisplay')
+    config.set('Infodisplay', 'fade_in_duration', '20')#
+    config.set('Infodisplay', '\n#duration of the fade out animation in the infodisplay')
+    config.set('Infodisplay', 'fade_out_duration', '120')#
     config.set('Infodisplay', '\n#put a fly in and fly out animation to the infodisplay')
     config.set('Infodisplay', 'fly_animation', 'False')#
     config.set('Infodisplay', '\n#Choose to have the Info Display fly in from the top or bottom. (when fly_animation is enabled)')
@@ -164,8 +172,16 @@ def create_config(filename):
     config.add_section('Speed display')
     config.set('Speed display', '\n#draw the speed display')
     config.set('Speed display', 'show_speed_display', 'True')
-    config.set('Speed display', '\n#put a fade in and fade out animation to the speed display')
+    config.set('Speed display', '\n#frame OF INPUT this section will appear on')
+    config.set('Speed display', 'start_frame', '0')#
+    config.set('Speed display', '\n#frame OF INPUT this section will disappear on. Leave empty for race end')
+    config.set('Speed display', 'end_frame', '')#
+    config.set('Speed display', '\n#put a fade in and fade out animation to the Speed display')
     config.set('Speed display', 'fade_animation', 'True')#
+    config.set('Speed display', '\n#duration of the fade in animation in the Speed display')
+    config.set('Speed display', 'fade_in_duration', '20')#
+    config.set('Speed display', '\n#duration of the fade out animation in the Speed display')
+    config.set('Speed display', 'fade_out_duration', '120')#
     config.set('Speed display', '\n#put a fly in and fly out animation to the speed display')
     config.set('Speed display', 'fly_animation', 'False')#
     config.set('Speed display', '\n#Choose to have the Speed Display fly in from the top or bottom. (when fly_animation is enabled)')
@@ -215,8 +231,16 @@ def create_config(filename):
     config.add_section('Input display')
     config.set('Input display', '\n#draw the input display')
     config.set('Input display', 'show_input_display', 'True')
-    config.set('Input display', '\n#put a fade in and fade out animation to the input display')
+    config.set('Input display', '\n#frame OF INPUT this section will appear on')
+    config.set('Input display', 'start_frame', '0')#
+    config.set('Input display', '\n#frame OF INPUT this section will disappear on. Leave empty for race end')
+    config.set('Input display', 'end_frame', '')#
+    config.set('Input display', '\n#put a fade in and fade out animation to the Input display')
     config.set('Input display', 'fade_animation', 'True')#
+    config.set('Input display', '\n#duration of the fade in animation in the Input display')
+    config.set('Input display', 'fade_in_duration', '20')#
+    config.set('Input display', '\n#duration of the fade out animation in the Input display')
+    config.set('Input display', 'fade_out_duration', '120')#
     config.set('Input display', '\n#put a fly in and fly out animation to the input display')
     config.set('Input display', 'fly_animation', 'False')#
     config.set('Input display', '\n#Choose to have the Input Display fly in from the top or bottom. (when fly_animation is enabled)')
@@ -253,8 +277,16 @@ def create_config(filename):
     config.add_section('Author display')
     config.set('Author display', '\n#draw the author display')
     config.set('Author display', 'show_author_display', 'False')
-    config.set('Author display', '\n#put a fade in and fade out animation to the author display')
+    config.set('Author display', '\n#frame OF INPUT this section will appear on')
+    config.set('Author display', 'start_frame', '0')#
+    config.set('Author display', '\n#frame OF INPUT this section will disappear on. Leave empty for race end')
+    config.set('Author display', 'end_frame', '')#
+    config.set('Author display', '\n#put a fade in and fade out animation to the Author display')
     config.set('Author display', 'fade_animation', 'True')#
+    config.set('Author display', '\n#duration of the fade in animation in the Author display')
+    config.set('Author display', 'fade_in_duration', '20')#
+    config.set('Author display', '\n#duration of the fade out animation in the Author display')
+    config.set('Author display', 'fade_out_duration', '120')#
     config.set('Author display', '\n#put a fly in and fly out animation to the author display')
     config.set('Author display', 'fly_animation', 'False')#
     config.set('Author display', '\n#Choose to have the Author Display fly in from the top or bottom. (when fly_animation is enabled)')

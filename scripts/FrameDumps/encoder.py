@@ -100,20 +100,24 @@ def transform_image(image, i=-1):
             if len(t)>1:
                 frame_dict = make_dict(t)
 
-                if config['Input display'].getboolean('show_input_display'):
+                if config['Input display'].getboolean('show_input_display') and common.is_layer_active(frame_dict, config['Input display']) :
                     input_display_util.add_input_display(image, frame_dict, config, font_folder, recolored_images, w, ow)
-                if config['Speed display'].getboolean('show_speed_display'):
+                if config['Speed display'].getboolean('show_speed_display') and common.is_layer_active(frame_dict, config['Speed display']) :
                     speed_display_util.add_speed_display(image, frame_dict, config)
-                if config['Author display'].getboolean('show_author_display'):
+                if config['Author display'].getboolean('show_author_display') and common.is_layer_active(frame_dict, config['Author display']) :
                     author_display_util.add_author_display(image, frame_dict, config, current_folder, raw_author_list, author_dict)
                 for infodisplay_name in infodisplay_layers:
-                    infodisplay_util.add_infodisplay(image, frame_dict, config[infodisplay_name], font_folder, scaled_fonts_dict)
+                    if common.is_layer_active(frame_dict, config[infodisplay_name]):
+                        infodisplay_util.add_infodisplay(image, frame_dict, config[infodisplay_name], font_folder, scaled_fonts_dict)
 
-    if os.path.isfile(os.path.join(extra_display_folder, 'RAM_data', f'{i}.rawtxt')):
-        with open(os.path.join(extra_display_folder, 'RAM_data', f'{i}.rawtxt'), 'r') as f:
-            text = f.read()                
-            if config['Extra display'].getboolean('show_extradisplay'):
-                extradisplay_util.add_extradisplay(image, text, config['Extra display'], font_folder, MKW_FONT_IMG)
+    for section in extra_display_layers:
+        if config[section].getboolean('show_extra_display'):
+            file_ext = config[section].get("file_extension")
+            filename = f'{i}.{file_ext}'
+            if os.path.isfile(os.path.join(extra_display_folder, 'RAM_data', filename)):
+                with open(os.path.join(extra_display_folder, 'RAM_data', filename), 'r') as f:
+                    text = f.read()                
+                    extradisplay_util.add_extradisplay(image, text, config[section], font_folder, MKW_FONT_IMG)
 
     filters = common.get_filter_list(config['Encoding options'].get('special_effects'))
     for filtre in filters:
@@ -209,7 +213,13 @@ def main():
             if config[section].getboolean("show_infodisplay"):
                 infodisplay_layers.append(section)
 
-
+    global extra_display_layers
+    extra_display_layers = []
+    for section in config.sections():
+        if len(section) >= len('Extra display') and section[:len('Extra display')] == 'Extra display':
+            if config[section].getboolean("show_extra_display"):
+                extra_display_layers.append(section)
+    
     i = 1
     scaling_set = []
     scaling_set.append(0.2375) # 2.85 / 12, this is for the pretty speedometer.

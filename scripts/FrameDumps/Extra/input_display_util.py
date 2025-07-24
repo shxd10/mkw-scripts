@@ -112,7 +112,7 @@ def add_input_display(image, frame_dict, config, font_folder, recolored_images, 
 
 
     if config['Input display'].getboolean('fade_animation'):
-        input_display = common.fade_image_manually(input_display, frame_dict)
+        input_display = common.fade_image_manually(input_display, frame_dict, config['Input display'])
         
 
     if config['Input display'].getboolean('fly_animation'):

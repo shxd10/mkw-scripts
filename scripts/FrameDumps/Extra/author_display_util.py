@@ -62,7 +62,7 @@ def add_author_display(image, frame_dict, config, main_folder, raw_author_list, 
 
 
     if ad_config.getboolean('fade_animation'):
-        author_display_layer = common.fade_image_manually(author_display_layer, frame_dict)
+        author_display_layer = common.fade_image_manually(author_display_layer, frame_dict, ad_config)
 
     # TODO
     # if you change the delay to 0f (encoder line 97&98) the anim starts 1f early
