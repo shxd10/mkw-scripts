@@ -129,6 +129,19 @@ BUTTON_LAYOUT = [
 ]
 
 def main():
+    # If a button function is executed immediately while emulation is not paused, it can cause
+    # pycore to freeze. To avoid this, button events are stored in this queue. If emulation
+    # is not paused, the event will be processed in `on_frame_advance` which won't freeze. If
+    # emulation is paused, the event will be processed in `on_timertick`.
+    global button_queue
+    button_queue = []
+    
+    global prev_track
+    prev_track = course_slot_abbreviation()
+
+    global g_activate_ghost_hard
+    g_activate_ghost_hard = False
+    
     global shm_activate, shm_player_csv, shm_ghost_csv
     shm_activate = ex.SharedMemoryBlock.create(name="ttk_gui_activate", buffer_size=3)
     shm_player_csv = ex.SharedMemoryWriter(name="ttk_gui_player_csv", buffer_size=256)
@@ -148,19 +161,6 @@ def main():
     global shm_close
     shm_close = ex.SharedMemoryBlock.connect(name="ttk_gui_window_closed")
 
-    global g_activate_ghost_hard
-    g_activate_ghost_hard = False
-
-    # If a button function is executed immediately while emulation is not paused, it can cause
-    # pycore to freeze. To avoid this, button events are stored in this queue. If emulation
-    # is not paused, the event will be processed in `on_frame_advance` which won't freeze. If
-    # emulation is paused, the event will be processed in `on_timertick`.
-    global button_queue
-    button_queue = []
-
-    global prev_track
-    prev_track = course_slot_abbreviation()
-
     window_script_path = os.path.join(utils.get_script_dir(), "external", "ttk_gui_window.py")
     ex.start_external_script(window_script_path)
 
@@ -171,9 +171,12 @@ def main():
 # either `on_timertick` when the game is paused
 # or `on_frameadvance` when the game isn't paused
 def listen_for_buttons():
-
     # If window sent a button event, add it to queue
-    button_event = shm_buttons.read()[:4]
+    if 'shm_buttons' in globals():
+        button_event = shm_buttons.read()[:4]
+    else:
+        button_event = [False]*4
+        
     if button_event[0]:
         button_queue.append(button_event)
         shm_buttons.clear()
@@ -181,10 +184,11 @@ def listen_for_buttons():
     if button_queue:
         execute_button_function()
 
-    close_event = shm_close.read_text()
-    if close_event == "1":
-        utils.cancel_script(utils.get_script_name())
-        shm_close.write_text('0')
+    if 'shm_close' in globals():    
+        close_event = shm_close.read_text()
+        if close_event == "1":
+            utils.cancel_script(utils.get_script_name())
+            shm_close.write_text('0')
 
 # Helper that pops the oldest button event in the queue and executes it
 def execute_button_function():
@@ -273,5 +277,4 @@ def on_frame_begin():
         ttk_lib.write_inputs_to_current_ghost_rkg(ghost_inputs)
 
 
-if __name__ == '__main__':
-    main()
+main()
