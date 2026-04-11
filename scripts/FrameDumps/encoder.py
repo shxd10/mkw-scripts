@@ -220,13 +220,12 @@ def main():
             if config[section].getboolean("show_extra_display"):
                 extra_display_layers.append(section)
     
-    i = 1
     scaling_set = []
-    scaling_set.append(0.2375) # 2.85 / 12, this is for the pretty speedometer.
-    while f'custom_text_{i}' in config['Infodisplay']:
-        scaling_set.append(eval(config['Infodisplay'].get(f'custom_text_scaling_{i}'))/12)
-        i += 1
     for id_name in infodisplay_layers:
+        i = 1
+        while f'custom_text_{i}' in config[id_name]:
+            scaling_set.append(eval(config[id_name].get(f'custom_text_scaling_{i}'))/12)
+            i += 1
         scaling_set.append(eval(config[id_name].get('mkw_font_scaling'))/12)
 
     global scaled_fonts_dict

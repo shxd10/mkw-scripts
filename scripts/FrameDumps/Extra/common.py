@@ -84,7 +84,6 @@ def get_resampler(resample_filter):
 
 def is_layer_active(frame_dict, config):
     #Return a boolean if the layer should be visible on screen    
-    fade_in_len = config.getint('fade_in_duration', 20)
     fade_out_len = config.getint('fade_out_duration', 120)
     start = config.getint('start_frame', 0)
     try:
@@ -93,12 +92,13 @@ def is_layer_active(frame_dict, config):
         end = None
     state, state_counter = int(frame_dict['state']), int(frame_dict['state_counter'])
     curframe = int(frame_dict['frame_of_input'])
+    using_fly_in = config.getboolean('fly_animation')
 
     if state < 1 or curframe <= start:
         return False
     if end and curframe >= end + fade_out_len:
         return False
-    if end is None and state >= 4 and state_counter >= fade_out_len:
+    if end is None and state >= 4 and state_counter >= fade_out_len and not using_fly_in:
         return False
     return True
 

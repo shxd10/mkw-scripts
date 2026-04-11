@@ -3,7 +3,7 @@ from Modules import mkw_utils as mkw_utils
 from Modules.agc_lib import AGCMetaData
 from Modules.framesequence import Frame
 from external import external_utils as ex
-from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, KartObjectManager, VehiclePhysics, vec3
+from Modules.mkw_classes import RaceManager, RaceManagerPlayer, RaceState, KartObjectManager, KartObject, KartMove, VehiclePhysics, vec3
 
 from pathlib import Path
 import os
@@ -64,6 +64,8 @@ def scriptend(id_):
             ex.start_external_script(ex_script_path, False, False)
 
 def frame_text():
+    kart_object = KartObject()
+    kart_move = KartMove(addr=kart_object.kart_move())
     text = ''
     text += f'frame_of_input:{mkw_utils.frame_of_input()}\n'
     text += f'yaw:{mkw_utils.get_facing_angle(0).yaw}\n'
@@ -73,6 +75,7 @@ def frame_text():
     text += f'iv_x:{VehiclePhysics.internal_velocity(0).x}\n'
     text += f'iv_y:{VehiclePhysics.internal_velocity(0).y}\n'
     text += f'iv_z:{VehiclePhysics.internal_velocity(0).z}\n'
+    text += f'iv:{kart_move.speed()}\n'
     text += f'ev_x:{VehiclePhysics.external_velocity(0).x}\n'
     text += f'ev_y:{VehiclePhysics.external_velocity(0).y}\n'
     text += f'ev_z:{VehiclePhysics.external_velocity(0).z}\n'

@@ -108,10 +108,6 @@ def create_config(filename):
     config.set('Infodisplay', 'outline_width', '3')#
     config.set('Infodisplay', '\n#color of the outline of the font')
     config.set('Infodisplay', 'outline_color', '000000FF')#
-    
-    config.set('Infodisplay', '\n#reimplements pretty speedometer using fade/fly in animations. set it to "xyz", "xz","iv"; or "off" to disable it.')
-    config.set('Infodisplay', 'pretty_speedometer_type', 'off')#Might be deleted later, since we can have several infodisplay, which gives more options
-    config.set('Infodisplay', 'pretty_speedometer_color', 'F2E622FF')#
 
     config.set('Infodisplay', '\n#parameters for the XYZ speed (delta position)')
     config.set('Infodisplay', 'show_speed_xyz', 'True')
@@ -128,8 +124,13 @@ def create_config(filename):
     config.set('Infodisplay', 'text_speed_y', '. Speed Y')
     config.set('Infodisplay', 'color_speed_y', 'FF0000FF')
 
+    config.set('Infodisplay', '\n#parameters for the internal velocity')
+    config.set('Infodisplay', 'show_iv', 'True')
+    config.set('Infodisplay', 'text_iv', '. IV')
+    config.set('Infodisplay', 'color_iv', '00FF00FF')
+
     config.set('Infodisplay', '\n#parameters for the XYZ internal velocity')
-    config.set('Infodisplay', 'show_iv_xyz', 'True')
+    config.set('Infodisplay', 'show_iv_xyz', 'False')
     config.set('Infodisplay', 'text_iv_xyz', '. IV')
     config.set('Infodisplay', 'color_iv_xyz', '00FF00FF')
 
