@@ -1,0 +1,28 @@
+.include "__includes.s"
+.set INJECTADDR, 0xNone
+
+.set INJECTADDR, 0xNone
+.loc_0x0:
+li        r3, 0x1
+cmpwi     r31, 0
+bge-      .loc_0x10
+li        r3, -0x1
+.loc_0x10:
+mullw     r4, r31, r3
+cmpw      r0, r4
+bge-      .loc_0x20
+mullw     r31, r3, r0
+.loc_0x20:
+li        r3, 0x1
+cmpwi     r30, 0
+bge-      .loc_0x30
+li        r3, -0x1
+.loc_0x30:
+mullw     r4, r30, r3
+cmpw      r0, r4
+bge-      .loc_0x40
+mullw     r30, r3, r0
+.loc_0x40:
+b         0x1C
+.long     0x00000000
+.long     0x0451c9c4
