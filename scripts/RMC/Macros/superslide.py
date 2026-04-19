@@ -9,7 +9,8 @@ from Modules.macro_utils import MKWiiGCController
 
 @event.on_frameadvance
 def on_frame_advance():
-    if mkw.RaceManager().state() != mkw.RaceState.RACE:
+    state = mkw.RaceManager().state()
+    if state != mkw.RaceState.COUNTDOWN and state != mkw.RaceState.RACE:
         return
     if not mkw.KartSettings.is_bike():
         return
