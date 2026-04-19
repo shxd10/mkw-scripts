@@ -59,6 +59,12 @@ def create_infodisplay(player_idx: int = 0):
     is_bike = mkw.KartSettings.is_bike(player_idx)
     surface_properties = kart_collide.surface_properties().value
 
+    kart_input = mkw.KartInput(addr=race_mgr_player.kart_input())
+    current_input_state = mkw.RaceInputState(addr=kart_input.current_input_state())
+
+    stick_x = current_input_state.raw_stick_x() - 7
+    stick_y = current_input_state.raw_stick_y() - 7
+
     # Create infodisplay text
     text = (
 
@@ -101,7 +107,25 @@ Airtime: {kart_move.airtime()}
 Wallhug: {(surface_properties & mkw.SurfaceProperties.WALL) > 0}
 Barrel Roll: {kart_state.bitfield(field_idx=3) & 0x10 > 0}
 
+HWG Timer: {kart_state.hwg_timer()}
+Glitchy corner: {round_(kart_collide.glitchy_corner())}
+
+Cooldowns
+  Wheelie: {kart_move.wheelie_cooldown()} | Trick: {kart_jump.cooldown()}
+
+Offroad: {(surface_properties & mkw.SurfaceProperties.OFFROAD) > 0}
+OOB Timer: {kart_collide.solid_oob_timer()}
+
+  Forward:  {round_str(v.forward(facing_angle.yaw))}
+  Sideways: {round_str(v.sideway(facing_angle.yaw))}
+
+Boost Panel: {kart_boost.mushroom_and_boost_panel_timer() - kart_move.mushroom_timer()}
+
+Airtime: {(kart_move.airtime() + 1) if (surface_properties & 0x1000) == 0 else 0}
+
 Surface properties: {surface_properties}
+
+X: {stick_x} | Y: {stick_y}
 """)
 
     #? Other infodisplay sections that can be copy/pasted in if needed

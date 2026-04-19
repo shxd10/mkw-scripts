@@ -1,6 +1,5 @@
 from typing import TypedDict
 
-
 class GCInputs(TypedDict, total=False):
     Left: bool
     Right: bool

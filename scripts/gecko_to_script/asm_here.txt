@@ -1,0 +1,24 @@
+lbz r15, 0x18 (r31)
+lbz r14, 0x4d (r31) #buttons
+addic. r14, r14, -0x80
+blt donotttk
+stb r14, 0x4d (r31)
+sth r14, 0x8 (r31)
+    
+addi r3, r31, 0x4
+lbz r4, 0x4e (r31)
+bl InputState_setStickXMirrored
+addi r3, r31, 0x4
+lbz r4, 0x4f (r31)
+bl InputState_setStickY
+addi r3, r31, 0x4
+lbz r4, 0x52 (r31)
+bl RaceInputState_setTrick
+donotttk:
+rlwinm. r15, r15, 0x19, 0x1f, 0x1f
+bne dontignoreeverything
+    
+addi r3, r31, 0x8
+addi r4, r1, 0xc
+li r5, 0x10
+bl NETMemCpy

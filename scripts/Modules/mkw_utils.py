@@ -2,7 +2,7 @@ from dolphin import memory, utils, event
 from collections import deque
 
 from .mkw_classes import mat34, quatf, vec3, ExactTimer, eulerAngle
-from .mkw_classes import VehicleDynamics, VehiclePhysics, RaceManagerPlayer, KartObjectManager, RaceManager, RaceState
+from .mkw_classes import VehicleDynamics, VehiclePhysics, RaceManagerPlayer, KartObjectManager, RaceManager, RaceState, KartObject, KartState, KartInput
 
 import math
 
@@ -498,4 +498,31 @@ def add_angular_ev(player_id = 0, angle = 90, magnitude = 100, y = 0):
     ev = vec3(x,y,z)
     ev.write(addr + 0x74)
 
-        
+def get_bitfield(field_idx=0):
+    kart_object = KartObject()
+    kart_state = KartState(addr=kart_object.kart_state())
+    return kart_state.bitfield(field_idx)
+
+def get_boost_flag():
+    bitfield0 = get_bitfield(field_idx=0)
+    return (bitfield0 & 0x100000) >> 20
+
+def get_offroad_immunity_flag():
+    bitfield1 = get_bitfield(field_idx=1)
+    return (bitfield1 & 0x80) >> 7
+
+def get_current_input_state():
+    race_manager = RaceManager()
+    race_manager_player = RaceManagerPlayer(addr=race_manager.race_manager_player())
+    kart_input = KartInput(addr=race_manager_player.kart_input())
+    input_state_addr = kart_input.current_input_state()
+    buttons = memory.read_u16(input_state_addr + 0x4)
+    a_button = buttons & 1
+    b_button = buttons & 2
+    l_button = buttons & 4
+    pab_button = buttons & 8
+    bd_button = buttons & 16
+    stick_x = memory.read_u8(input_state_addr + 0x10)
+    stick_y = memory.read_u8(input_state_addr + 0x11)
+    trick = memory.read_u8(input_state_addr + 0x12)
+    return [a_button, b_button/2, l_button/4, stick_x, stick_y, trick, pab_button/8, bd_button/16]

@@ -222,13 +222,16 @@ def create_infodisplay(c, RaceComp_History, Angle_History):
         oob_timer = kart_collide.solid_oob_timer()
         respawn_timer = kart_collide.time_before_respawn()
         offroad_inv = kart_move.offroad_invincibility()
+        lean_rot = kart_move.lean_rot()
+        lean_rot_increase = kart_move.lean_rot_increase()
+        lean_rot_cap = kart_move.lean_rot_cap()
         if kart_move.is_bike:
             text += f"Wheelie Length: {kart_move.wheelie_frames()}\n"
             text += f"Wheelie CD: {kart_move.wheelie_cooldown()} | "
         text += f"Trick CD: {trick_cd}\n"
         text += f"HWG: {hwg_timer} | GCF: {gcf:.{c.digits}f}\n"
         text += f"Respawn: {respawn_timer} | OOB: {oob_timer}\n"
-        text += f"Offroad: {offroad_inv}\n\n"
+        text += f"Offroad: {offroad_inv} | Neutral Gliding: {abs(lean_rot) + lean_rot_increase > lean_rot_cap}\n\n"
 
     if c.surfaces:
         surface_properties = kart_collide.surface_properties()

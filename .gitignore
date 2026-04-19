@@ -23,3 +23,5 @@ scripts/RMC/test codecallbacl.py
 
 /scripts/Input_optimizer
 scripts/RMC/test tp lap.py
+/scripts/gecko_to_script
+/scripts/geckoscript_TEST
